@@ -12,6 +12,9 @@
 .globl gdt_ptr
 .globl idt_desc_ptr, idt
 
+.globl gdt_size, idt_ptr
+
+
 .align 4
 
 
@@ -22,9 +25,10 @@ ldt_size:
     .long ldt_bottom - ldt - 1
 
     .word 0 # Padding
+//specifies the bit distribution of the ldt reg 
 ldt_desc:
-    .word KERNEL_LDT
-    .long ldt
+    .word KERNEL_LDT //segment selector 
+    .long ldt       //base address
 
     .align 4
 tss:
@@ -35,6 +39,19 @@ _tss:
 tss_bottom:
 
     .align  16
+///////////////////////////////////////Putting size for GDT in /////////////
+gdt_size:
+    .long gdt_bottom - gdt - 1 //gdt bottom will be gdt_bottom gdt + limit
+
+
+gdt_desc:
+.word 0 //padding 
+.long gdt_size //size
+.word gdt //address
+
+
+
+
 gdt:
 _gdt:
 
@@ -86,8 +103,8 @@ gdt_bottom:
 
     .align 16
 ldt:
-    .rept 4
-    .quad 0
+    .rept 4//repeat 4 times 
+    .quad 0//load 64 bits w 0 - 4 times = 256 bits 
     .endr
 ldt_bottom:
 
@@ -101,8 +118,15 @@ idt_desc_ptr:
     .align  16
 idt:
 _idt:
-    .rept NUM_VEC
+    .rept NUM_VEC //256->entres in idt 
     .quad 0
     .endr
+
+idt_ptr:
+    
+    //system calls @ entry 0x80(128)
+    
+
+
 
 idt_bottom:

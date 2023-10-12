@@ -27,9 +27,7 @@ _start:
 
 continue:
 # Load the GDT
-    MOVQ $0, %GDTR           # Load 0 into initial GDTR
-    MOVW $0xFFFF, %GDTR      # Load 0xFFFF into the lower 16 bits of rax
-               
+LGDT gdt_desc 
 
                                                         
 
