@@ -46,8 +46,8 @@ gdt_size:
 
 gdt_desc:
 .word 0 //padding 
-.long gdt_size //size
-.word gdt //address
+.word gdt_size //size
+.long gdt //address
 
 
 
@@ -113,20 +113,12 @@ ldt_bottom:
 idt_desc_ptr:
     .word idt_bottom - idt - 1
     .long idt
-
-
     .align  16
 idt:
 _idt:
     .rept NUM_VEC //256->entres in idt 
     .quad 0
     .endr
-
-idt_ptr:
-    
-    //system calls @ entry 0x80(128)
-    
-
 
 
 idt_bottom:
