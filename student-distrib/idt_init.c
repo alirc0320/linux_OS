@@ -29,9 +29,11 @@ idt_init_array[19] = &control_protection_exception_handler;
 idt_init_array[20] = &hypervisor_exception_handler;
 idt_init_array[21] = &vmm_communication_exception_handler;
 idt_init_array[22] = &security_exception_handler;
-idt_init_array[23] = &rtc_interrupt;
-idt_init_array[24] = &keyboard_interrupt;
-idt_init_array[25] = &pic_interrupt;
+
+//I think the interrupts should be from 32-34 bc the interrupts start at 0x20 in IDT
+idt_init_array[32] = &rtc_interrupt;
+idt_init_array[33] = &keyboard_interrupt;
+idt_init_array[34] = &pic_interrupt;
 idt_init_array[128] = &system_call;
 
 
@@ -57,7 +59,10 @@ for(int i = 0; i<23; i++){
 
 
 //INTERRUPTS//
-    for (int i = 23; i< 26; i++){
+
+//changed this to 32 because interrupts start at 0x20 which is 32
+//skip entries from 23 to 32
+    for (int i = 32; i< 35; i++){
     idt_desc_t idt_interrupt_init;  
     idt_interrupt_init.__attribute__.offset_15_00 = i*8;
     idt_interrupt_init.__attribute__.seg_selector = KERNEL_CS ;

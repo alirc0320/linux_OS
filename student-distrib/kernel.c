@@ -8,6 +8,7 @@
 #include "i8259.h"
 #include "debug.h"
 #include "tests.h"
+#include "Device_init.h"
 
 #define RUN_TESTS
 
@@ -135,6 +136,10 @@ void entry(unsigned long magic, unsigned long addr) {
         tss.esp0 = 0x800000;
         ltr(KERNEL_TSS);
     }
+    //Mask all interrupts to start
+    for (int i = 0; i< 15; i++){
+        disable_irq(i);
+    }
 
     /* Init the PIC */
     i8259_init();
@@ -142,10 +147,29 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
 
+     //functions written in Device_init.c
+    init_RTC(); 
+    init_keyboard(); 
+    
+    
+
     /* Enable interrupts */
+    //     idt_init_array[32] = &rtc_interrupt;
+    // idt_init_array[33] = &keyboard_interrupt;
+    // idt_init_array[34] = &pic_interrupt;
+
+    
+    enable_irq(0);//enable rtc
+    enable_irq(1); //enable keyboard
+    enable_irq(2);//enable secondary PIC? 
+
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
      * without showing you any output */
+
+     // I think well have to uncomment this at some point
+
+
     /*printf("Enabling Interrupts\n");
     sti();*/
 
