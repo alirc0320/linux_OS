@@ -38,40 +38,40 @@ idt_init_array[128] = &system_call;
 //EXCEPTIONS//
 for(int i = 0; i<23; i++){
     idt_desc_t idt_init;  
-    idt_init.offset_15_00 = i*8;       //we think its thid bc diff offset evry 8 bytes
-    idt_init.seg_selector = KERNEL_CS ;
-    idt_init.reserved4 = 0; //I think this is always set to zero its the 8 bits on the end
-    idt_init.reserved3 = 1;//reserved 3-1 choose if interrupt or trap, size tells if 32 or 16
-    idt_init.reserved2 = 1;
-    idt_init.reserved1 = 1;
-    idt_init.size = 1;
-    idt_init.reserved0 = 0;
-    idt_init.dpl = 0;
-    idt_init.present = 1;
-    idt_init.offset_31_16 = 0;
+    idt_init.__attribute__.offset_15_00 = i*8;       //we think its thid bc diff offset evry 8 bytes
+    idt_init.__attribute__.seg_selector = KERNEL_CS ;
+    idt_init.__attribute__.reserved4 = 0; //I think this is always set to zero its the 8 bits on the end
+    idt_init.__attribute__.reserved3 = 1;//reserved 3-1 choose if interrupt or trap, size tells if 32 or 16
+    idt_init.__attribute__.reserved2 = 1;
+    idt_init.__attribute__.reserved1 = 1;
+    idt_init.__attribute__.size = 1;
+    idt_init.__attribute__.reserved0 = 0;
+    idt_init.__attribute__.dpl = 0;
+    idt_init.__attribute__.present = 1;
+    idt_init.__attribute__.offset_31_16 = 0;
 
-    SET_IDT_ENTRY(idt_init, idt_init_array[i]);
+    SET_IDT_ENTRY(idt_init.__attribute__, idt_init_array[i]);
     idt[i] = idt_init; 
 
 }
 
 
 //INTERRUPTS//
-    for (int i = 23; i< 26){
+    for (int i = 23; i< 26; i++){
     idt_desc_t idt_interrupt_init;  
-    idt_interrupt_init.offset_15_00 = i*8;
-    idt_interrupt_init.seg_selector = KERNEL_CS ;
-    idt_interrupt_init.reserved4 = 0;
-    idt_interrupt_init.reserved3 = 0;
-    idt_interrupt_init.reserved2 = 1;
-    idt_interrupt_init.reserved1 = 1;
-    idt_interrupt_init.size = 1;
-    idt_interrupt_init.reserved0 = 0;
-    idt_interrupt_init.dpl = 0;
-    idt_interrupt_init.present = 1;
-    idt_interrupt_init.offset_31_16 = 0;
+    idt_interrupt_init.__attribute__.offset_15_00 = i*8;
+    idt_interrupt_init.__attribute__.seg_selector = KERNEL_CS ;
+    idt_interrupt_init.__attribute__.reserved4 = 0;
+    idt_interrupt_init.__attribute__.reserved3 = 0;
+    idt_interrupt_init.__attribute__.reserved2 = 1;
+    idt_interrupt_init.__attribute__.reserved1 = 1;
+    idt_interrupt_init.__attribute__.size = 1;
+    idt_interrupt_init.__attribute__.reserved0 = 0;
+    idt_interrupt_init.__attribute__.dpl = 0;
+    idt_interrupt_init.__attribute__.present = 1;
+    idt_interrupt_init.__attribute__.offset_31_16 = 0;
    
-    SET_IDT_ENTRY(idt_interrupt_init, idt_init_array[i]); 
+    SET_IDT_ENTRY(idt_interrupt_init.__attribute__, idt_init_array[i]); 
     idt[i] = idt_interrupt_init; 
 
     }
@@ -79,19 +79,19 @@ for(int i = 0; i<23; i++){
 
 //SYSTEM CALL//
     idt_desc_t idt_system_call_init; 
-    idt_system_call_init.offset_15_00 = 128;
-    idt_system_call_init.seg_selector = KERNEL_CS ;
-    idt_system_call_init.reserved4 = 0;
-    idt_system_call_init.reserved3 = 0;
-    idt_system_call_init.reserved2 = 1;
-    idt_system_call_init.reserved1 = 1;
-    idt_system_call_init.size = 1;
-    idt_system_call_init.reserved0 = 0;
-    idt_system_call_init.dpl = 0;
-    idt_system_call_init.present = 1;
-    idt_system_call_init.offset_31_16 = 0;
+    idt_system_call_init.__attribute__.offset_15_00 = 128;
+    idt_system_call_init.__attribute__.seg_selector = KERNEL_CS ;
+    idt_system_call_init.__attribute__.reserved4 = 0;
+    idt_system_call_init.__attribute__.reserved3 = 0;
+    idt_system_call_init.__attribute__.reserved2 = 1;
+    idt_system_call_init.__attribute__.reserved1 = 1;
+    idt_system_call_init.__attribute__.size = 1;
+    idt_system_call_init.__attribute__.reserved0 = 0;
+    idt_system_call_init.__attribute__.dpl = 0;
+    idt_system_call_init.__attribute__.present = 1; 
+    idt_system_call_init.__attribute__.offset_31_16 = 0;
    
-    SET_IDT_ENTRY(idt_system_call_init, idt_init_array[128]); 
+    SET_IDT_ENTRY(idt_system_call_init.__attribute__, idt_init_array[128]); 
     idt[128] = idt_system_call_init;
     
 

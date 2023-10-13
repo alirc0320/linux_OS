@@ -40,13 +40,13 @@ tss_bottom:
 
     .align  16
 ///////////////////////////////////////Putting size for GDT in /////////////
-gdt_size:
-    .long gdt_bottom - gdt - 1 //gdt bottom will be gdt_bottom gdt + limit
+// gdt_size:
+//     .word gdt_bottom - gdt - 1 //gdt bottom will be gdt_bottom gdt + limit
 
 
 gdt_desc:
 .word 0 //padding 
-.word gdt_size //size
+.word gdt_bottom - gdt - 1 //size
 .long gdt //address
 
 

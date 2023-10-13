@@ -120,19 +120,72 @@ void security_exception_handler() {
 }
 
 
-void keyboard_interrupt(){
+// /* Interrupt masks to determine which interrupts are enabled and disabled */
+// uint8_t master_mask; /* IRQs 0-7  */
+// uint8_t slave_mask;  /* IRQs 8-15 */
 
-}
+// /* Initialize the 8259 PIC */
+// void i8259_init(void) {
+// }
 
-void rtc_interrupt(){
+// /* Enable (unmask) the specified IRQ */
+// void enable_irq(uint32_t irq_num) {
+// }
 
-}
+// /* Disable (mask) the specified IRQ */
+// void disable_irq(uint32_t irq_num) {
+// }
 
-void pic_interrupt(){
+// /* Send end-of-interrupt signal for the specified IRQ */
+// void send_eoi(uint32_t irq_num) {
+// }
 
 
-}
-void system_call(){
+// void keyboard_interrupt(){
+//     struct KeyScanCodePair keyScanCodeArray[] = {
+//         {'A', 0x1C},
+//         {'B', 0x32},
+//         {'C', 0x21},
+//         {'D', 0x23},
+//         {'E', 0x24},
+//         {'F', 0x2B},
+//         {'G', 0x34},
+//         {'H', 0x33},
+//         {'I', 0x43},
+//         {'J', 0x3B},
+//         {'K', 0x42},
+//         {'L', 0x4B},
+//         {'M', 0x3A},
+//         {'N', 0x31},
+//         {'O', 0x44},
+//         {'P', 0x4D},
+//         {'Q', 0x15},
+//         {'R', 0x2D},
+//         {'S', 0x1B},
+//         {'T', 0x2C},
+//         {'U', 0x3C},
+//         {'V', 0x2A},
+//         {'W', 0x1D},
+//         {'X', 0x22},
+//         {'Y', 0x35},
+//         {'Z', 0x1A}
+//     };
 
-}
+// enable_irq(uint32_t irq_num);
+
+
+
+// }
+
+// void rtc_interrupt(){
+
+// }
+
+// void pic_interrupt(){
+
+
+// }
+// void system_call(){
+
+// }
 
