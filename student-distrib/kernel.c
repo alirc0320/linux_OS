@@ -136,10 +136,20 @@ void entry(unsigned long magic, unsigned long addr) {
         tss.esp0 = 0x800000;
         ltr(KERNEL_TSS);
     }
+
+
+
+
+
+
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
     //Mask all interrupts to start
-    for (int i = 0; i< 15; i++){
+    for (int i = 0; i< 16; i++){
         disable_irq(i);
     }
+    enable_irq(2);
 
     /* Init the PIC */
     i8259_init();
@@ -159,9 +169,28 @@ void entry(unsigned long magic, unsigned long addr) {
     // idt_init_array[34] = &pic_interrupt;
 
     
-    enable_irq(0);//enable rtc
-    enable_irq(1); //enable keyboard
-    enable_irq(2);//enable secondary PIC? 
+    // enable_irq(0);//enable rtc
+    // enable_irq(1); //enable keyboard
+    // enable_irq(2);//enable secondary PIC? 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close

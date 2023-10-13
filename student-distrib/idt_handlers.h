@@ -1,4 +1,6 @@
 
+#ifndef _IDT_HANDLERS_H
+#define _IDT_HANDLERS_H
 
 
 extern void division_error_handler();
@@ -26,5 +28,6 @@ extern void vmm_communication_exception_handler();
 extern void security_exception_handler();
 extern void rtc_interrupt();
 extern void keyboard_interrupt();
-extern void pic_interrupt();
 extern void system_call(); 
+
+#endif /* _IDT_HANDLERS_H */

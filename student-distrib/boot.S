@@ -29,6 +29,15 @@ continue:
 # Load the GDT
 LGDT gdt_desc 
 
+pushl %eax
+pushl %edx
+pushl %ebx
+call initialize_idt
+popl %ebx
+popl %edx
+popl %eax
+
+LIDT idt_desc_ptr //new
                                                         
 
     /* 

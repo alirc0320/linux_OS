@@ -163,7 +163,7 @@ typedef union idt_desc_t {
 } idt_desc_t;
 
 
-extern idt_desc_t idt_init_array[256]; //added
+extern void (*idt_init_array[256])(void); //added
 
 
 /* The IDT itself (declared in x86_desc.S */
