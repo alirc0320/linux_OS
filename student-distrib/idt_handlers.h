@@ -30,4 +30,33 @@ extern void rtc_interrupt();
 extern void keyboard_interrupt();
 extern void system_call(); 
 
+
+
+.global division_error_handler_asm
+.global debug_handler_asm
+.global non_maskable_interrupt_handler_asm
+.global breakpoint_handler_asm
+.global overflow_handler_asm
+.global bound_range_exceeded_handler_asm
+.global invalid_opcode_handler_asm
+.global device_not_available_handler_asm
+.global double_fault_handler_asm
+.global invalid_tss_handler_asm
+.global segment_not_present_handler_asm
+.global stack_segment_fault_handler_asm
+.global general_protection_fault_handler_asm
+.global page_fault_handler_asm
+.global x87_floating_point_exception_handler_asm
+.global alignment_check_handler_asm
+.global machine_check_handler_asm
+.global SIMD_floating_point_exception_handler_asm
+.global virtualization_exception_asm
+.global control_protection_exception_handler_asm
+.global hypervisor_exception_handler_asm
+.global vmm_communication_exception_handler_asm
+.global security_exception_handler_asm
+.global rtc_interrupt_asm
+.global keyboard_interrupt_asm
+.global system_call_asm
+
 #endif /* _IDT_HANDLERS_H */
