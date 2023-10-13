@@ -55,4 +55,20 @@ while (inb(DATA_PORT) != ACK){
 
 void init_RTC(){
 
+/////////////////Not sure if this is right but it was in OS dev documentation, prob need to add more//////////////
+disable_interrupts();		// important that no interrupts happen (perform a CLI)
+outportb(0x70, 0x8A);	// select Status Register A, and disable NMI (by setting the 0x80 bit)
+outportb(0x71, 0x20);	// write to CMOS/RTC RAM
+enable_interrupts();		// (perform an STI) and reenable NMI if you wish
+
+}
+
+
+
+void disable_interrupts() {
+    __asm__ __volatile__ ("cli"); // Disable interrupts
+}
+
+void enable_interrupts() {
+    __asm__ __volatile__ ("sti"); // Enable interrupts
 }
