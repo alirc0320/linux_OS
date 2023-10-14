@@ -24,6 +24,68 @@
 
 #ifndef ASM
 
+
+//////declarations for c functions
+ void division_error_handler(void);
+ void debug_handler(void);
+ void non_maskable_interrupt_handler(void);
+ void breakpoint_handler(void);
+ void overflow_handler(void);
+ void bound_range_exceeded_handler(void);
+ void invalid_opcode_handler(void);
+ void device_not_available_handler(void);
+ void double_fault_handler(void);
+ void invalid_tss_handler(void);
+ void segment_not_present_handler(void);
+ void stack_segment_fault_handler(void);
+ void general_protection_fault_handler(void);
+ void page_fault_handler(void);
+ void x87_floating_point_exception_handler(void);
+ void alignment_check_handler(void);
+ void machine_check_handler(void);
+ void SIMD_floating_point_exception_handler(void);
+ void virtualization_exception(void);
+ void control_protection_exception_handler(void);
+ void hypervisor_exception_handler(void);
+ void vmm_communication_exception_handler(void);
+ void security_exception_handler(void);
+ void rtc_interrupt(void);
+ void keyboard_interrupt(void);
+ void system_call(void); 
+
+
+
+ void division_error_handler_asm(void); 
+ void debug_handler_asm(void);
+ void non_maskable_interrupt_handler_asm(void);
+ void breakpoint_handler_asm(void);
+ void overflow_handler_asm(void);
+ void bound_range_exceeded_handler_asm(void);
+ void invalid_opcode_handler_asm(void);
+ void device_not_available_handler_asm(void);
+ void double_fault_handler_asm(void);
+ void invalid_tss_handler_asm(void);
+ void segment_not_present_handler_asm(void);
+ void stack_segment_fault_handler_asm(void);
+ void general_protection_fault_handler_asm(void);
+ void page_fault_handler_asm(void);
+ void x87_floating_point_exception_handler_asm(void);
+ void alignment_check_handler_asm(void);
+ void machine_check_handler_asm(void);
+ void SIMD_floating_point_exception_handler_asm(void);
+ void virtualization_exception_asm(void);
+ void control_protection_exception_handler_asm(void);
+ void hypervisor_exception_handler_asm(void);
+ void vmm_communication_exception_handler_asm(void);
+ void security_exception_handler_asm(void);
+ void rtc_interrupt_asm(void);
+ void keyboard_interrupt_asm(void);
+ void system_call_asm(void);
+
+
+
+
+
 /* This structure is used to load descriptor base registers
  * like the GDTR and IDTR */
 typedef struct x86_desc {

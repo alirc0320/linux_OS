@@ -1,8 +1,9 @@
 //This file is where we will initialize device and RTC
 
-#include <stdio.h>
-#include <stdlib.h>
+// #include <stdio.h>
+// #include <stdlib.h>
 #include "Device_init.h"
+#include "lib.h"
 
 //commands
 #define RESET	0xFF
@@ -36,11 +37,16 @@ enable_irq(1);
 void init_RTC() {
     cli(); // Disable interrupts
     // Initialize RTC
-    outb(0x70, 0x8B); // Select Register B and disable NMI
+    //OS dev reverses outb params
+    outb(0x8B,0x70); // Select Register B and disable NMI
     char prev = inb(0x71); // Read the current value of Register B
-    outb(0x70, 0x8B); // Set the index again
-    outb(0x71, prev | 0x40); // Enable bit 6 of Register B to turn on IRQ 8
+    outb(0x8B, 0x70); // Set the index again
+    outb(prev | 0x40, 0x71); // Enable bit 6 of Register B to turn on IRQ 8
     // Enable the RTC interrupt handler
+
+    //read from register C
+    outb( 0x0C, 0x70);	// select register C
+    inb(0x71);		// just throw away contents
     enable_irq(8);
     sti(); // Enable interrupts
 }

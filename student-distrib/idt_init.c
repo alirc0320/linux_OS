@@ -1,13 +1,12 @@
-#include "idt_handlers.h"
 #include "x86_desc.h"
 
 
 void initialize_idt();
 
 void initialize_idt() {
+int i;
 
-
-    for (int i = 0; i < NUM_VEC; i++){
+    for (i = 0; i < NUM_VEC; i++){
         idt[i].seg_selector = KERNEL_CS ;
         idt[i].reserved4 = 0;
         idt[i].reserved3 = 1;
@@ -16,7 +15,7 @@ void initialize_idt() {
         idt[i].size = 1;
         idt[i].reserved0 = 0;
         idt[i].dpl = 0;
-        idt[i].present = 1; 
+        idt[i].present = 1; //should it always be 1??????????????????????????
 
         if (i >= 0x20 && i <= 0x2F){
             idt[i].reserved3 = 0; // pics

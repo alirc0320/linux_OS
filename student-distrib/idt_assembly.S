@@ -1,42 +1,255 @@
-#define ASM  
-include "idt_handlers.h"
+#define ASM  1
+//#include "x86_desc.h"
 
 
+.globl division_error_handler_asm
+.globl debug_handler_asm
+.globl non_maskable_interrupt_handler_asm
+.globl breakpoint_handler_asm
+.globl overflow_handler_asm
+.globl bound_range_exceeded_handler_asm
+.globl invalid_opcode_handler_asm
+.globl device_not_available_handler_asm
+.globl double_fault_handler_asm
+.globl invalid_tss_handler_asm
+.globl segment_not_present_handler_asm
+.globl stack_segment_fault_handler_asm
+.globl general_protection_fault_handler_asm
+.globl page_fault_handler_asm
+.globl x87_floating_point_exception_handler_asm
+.globl alignment_check_handler_asm
+.globl machine_check_handler_asm
+.globl SIMD_floating_point_exception_handler_asm
+.globl virtualization_exception_asm
+.globl control_protection_exception_handler_asm
+.globl hypervisor_exception_handler_asm
+.globl vmm_communication_exception_handler_asm
+.globl security_exception_handler_asm
+.globl rtc_interrupt_asm
+.globl keyboard_interrupt_asm
+.globl system_call_asm
 
 
-#define linker(asm_function, c_function) 
-
-    asm_function:                            
+    division_error_handler_asm:                            
     pushal                               
     pushfl                              
-    call c_function                        
+    call division_error_handler                    
     popfl                                
     popal                               
     iret
 
-linker(division_error_handler_asm, division_error_handler)
-linker(debug_handler_asm, debug_handler)
-linker(non_maskable_interrupt_handler_asm, non_maskable_interrupt_handler)
-linker(breakpoint_handler_asm, breakpoint_handler)
-linker(overflow_handler_asm, overflow_handler)
-linker(bound_range_exceeded_handler_asm, bound_range_exceeded_handler)
-linker(invalid_opcode_handler_asm, invalid_opcode_handler)
-linker(device_not_available_handler_asm, device_not_available_handler)
-linker(double_fault_handler_asm, double_fault_handler)
-linker(invalid_tss_handler_asm, invalid_tss_handler)
-linker(segment_not_present_handler_asm, segment_not_present_handler)
-linker(stack_segment_fault_handler_asm, stack_segment_fault_handler)
-linker(general_protection_fault_handler_asm, general_protection_fault_handler)
-linker(page_fault_handler_asm, page_fault_handler)
-linker(x87_floating_point_exception_handler_asm, x87_floating_point_exception_handler)
-linker(alignment_check_handler_asm, alignment_check_handler)
-linker(machine_check_handler_asm, machine_check_handler)
-linker(SIMD_floating_point_exception_handler_asm, SIMD_floating_point_exception_handler)
-linker(virtualization_exception_asm, virtualization_exception)
-linker(control_protection_exception_handler_asm, control_protection_exception_handler)
-linker(hypervisor_exception_handler_asm, hypervisor_exception_handler)
-linker(vmm_communication_exception_handler_asm, vmm_communication_exception_handler)
-linker(security_exception_handler_asm, security_exception_handler)
-linker(rtc_interrupt_asm, rtc_interrupt)
-linker(keyboard_interrupt_asm, keyboard_interrupt)
-linker(system_call_asm, system_call)
+    debug_handler_asm:                            
+    pushal                               
+    pushfl                              
+    call debug_handler                    
+    popfl                                
+    popal                               
+    iret
+
+    non_maskable_interrupt_handler_asm:                            
+    pushal                               
+    pushfl                              
+    call non_maskable_interrupt_handler                    
+    popfl                                
+    popal                               
+    iret
+    
+    breakpoint_handler_asm:                            
+    pushal                               
+    pushfl                              
+    call breakpoint_handler                    
+    popfl                                
+    popal                               
+    iret
+    
+    overflow_handler_asm:                            
+    pushal                               
+    pushfl                              
+    call overflow_handler                    
+    popfl                                
+    popal                               
+    iret
+    
+    bound_range_exceeded_handler_asm:                            
+    pushal                               
+    pushfl                              
+    call bound_range_exceeded_handler                    
+    popfl                                
+    popal                               
+    iret
+    
+    invalid_opcode_handler_asm:                            
+    pushal                               
+    pushfl                              
+    call invalid_opcode_handler                    
+    popfl                                
+    popal                               
+    iret
+    
+    device_not_available_handler_asm:                            
+    pushal                               
+    pushfl                              
+    call device_not_available_handler                    
+    popfl                                
+    popal                               
+    iret
+    
+    double_fault_handler_asm:                            
+    pushal                               
+    pushfl                              
+    call double_fault_handler                    
+    popfl                                
+    popal                               
+    iret
+    
+    invalid_tss_handler_asm:                            
+    pushal                               
+    pushfl                              
+    call invalid_tss_handler                    
+    popfl                                
+    popal                               
+    iret
+
+
+
+    segment_not_present_handler_asm:
+    pushal                               
+    pushfl                              
+    call segment_not_present_handler                    
+    popfl                                
+    popal                               
+    iret
+
+
+    
+    stack_segment_fault_handler_asm:
+    pushal                               
+    pushfl                              
+    call stack_segment_fault_handler                    
+    popfl                                
+    popal                               
+    iret
+
+
+
+    general_protection_fault_handler_asm:
+    pushal                               
+    pushfl                              
+    call general_protection_fault_handler                    
+    popfl                                
+    popal                               
+    iret
+
+
+
+
+    
+    page_fault_handler_asm:
+    pushal                               
+    pushfl                              
+    call page_fault_handler                    
+    popfl                                
+    popal                               
+    iret
+
+
+
+
+    
+    x87_floating_point_exception_handler_asm:
+    pushal                               
+    pushfl                              
+    call x87_floating_point_exception_handler                    
+    popfl                                
+    popal                               
+    iret
+
+
+    
+    alignment_check_handler_asm:
+    pushal                               
+    pushfl                              
+    call alignment_check_handler                    
+    popfl                                
+    popal                               
+    iret
+    
+    machine_check_handler_asm:
+    pushal                               
+    pushfl                              
+    call machine_check_handler                    
+    popfl                                
+    popal                               
+    iret
+    
+    SIMD_floating_point_exception_handler_asm:
+    pushal                               
+    pushfl                              
+    call SIMD_floating_point_exception_handler                    
+    popfl                                
+    popal                               
+    iret
+    
+    virtualization_exception_asm:
+    pushal                               
+    pushfl                              
+    call virtualization_exception                    
+    popfl                                
+    popal                               
+    iret
+    
+    control_protection_exception_handler_asm:
+    pushal                               
+    pushfl                              
+    call control_protection_exception_handler                    
+    popfl                                
+    popal                               
+    iret
+    
+    hypervisor_exception_handler_asm:
+    pushal                               
+    pushfl                              
+    call hypervisor_exception_handler                    
+    popfl                                
+    popal                               
+    iret
+    
+    vmm_communication_exception_handler_asm:
+    pushal                               
+    pushfl                              
+    call vmm_communication_exception_handler                    
+    popfl                                
+    popal                               
+    iret
+    
+    security_exception_handler_asm:
+    pushal                               
+    pushfl                              
+    call security_exception_handler                    
+    popfl                                
+    popal                               
+    iret
+
+    rtc_interrupt_asm:
+    pushal                               
+    pushfl                              
+    call rtc_interrupt                    
+    popfl                                
+    popal                               
+    iret
+    
+    keyboard_interrupt_asm:
+    pushal                               
+    pushfl                              
+    call keyboard_interrupt                    
+    popfl                                
+    popal                               
+    iret
+    
+    system_call_asm:
+    pushal                               
+    pushfl                              
+    call system_call                     
+    popfl                                
+    popal                               
+    iret

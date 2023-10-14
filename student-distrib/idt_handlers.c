@@ -1,8 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "idt_handlers.h"
+// #include <stdio.h>
+// #include <stdlib.h>
+#include "x86_desc.h"
 #include "i8259.h"
-#include "Device_init.c"
+#include "lib.h"
+// #include "Device_init.c"
+
 
 // Signal handler function
 void division_error_handler() {
@@ -122,8 +124,7 @@ void security_exception_handler() {
 
 
 unsigned char keyScanCodeArray_one[0x59] = {'\0','\0','1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', 
-'=', '\0', '\0', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\0', '\0', 'A', 'S', 'D', 'F', '
-G', 'H', 'J', 'K', 'L', ';', 'quote', '`', '\0', 'backslash', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/', 
+'=', '\0', '\0', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\0', '\0', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', 'quote', 'little floating tab next to 1', '\0', 'backslash', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', 'forwardslash', 
 '\0', '*', '\0', ' ', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '7', '8', 
 '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};   
 
@@ -132,16 +133,18 @@ void keyboard_interrupt(){
     int scan_code = inb(0x64);
     //this will get rid of seg fault upon release, need to figure out release keyboard logic
     if (scan_code < 89){
-        char output = keyScanCodeArray_one[scan_code]; 
-        printf("%c\n", output);
+        // char output = keyScanCodeArray_one[scan_code]; 
+        // printf("%c\n", output);
+        printf("keyboard interrupt");
     }
     send_eoi(1);
      
 }
 
 void rtc_interrupt(){
+    printf("RTC called");
     test_interrupts();
-    outb(0x70, 0x0C);	// select register C
+    outb(0x0C, 0x70);	// select register C
     inb(0x71);		// just throw away contents
     send_eoi(8);
 }

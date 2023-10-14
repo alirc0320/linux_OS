@@ -146,7 +146,8 @@ void entry(unsigned long magic, unsigned long addr) {
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     //Mask all interrupts to start
-    for (int i = 0; i< 16; i++){
+    int i;
+    for (i = 0; i< 16; i++){
         disable_irq(i);
     }
     enable_irq(2);

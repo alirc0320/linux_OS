@@ -5,6 +5,7 @@
 #include "i8259.h"
 #include "lib.h"
 
+
 #define PIC1		0x20		/* IO base address for master PIC */
 #define PIC2		0xA0		/* IO base address for slave PIC */
 #define PIC1_COMMAND	PIC1
@@ -40,26 +41,26 @@ unsigned char a1, a2;
 	a1 = inb(PIC1_DATA);                        // save masks
 	a2 = inb(PIC2_DATA);
  
-	outb(PIC1_COMMAND, ICW1_INIT | ICW1_ICW4);  // starts the initialization sequence (in cascade mode)
+	outb(ICW1_INIT | ICW1_ICW4, PIC1_COMMAND);  // starts the initialization sequence (in cascade mode)
 	io_wait();
-	outb(PIC2_COMMAND, ICW1_INIT | ICW1_ICW4);
+	outb(ICW1_INIT | ICW1_ICW4, PIC2_COMMAND);
 	io_wait();
-	outb(PIC1_DATA, master_mask);                 // ICW2: Master PIC vector offset
+	outb( master_mask, PIC1_DATA);                 // ICW2: Master PIC vector offset
 	io_wait();
-	outb(PIC2_DATA, slave_mask);                 // ICW2: Slave PIC vector offset
+	outb(slave_mask, PIC2_DATA);                 // ICW2: Slave PIC vector offset
 	io_wait();
-	outb(PIC1_DATA, 4);                       // ICW3: tell Master PIC that there is a slave PIC at IRQ2 (0000 0100)
+	outb(4, PIC1_DATA);                       // ICW3: tell Master PIC that there is a slave PIC at IRQ2 (0000 0100)
 	io_wait();
-	outb(PIC2_DATA, 2);                       // ICW3: tell Slave PIC its cascade identity (0000 0010)
-	io_wait();
- 
-	outb(PIC1_DATA, ICW4_8086);               // ICW4: have the PICs use 8086 mode (and not 8080 mode)
-	io_wait();
-	outb(PIC2_DATA, ICW4_8086);
+	outb(2, PIC2_DATA);                       // ICW3: tell Slave PIC its cascade identity (0000 0010)
 	io_wait();
  
-	outb(PIC1_DATA, a1);   // restore saved masks.
-	outb(PIC2_DATA, a2);
+	outb(ICW4_8086, PIC1_DATA);               // ICW4: have the PICs use 8086 mode (and not 8080 mode)
+	io_wait();
+	outb(ICW4_8086, PIC2_DATA);
+	io_wait();
+ 
+	outb(a1, PIC1_DATA);   // restore saved masks.
+	outb(a2, PIC2_DATA);
 
 }
 
@@ -75,7 +76,7 @@ void enable_irq(uint32_t irq_num) {
         irq_num -= 8;
     }
     value = inb(port) & ~(1 << irq_num);
-    outb(port, value);   
+    outb( value, port);   
 }
 
 /* Disable (mask) the specified IRQ */
@@ -91,13 +92,20 @@ void disable_irq(uint32_t irq_num) {
         irq_num -= 8;
     }
     value = inb(port) | (1 << irq_num);
-    outb(port, value); 
+    outb(value, port); 
 
 }
 
 /* Send end-of-interrupt signal for the specified IRQ */
 void send_eoi(uint32_t irq_num) {
     if(irq_num >= 8)
-        outb(PIC2_COMMAND,PIC_EOI);
-    outb(PIC1_COMMAND,PIC_EOI);
+        outb(PIC_EOI, PIC2_COMMAND);
+    outb(PIC_EOI, PIC1_COMMAND);
+}
+
+
+
+ inline void io_wait(void)
+{
+    outb(0, 0x80);
 }
