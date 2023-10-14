@@ -14,7 +14,7 @@
 static inline void assertion_failure(){
 	/* Use exception #15 for assertions, otherwise
 	   reserved by Intel */
-	asm volatile("int $0"); //change this everytime you wanna test 
+	asm volatile("int $33"); //change this everytime you wanna test 
 }
 
 
@@ -34,18 +34,22 @@ int idt_test(){
 
 	int i;
 	int result = PASS;
-	for (i = 0; i < 10; ++i){
-		if ((idt[i].offset_15_00 == NULL) && 
-			(idt[i].offset_31_16 == NULL)){
-			assertion_failure();
-			result = FAIL;
-		}
+	// for (i = 0; i < 10; ++i){
+	// 	if ((idt[i].offset_15_00 == NULL) && 
+	// 		(idt[i].offset_31_16 == NULL)){
+	// 		assertion_failure();
+	// 		result = FAIL;
+	// 	}
+	// }
+	while (1){
+	assertion_failure(); //it wasn't working berfore bc assertion failure never fcalled
 	}
-
-	return result;
+	return PASS; 
 }
 
 // add more tests here
+
+
 
 /* Checkpoint 2 tests */
 /* Checkpoint 3 tests */

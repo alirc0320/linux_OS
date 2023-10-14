@@ -239,13 +239,13 @@
     // popal                               
     // iret
     
-    // keyboard_interrupt_asm:
-    // pushal                               
-    // pushfl                              
-    // call keyboard_interrupt                    
-    // popfl                                
-    // popal                               
-    // iret
+    keyboard_interrupt_asm:
+    pushal                               
+    pushfl                              
+    call keyboard_interrupt                    
+    popfl                                
+    popal                               
+    iret
     
     // system_call_asm:
     // pushal                               

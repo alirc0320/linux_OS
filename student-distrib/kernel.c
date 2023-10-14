@@ -158,7 +158,7 @@ void entry(unsigned long magic, unsigned long addr) {
 
      //functions written in Device_init.c
     // init_RTC(); 
-    // init_keyboard(); 
+    init_keyboard(); 
     
     
 

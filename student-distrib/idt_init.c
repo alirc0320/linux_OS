@@ -54,8 +54,8 @@ int i;
     SET_IDT_ENTRY(idt[20], hypervisor_exception_handler_asm);
     SET_IDT_ENTRY(idt[21], vmm_communication_exception_handler_asm);
     SET_IDT_ENTRY(idt[22], security_exception_handler_asm);
-    // SET_IDT_ENTRY(idt[33], rtc_interrupt_asm);
-    // SET_IDT_ENTRY(idt[40], keyboard_interrupt_asm);
+    // SET_IDT_ENTRY(idt[40], rtc_interrupt_asm);
+    SET_IDT_ENTRY(idt[33], keyboard_interrupt_asm);
     // SET_IDT_ENTRY(idt[128], system_call_asm);
 
 

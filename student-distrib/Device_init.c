@@ -30,6 +30,7 @@
 
 
 void init_keyboard(){
+//outb(0, 0x64);
 enable_irq(1);
 }
 

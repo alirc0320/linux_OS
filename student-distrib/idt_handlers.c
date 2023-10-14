@@ -130,17 +130,20 @@ void security_exception_handler() {
 // '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};   
 
 
-// void keyboard_interrupt(){
-//     int scan_code = inb(0x64);
-//     //this will get rid of seg fault upon release, need to figure out release keyboard logic
-//     if (scan_code < 89){
-//         // char output = keyScanCodeArray_one[scan_code]; 
-//         // printf("%c\n", output);
-//         printf("keyboard interrupt");
-//     }
-//     send_eoi(1);
+void keyboard_interrupt(){
+    
+    int scan_code = inb(0x60);
+    //this will get rid of seg fault upon release, need to figure out release keyboard logic
+    // if (scan_code == 0x02){
+    //     // char output = keyScanCodeArray_one[scan_code]; 
+    //     // printf("%c\n", output);
+    //     printf("keyboard interrupt");
+    // }
+    printf("%x", scan_code);
+    
+    //send_eoi(1);
      
-// }
+}
 
 // void rtc_interrupt(){
 //     printf("RTC called");
