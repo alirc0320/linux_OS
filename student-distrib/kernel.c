@@ -9,6 +9,7 @@
 #include "debug.h"
 #include "tests.h"
 #include "Device_init.h"
+#include "idt_init.h"
 
 #define RUN_TESTS
 
@@ -138,10 +139,7 @@ void entry(unsigned long magic, unsigned long addr) {
     }
 
 
-
-
-
-
+    i8259_init();
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -153,26 +151,19 @@ void entry(unsigned long magic, unsigned long addr) {
     enable_irq(2);
 
     /* Init the PIC */
-    i8259_init();
+    
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
 
      //functions written in Device_init.c
-    init_RTC(); 
-    init_keyboard(); 
+    // init_RTC(); 
+    // init_keyboard(); 
     
     
 
     /* Enable interrupts */
-    //     idt_init_array[32] = &rtc_interrupt;
-    // idt_init_array[33] = &keyboard_interrupt;
-    // idt_init_array[34] = &pic_interrupt;
-
-    
-    // enable_irq(0);//enable rtc
-    // enable_irq(1); //enable keyboard
-    // enable_irq(2);//enable secondary PIC? 
+   
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -212,3 +203,10 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
 }
+
+
+
+
+
+
+

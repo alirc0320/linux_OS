@@ -30,6 +30,12 @@ ldt_desc:
     .word KERNEL_LDT //segment selector 
     .long ldt       //base address
 
+    .word 0 //padding 
+    gdt_desc:
+    .word gdt_bottom - gdt - 1 //size
+    .long gdt //address
+    
+    
     .align 4
 tss:
 _tss:
@@ -44,10 +50,6 @@ tss_bottom:
 //     .word gdt_bottom - gdt - 1 //gdt bottom will be gdt_bottom gdt + limit
 
 
-gdt_desc:
-.word 0 //padding 
-.word gdt_bottom - gdt - 1 //size
-.long gdt //address
 
 
 

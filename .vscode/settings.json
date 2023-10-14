@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "types.h": "c"
+        "types.h": "c",
+        "lib.h": "c",
+        "tests.h": "c",
+        "x86_desc.h": "c"
     }
 }

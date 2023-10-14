@@ -1,7 +1,6 @@
-#include "x86_desc.h"
+#include "idt_init.h"
 
 
-void initialize_idt();
 
 void initialize_idt() {
 int i;
@@ -15,7 +14,7 @@ int i;
         idt[i].size = 1;
         idt[i].reserved0 = 0;
         idt[i].dpl = 0;
-        idt[i].present = 1; //should it always be 1??????????????????????????
+        idt[i].present = 0; //should it always be 1??????????????????????????
 
         if (i >= 0x20 && i <= 0x2F){
             idt[i].reserved3 = 0; // pics
@@ -23,6 +22,11 @@ int i;
 
         if (i == 0x80){
             idt[i].dpl = 3; // syscall
+            idt[i].present = 1; 
+        }
+
+        if (i >= 0x0 && i <= 0x2F){
+            idt[i].present = 1; 
         }
 
     }
@@ -50,11 +54,19 @@ int i;
     SET_IDT_ENTRY(idt[20], hypervisor_exception_handler_asm);
     SET_IDT_ENTRY(idt[21], vmm_communication_exception_handler_asm);
     SET_IDT_ENTRY(idt[22], security_exception_handler_asm);
-    SET_IDT_ENTRY(idt[33], rtc_interrupt_asm);
-    SET_IDT_ENTRY(idt[40], keyboard_interrupt_asm);
-    SET_IDT_ENTRY(idt[128], system_call_asm);
+    // SET_IDT_ENTRY(idt[33], rtc_interrupt_asm);
+    // SET_IDT_ENTRY(idt[40], keyboard_interrupt_asm);
+    // SET_IDT_ENTRY(idt[128], system_call_asm);
 
 
     
 
 }
+
+
+
+
+
+
+
+

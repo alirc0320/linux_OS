@@ -2,6 +2,7 @@
 //#include "x86_desc.h"
 
 
+
 .globl division_error_handler_asm
 .globl debug_handler_asm
 .globl non_maskable_interrupt_handler_asm
@@ -230,26 +231,33 @@
     popal                               
     iret
 
-    rtc_interrupt_asm:
-    pushal                               
-    pushfl                              
-    call rtc_interrupt                    
-    popfl                                
-    popal                               
-    iret
+    // rtc_interrupt_asm:
+    // pushal                               
+    // pushfl                              
+    // call rtc_interrupt                    
+    // popfl                                
+    // popal                               
+    // iret
     
-    keyboard_interrupt_asm:
-    pushal                               
-    pushfl                              
-    call keyboard_interrupt                    
-    popfl                                
-    popal                               
-    iret
+    // keyboard_interrupt_asm:
+    // pushal                               
+    // pushfl                              
+    // call keyboard_interrupt                    
+    // popfl                                
+    // popal                               
+    // iret
     
-    system_call_asm:
-    pushal                               
-    pushfl                              
-    call system_call                     
-    popfl                                
-    popal                               
-    iret
+    // system_call_asm:
+    // pushal                               
+    // pushfl                              
+    // call system_call                     
+    // popfl                                
+    // popal                               
+    // iret
+
+
+
+
+
+
+    

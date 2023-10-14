@@ -76,7 +76,7 @@ void enable_irq(uint32_t irq_num) {
         irq_num -= 8;
     }
     value = inb(port) & ~(1 << irq_num);
-    outb( value, port);   
+    outb(value, port);   
 }
 
 /* Disable (mask) the specified IRQ */
@@ -109,3 +109,5 @@ void send_eoi(uint32_t irq_num) {
 {
     outb(0, 0x80);
 }
+
+
