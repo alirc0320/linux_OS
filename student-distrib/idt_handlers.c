@@ -124,24 +124,24 @@ void security_exception_handler() {
 }
 
 
-// unsigned char keyScanCodeArray_one[0x59] = {'\0','\0','1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', 
-// '=', '\0', '\0', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\0', '\0', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', 'quote', 'little floating tab next to 1', '\0', 'backslash', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', 'forwardslash', 
-// '\0', '*', '\0', ' ', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '7', '8', 
-// '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};   
+unsigned char keyScanCodeArray_one[0x59] = {'\0','\0','1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', 
+'=', '\0', '\0', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\0', '\0', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', 'quote', 'little floating tab next to 1', '\0', 'backslash', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', 'forwardslash', 
+'\0', '*', '\0', ' ', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '7', '8', 
+'9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};   
 
 
 void keyboard_interrupt(){
     
     int scan_code = inb(0x60);
     //this will get rid of seg fault upon release, need to figure out release keyboard logic
-    // if (scan_code == 0x02){
-    //     // char output = keyScanCodeArray_one[scan_code]; 
-    //     // printf("%c\n", output);
-    //     printf("keyboard interrupt");
-    // }
-    printf("%x", scan_code);
+    if (scan_code < 89){
+        char output = keyScanCodeArray_one[scan_code]; 
+        printf(" %c", output);
+        // printf("keyboard interrupt");
+    }
+    // printf("%x", scan_code);
     
-    //send_eoi(1);
+    send_eoi(1);
      
 }
 
