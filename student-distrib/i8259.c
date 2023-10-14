@@ -26,7 +26,7 @@
 #define ICW4_BUF_MASTER	0x0C		/* Buffered mode/master */
 #define ICW4_SFNM	0x10		/* Special fully nested (not) */
 
-#define PIC_EOI 0x20 
+#define EOI 0x60 
 
 
 
@@ -36,78 +36,77 @@ uint8_t slave_mask;  /* IRQs 8-15 */
 
 /* Initialize the 8259 PIC */
 void i8259_init(void) {
-unsigned char a1, a2;
+//unsigned char a1, a2;
+slave_mask = 0xFF; //added 
+master_mask = 0xFF; //added 
  
-	a1 = inb(PIC1_DATA);                        // save masks
-	a2 = inb(PIC2_DATA);
- 
-	outb(ICW1_INIT | ICW1_ICW4, PIC1_COMMAND);  // starts the initialization sequence (in cascade mode)
-	io_wait();
-	outb(ICW1_INIT | ICW1_ICW4, PIC2_COMMAND);
-	io_wait();
+	// a1 = inb(PIC1_DATA);                        // save masks
+	// a2 = inb(PIC2_DATA);
+
+    //masking interrupts
 	outb( master_mask, PIC1_DATA);                 // ICW2: Master PIC vector offset
-	io_wait();
 	outb(slave_mask, PIC2_DATA);                 // ICW2: Slave PIC vector offset
-	io_wait();
-	outb(4, PIC1_DATA);                       // ICW3: tell Master PIC that there is a slave PIC at IRQ2 (0000 0100)
-	io_wait();
-	outb(2, PIC2_DATA);                       // ICW3: tell Slave PIC its cascade identity (0000 0010)
-	io_wait();
- 
-	outb(ICW4_8086, PIC1_DATA);               // ICW4: have the PICs use 8086 mode (and not 8080 mode)
-	io_wait();
-	outb(ICW4_8086, PIC2_DATA);
-	io_wait();
- 
-	outb(a1, PIC1_DATA);   // restore saved masks.
-	outb(a2, PIC2_DATA);
+
+
+
+	outb(ICW1_INIT | ICW1_ICW4, PIC1_COMMAND);  // starts the initialization sequence (in cascade mode)
+	outb(PIC1_COMMAND, PIC1_DATA); 
+    outb(0x04, PIC1_DATA);  
+	outb(ICW4_8086, PIC1_DATA);  
+
+
+    
+    outb(ICW1_INIT | ICW1_ICW4, PIC2_COMMAND);
+	outb (0x28, PIC2_DATA);
+    outb(0x02, PIC2_DATA);     
+    outb(ICW4_8086, PIC2_DATA);
 
 }
 
 /* Enable (unmask) the specified IRQ */
 void enable_irq(uint32_t irq_num) {
      uint16_t port;
-    uint8_t value;
- 
+    int var;
     if(irq_num < 8) {
         port = PIC1_DATA;
+        var = master_mask; 
+
     } else {
         port = PIC2_DATA;
         irq_num -= 8;
+        var = slave_mask; 
     }
-    value = inb(port) & ~(1 << irq_num);
-    outb(value, port);   
+    var = var & ~(1 << irq_num);
+    outb(var, port);   
 }
 
 /* Disable (mask) the specified IRQ */
 void disable_irq(uint32_t irq_num) {
-    //this code was given from OS dev
-    uint16_t port;
-    uint8_t value;
- 
+     uint16_t port;
+    int var;
     if(irq_num < 8) {
         port = PIC1_DATA;
+        var = master_mask; 
+
     } else {
         port = PIC2_DATA;
         irq_num -= 8;
+        var = slave_mask; 
     }
-    value = inb(port) | (1 << irq_num);
-    outb(value, port); 
+    var = var | (1 << irq_num);
+    outb(var, port);   
 
 }
 
 /* Send end-of-interrupt signal for the specified IRQ */
 void send_eoi(uint32_t irq_num) {
-    if(irq_num >= 8)
-        outb(PIC_EOI, PIC2_COMMAND);
-    outb(PIC_EOI, PIC1_COMMAND);
+    if(irq_num >= 8){
+    outb(EOI | (irq_num-8), PIC2_COMMAND);
+    outb(EOI | 2, PIC1_COMMAND);
+    return;
+    }
+    outb(EOI | irq_num, PIC1_COMMAND);
 }
 
-
-
- inline void io_wait(void)
-{
-    outb(0, 0x80);
-}
 
 

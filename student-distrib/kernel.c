@@ -144,10 +144,10 @@ void entry(unsigned long magic, unsigned long addr) {
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     //Mask all interrupts to start
-    int i;
-    for (i = 0; i< 16; i++){
-        disable_irq(i);
-    }
+    // int i;
+    // for (i = 0; i< 16; i++){
+    //     disable_irq(i);
+    // }
     enable_irq(2);
 
     /* Init the PIC */
@@ -168,22 +168,6 @@ void entry(unsigned long magic, unsigned long addr) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
      * without showing you any output */
@@ -191,12 +175,12 @@ void entry(unsigned long magic, unsigned long addr) {
      // I think well have to uncomment this at some point
 
 
-    /*printf("Enabling Interrupts\n");
-    sti();*/
+    printf("Enabling Interrupts\n");
+    sti();
 
 #ifdef RUN_TESTS
     /* Run tests */
-    launch_tests();
+    //launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
 

@@ -131,18 +131,15 @@ unsigned char keyScanCodeArray_one[0x59] = {'\0','\0','1', '2', '3', '4', '5', '
 
 
 void keyboard_interrupt(){
-    
+    cli(); 
     int scan_code = inb(0x60);
-    //this will get rid of seg fault upon release, need to figure out release keyboard logic
     if (scan_code < 89){
         char output = keyScanCodeArray_one[scan_code]; 
         printf(" %c", output);
-        // printf("keyboard interrupt");
     }
-    // printf("%x", scan_code);
-    
+    //printf(" %d", scan_code);
     send_eoi(1);
-     
+    sti();
 }
 
 // void rtc_interrupt(){
