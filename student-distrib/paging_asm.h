@@ -57,7 +57,7 @@ typedef union page_dir_t{
         uint32_t bits_31_12 : 20;
     } page_table_t;
 
-page_dir_t pd[1024] __attribute__((aligned(4096)));
+page_dir_0_t pd[1024] __attribute__((aligned(4096)));
 page_table_t pt[1024] __attribute__((aligned(4096)));
 
 void loadPageDirectory_asm(page_dir_t *pd);
