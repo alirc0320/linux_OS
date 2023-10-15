@@ -147,7 +147,7 @@ void keyboard_interrupt(){
 void rtc_interrupt(){
     //cli();
     //printf("RTC called");
-    test_interrupts();
+    //test_interrupts();
     outb(0x0C, 0x70);	// select register C
     inb(0x71);		// just throw away contents
     send_eoi(8);

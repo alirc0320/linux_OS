@@ -10,6 +10,7 @@
 #include "tests.h"
 #include "Device_init.h"
 #include "idt_init.h"
+#include "paging_asm.h"
 
 #define RUN_TESTS
 
@@ -155,6 +156,7 @@ void entry(unsigned long magic, unsigned long addr) {
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
+       init_paging(); 
 
      //functions written in Device_init.c
     
@@ -181,6 +183,9 @@ void entry(unsigned long magic, unsigned long addr) {
 
     printf("Enabling Interrupts\n");
     sti();
+
+
+ 
 
 #ifdef RUN_TESTS
     /* Run tests */

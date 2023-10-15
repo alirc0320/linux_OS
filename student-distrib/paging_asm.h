@@ -43,7 +43,7 @@ typedef union page_dir_t{
 } page_dir_t;
 
 /* A page table struct (stores 1024 ptes) */
-    typedef struct __attribute__((packed)) page_table  {
+    typedef struct page_table  {
         uint32_t P : 1;
         uint32_t RW : 1;
         uint32_t US : 1;
@@ -57,12 +57,12 @@ typedef union page_dir_t{
         uint32_t bits_31_12 : 20;
     } page_table_t;
 
-page_dir_t pd[1024]__attribute__((aligned(4096)));
-page_table_t pt[1024]__attribute__((aligned(4096)));
+page_dir_t pd[1024] __attribute__((aligned(4096)));
+page_table_t pt[1024] __attribute__((aligned(4096)));
 
 void loadPageDirectory_asm(page_dir_t *pd);
-void enablePaging_asm();
-
+// void enablePaging_asm();
+// void loadPSE(); 
 #endif /* ASM */
 
 //#endif /* _x86_DESC_H */
