@@ -14,10 +14,10 @@
 static inline void assertion_failure(){
 	/* Use exception #15 for assertions, otherwise
 	   reserved by Intel */
-	asm volatile("int $15"); //change this everytime you wanna test 
+	asm volatile("int $1"); //change this everytime you wanna test 
 }
 
-
+//ali likes you
 /* Checkpoint 1 tests */
 
 /* IDT Test - Example
@@ -34,16 +34,16 @@ int idt_test(){
 
 	int i;
 	int result = PASS;
-	for (i = 0; i < 10; ++i){
-		if ((idt[i].offset_15_00 == NULL) && 
-			(idt[i].offset_31_16 == NULL)){
-			assertion_failure();
-			result = FAIL;
-		}
-	}
-	// while (1){
-	// assertion_failure(); //it wasn't working berfore bc assertion failure never fcalled
+	// for (i = 0; i < 10; ++i){
+	// 	if ((idt[i].offset_15_00 == NULL) && SSSS
+	// 		(idt[i].offset_31_16 == NULL)){
+	// 		assertion_failure();
+	// 		result = FAIL;
+	// 	}
 	// }
+	//while (1){
+	 assertion_failure(); //it wasn't working berfore bc assertion failure never fcalled
+	 //}
 	return PASS; 
 }
 

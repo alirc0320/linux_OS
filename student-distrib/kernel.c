@@ -144,10 +144,10 @@ void entry(unsigned long magic, unsigned long addr) {
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     //Mask all interrupts to start
-    // int i;
-    // for (i = 0; i< 16; i++){
-    //     disable_irq(i);
-    // }
+    int i;
+    for (i = 0; i< 16; i++){
+        disable_irq(i);
+    }
     enable_irq(2);
 
     /* Init the PIC */
@@ -157,9 +157,13 @@ void entry(unsigned long magic, unsigned long addr) {
      * PIC, any other initialization stuff... */
 
      //functions written in Device_init.c
-    // init_RTC(); 
+    
+    init_RTC(); 
+  
     init_keyboard(); 
     
+    //enable_irq(8);
+    // enable_irq(1);
     
 
     /* Enable interrupts */
@@ -180,7 +184,7 @@ void entry(unsigned long magic, unsigned long addr) {
 
 #ifdef RUN_TESTS
     /* Run tests */
-    //launch_tests();
+   // launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
 

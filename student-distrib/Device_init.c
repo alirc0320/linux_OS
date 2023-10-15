@@ -36,19 +36,22 @@ enable_irq(1);
 
 
 void init_RTC() {
-    cli(); // Disable interrupts
-    // Initialize RTC
-    //OS dev reverses outb params
-    outb(0x8B,0x70); // Select Register B and disable NMI
-    char prev = inb(0x71); // Read the current value of Register B
-    outb(0x8B, 0x70); // Set the index again
-    outb(prev | 0x40, 0x71); // Enable bit 6 of Register B to turn on IRQ 8
-    // Enable the RTC interrupt handler
+    //cli();
+    outb(0x8B,0x70); // Select Register B and disable NMI forsureskis
+    char prev = inb(0x71); // Read the current value of Register B forsureskis
+    outb(0x8B, 0x70); // Set the index again forsureskis
+    outb(prev | 0x40, 0x71); // Enable bit 6 of Register B to turn on IRQ 8 forsureskis
+    
 
-    //read from register C
-    outb( 0x0C, 0x70);	// select register C
-    inb(0x71);		// just throw away contents
+    outb(0x8A, 0x70);		// set index to register A, disable NMI
+    prev=inb(0x71);	// get initial value of register A
+    outb(0x8A, 0x70);		// reset index to A
+  
+   
+   
+
     enable_irq(8);
-    sti(); // Enable interrupts
+    // //sti();
 }
 
+// 

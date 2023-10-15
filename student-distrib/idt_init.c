@@ -40,23 +40,27 @@ int i;
     SET_IDT_ENTRY(idt[6], invalid_opcode_handler_asm);
     SET_IDT_ENTRY(idt[7], device_not_available_handler_asm);
     SET_IDT_ENTRY(idt[8], double_fault_handler_asm);
-    SET_IDT_ENTRY(idt[9], invalid_tss_handler_asm);
-    SET_IDT_ENTRY(idt[10], segment_not_present_handler_asm);
-    SET_IDT_ENTRY(idt[11], stack_segment_fault_handler_asm);
-    SET_IDT_ENTRY(idt[12], general_protection_fault_handler_asm);
-    SET_IDT_ENTRY(idt[13], page_fault_handler_asm);
-    SET_IDT_ENTRY(idt[14], x87_floating_point_exception_handler_asm);
-    SET_IDT_ENTRY(idt[15], alignment_check_handler_asm);
-    SET_IDT_ENTRY(idt[16], machine_check_handler_asm);
-    SET_IDT_ENTRY(idt[17], SIMD_floating_point_exception_handler_asm);
-    SET_IDT_ENTRY(idt[18], virtualization_exception_asm);
-    SET_IDT_ENTRY(idt[19], control_protection_exception_handler_asm);
-    SET_IDT_ENTRY(idt[20], hypervisor_exception_handler_asm);
-    SET_IDT_ENTRY(idt[21], vmm_communication_exception_handler_asm);
-    SET_IDT_ENTRY(idt[22], security_exception_handler_asm);
-    // SET_IDT_ENTRY(idt[40], rtc_interrupt_asm);
+
+    //All exceptions need to be offset by 1 bc 9 is reserved
+    SET_IDT_ENTRY(idt[10], invalid_tss_handler_asm);
+    SET_IDT_ENTRY(idt[11], segment_not_present_handler_asm);
+    SET_IDT_ENTRY(idt[12], stack_segment_fault_handler_asm);
+    SET_IDT_ENTRY(idt[13], general_protection_fault_handler_asm);
+    SET_IDT_ENTRY(idt[14], page_fault_handler_asm);
+    SET_IDT_ENTRY(idt[16], x87_floating_point_exception_handler_asm);
+    SET_IDT_ENTRY(idt[17], alignment_check_handler_asm);
+    SET_IDT_ENTRY(idt[18], machine_check_handler_asm);
+    SET_IDT_ENTRY(idt[19], SIMD_floating_point_exception_handler_asm);
+    SET_IDT_ENTRY(idt[20], virtualization_exception_asm);
+    SET_IDT_ENTRY(idt[21], control_protection_exception_handler_asm);
+    SET_IDT_ENTRY(idt[28], hypervisor_exception_handler_asm);
+    SET_IDT_ENTRY(idt[29], vmm_communication_exception_handler_asm);
+    SET_IDT_ENTRY(idt[30], security_exception_handler_asm);
+    ////////////////////////////////////////////////////////////////
+
+    SET_IDT_ENTRY(idt[40], rtc_interrupt_asm);
     SET_IDT_ENTRY(idt[33], keyboard_interrupt_asm);
-    // SET_IDT_ENTRY(idt[128], system_call_asm);
+     SET_IDT_ENTRY(idt[128], system_call_asm);
 
 
     

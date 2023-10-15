@@ -37,15 +37,18 @@ uint8_t slave_mask;  /* IRQs 8-15 */
 /* Initialize the 8259 PIC */
 void i8259_init(void) {
 //unsigned char a1, a2;
-slave_mask = 0xFF; //added 
-master_mask = 0xFF; //added 
+// slave_mask  = inb(PIC2_DATA);
+// master_mask = inb(PIC1_DATA);
+// slave_mask = 0xFF; //added 
+// master_mask = 0xFF; //added 
+
  
 	// a1 = inb(PIC1_DATA);                        // save masks
 	// a2 = inb(PIC2_DATA);
 
     //masking interrupts
-	outb( master_mask, PIC1_DATA);                 // ICW2: Master PIC vector offset
-	outb(slave_mask, PIC2_DATA);                 // ICW2: Slave PIC vector offset
+	outb( 0xFF, PIC1_DATA);                 // ICW2: Master PIC vector offset
+	outb(0xFF, PIC2_DATA);                 // ICW2: Slave PIC vector offset
 
 
 
@@ -61,51 +64,57 @@ master_mask = 0xFF; //added
     outb(0x02, PIC2_DATA);     
     outb(ICW4_8086, PIC2_DATA);
 
+    // outb(slave_mask, PIC2_DATA);
+    // outb(master_mask, PIC1_DATA); 
+
 }
 
 /* Enable (unmask) the specified IRQ */
 void enable_irq(uint32_t irq_num) {
-     uint16_t port;
-    int var;
-    if(irq_num < 8) {
+    uint16_t port; 
+    uint8_t value;
+    if(irq_num<8){
         port = PIC1_DATA;
-        var = master_mask; 
-
-    } else {
+    } else{
         port = PIC2_DATA;
         irq_num -= 8;
-        var = slave_mask; 
     }
-    var = var & ~(1 << irq_num);
-    outb(var, port);   
+    value = inb(port) & ~(1 << irq_num);
+    outb(value, port);
+    
+    
+    
+   
 }
 
 /* Disable (mask) the specified IRQ */
 void disable_irq(uint32_t irq_num) {
-     uint16_t port;
-    int var;
-    if(irq_num < 8) {
-        port = PIC1_DATA;
-        var = master_mask; 
+  
 
-    } else {
+  uint16_t port; 
+    uint8_t value;
+    if(irq_num<8){
+        port = PIC1_DATA;
+    } else{
         port = PIC2_DATA;
         irq_num -= 8;
-        var = slave_mask; 
     }
-    var = var | (1 << irq_num);
-    outb(var, port);   
-
+    value = inb(port) | (1 << irq_num);
+    outb(value, port);
 }
 
 /* Send end-of-interrupt signal for the specified IRQ */
 void send_eoi(uint32_t irq_num) {
-    if(irq_num >= 8){
+    if(irq_num<8){
+         outb(EOI | irq_num, PIC1_COMMAND);
+    }
+    
+    else if(irq_num < 16){
     outb(EOI | (irq_num-8), PIC2_COMMAND);
     outb(EOI | 2, PIC1_COMMAND);
     return;
     }
-    outb(EOI | irq_num, PIC1_COMMAND);
+   
 }
 
 

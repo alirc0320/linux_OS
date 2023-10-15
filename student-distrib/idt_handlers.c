@@ -131,30 +131,36 @@ unsigned char keyScanCodeArray_one[0x59] = {'\0','\0','1', '2', '3', '4', '5', '
 
 
 void keyboard_interrupt(){
-    cli(); 
+  //cli();
     int scan_code = inb(0x60);
     if (scan_code < 89){
         char output = keyScanCodeArray_one[scan_code]; 
         printf(" %c", output);
     }
+    
     //printf(" %d", scan_code);
     send_eoi(1);
-    sti();
+    //sti();
+    
 }
 
-// void rtc_interrupt(){
-//     printf("RTC called");
-//     test_interrupts();
-//     outb(0x0C, 0x70);	// select register C
-//     inb(0x71);		// just throw away contents
-//     send_eoi(8);
-// }
+void rtc_interrupt(){
+    //cli();
+    //printf("RTC called");
+    test_interrupts();
+    outb(0x0C, 0x70);	// select register C
+    inb(0x71);		// just throw away contents
+    send_eoi(8);
+    //sti();
+    //printf("eoi sent");
+  
+}
 
 
-// void system_call(){
-// printf("system called");
-// while(1);
-// }
+void system_call(){
+printf("system called");
+while(1);
+}
 
 
 
