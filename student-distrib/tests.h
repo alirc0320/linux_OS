@@ -3,5 +3,5 @@
 
 // test launcher
 void launch_tests();
-
+int flag;
 #endif /* TESTS_H */

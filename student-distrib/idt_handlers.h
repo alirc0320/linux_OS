@@ -1,6 +1,8 @@
 #ifndef _IDT_HANDLERS_H
 #define _IDT_HANDLERS_H
 // #include "types.h"
+#include "tests.h"
+
 
 
  void division_error_handler(void);

@@ -14,7 +14,7 @@
 static inline void assertion_failure(){
 	/* Use exception #15 for assertions, otherwise
 	   reserved by Intel */
-	asm volatile("int $1"); //change this everytime you wanna test 
+	asm volatile("int $15"); //change this everytime you wanna test 
 }
 
 //ali likes you
@@ -34,16 +34,13 @@ int idt_test(){
 
 	int i;
 	int result = PASS;
-	// for (i = 0; i < 10; ++i){
-	// 	if ((idt[i].offset_15_00 == NULL) && SSSS
-	// 		(idt[i].offset_31_16 == NULL)){
-	// 		assertion_failure();
-	// 		result = FAIL;
-	// 	}
-	// }
-	//while (1){
-	 assertion_failure(); //it wasn't working berfore bc assertion failure never fcalled
-	 //}
+	for (i = 0; i < 10; ++i){
+		if ((idt[i].offset_15_00 == NULL) && 
+			(idt[i].offset_31_16 == NULL)){
+			assertion_failure();
+			result = FAIL;
+		}
+	}
 	return PASS; 
 }
 
@@ -59,6 +56,10 @@ int idt_test(){
 
 /* Test suite entry point */
 void launch_tests(){
-	TEST_OUTPUT("idt_test", idt_test());
-	// launch your tests here
+	//TEST_OUTPUT("idt_test", idt_test());
+	flag = 1;
+	//int a = 1/0; //Test for div 0 exception
+	// int* c = 0;  // Test for page fault
+	// int b = *c;  //  Test for page fault
+
 }

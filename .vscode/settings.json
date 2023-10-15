@@ -4,6 +4,7 @@
         "lib.h": "c",
         "tests.h": "c",
         "x86_desc.h": "c",
-        "paging_asm.h": "c"
+        "paging_asm.h": "c",
+        "idt_handlers.h": "c"
     }
 }

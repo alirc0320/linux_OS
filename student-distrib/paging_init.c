@@ -30,7 +30,7 @@ void init_paging(){
 
     pd[1].P = 1;
     pd[1].RW = 1;
-    pd[1].US = 0;
+    pd[1].US = 0;                   //urw for kernel
     pd[1].PWT = 0;
     pd[1].PCD = 0;
     pd[1].A=  0;
@@ -68,10 +68,10 @@ void init_paging(){
         pt[i].PAT = 0;
         pt[i].G = 0;
         pt[i].AVL = 0;
-        pt[i].bits_31_12 = i; // POST SHIFTING
+        pt[i].bits_31_12 = i; // POST SHIFTING (i * 4096 >> 12)
 
             if(i==184){
-                pt[i].bits_31_12 = i; // this is the addr for the page in video mem. this is right shift by 12
+                 pt[i].bits_31_12 = i; // this is the addr for the page in video mem. this is right shift by 12
                 pt[i].P = 1; 
             }
     }
