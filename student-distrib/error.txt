@@ -1,0 +1,41 @@
+Makefile:39: Makefile.dep: No such file or directory
+make: Warning: File `paging_init.c' has modification time 5e+03 s in the future
+make: Warning: File `Makefile.dep' has modification time 5e+03 s in the future
+idt_assembly.S:263:5: warning: no newline at end of file
+Device_init.c: In function ‘init_keyboard’:
+Device_init.c:34: warning: implicit declaration of function ‘enable_irq’
+Device_init.c:57:4: warning: no newline at end of file
+idt_handlers.c:128:140: warning: character constant too long for its type
+idt_handlers.c:128: warning: large integer implicitly truncated to unsigned type
+idt_handlers.c:128:149: warning: character constant too long for its type
+idt_handlers.c:128: warning: large integer implicitly truncated to unsigned type
+idt_handlers.c:128:188: warning: character constant too long for its type
+idt_handlers.c:128: warning: large integer implicitly truncated to unsigned type
+idt_handlers.c:128:246: warning: character constant too long for its type
+idt_handlers.c:128: warning: large integer implicitly truncated to unsigned type
+idt_handlers.c: In function ‘keyboard_interrupt’:
+idt_handlers.c:142: warning: implicit declaration of function ‘send_eoi’
+idt_handlers.c: In function ‘rtc_interrupt’:
+idt_handlers.c:150: warning: implicit declaration of function ‘test_interrupts’
+In file included from paging_init.c:2:
+paging_asm.h:68:27: warning: no newline at end of file
+paging_init.c: In function ‘init_paging’:
+paging_init.c:61: warning: passing argument 1 of ‘loadPageDirectory_asm’ makes pointer from integer without a cast
+paging_init.c:63: warning: implicit declaration of function ‘loadPSE’
+paging_init.c:9: warning: unused variable ‘j’
+paging_init.c:65:2: warning: no newline at end of file
+tests.c: In function ‘idt_test’:
+tests.c:36: warning: unused variable ‘result’
+tests.c:35: warning: unused variable ‘i’
+sudo: Can't open /var/run/sudo/user/tty1: Read-only file system
+mkdir: cannot create directory `/mnt/tmpmp3': Read-only file system
+mkdir: cannot create directory `/tmp/mp3': Read-only file system
+cp: cannot create regular file `/tmp/mp3/': Is a directory
+cp: cannot create regular file `/tmp/mp3/': Is a directory
+cp: cannot create regular file `/tmp/mp3/': Is a directory
+/tmp/mp3/mp3.img: No such file or directory
+cp: cannot stat `/tmp/mp3/bootimg': No such file or directory
+cp: cannot stat `/tmp/mp3/filesys_img': No such file or directory
+umount: /mnt/tmpmp3: not found
+cp: cannot stat `/tmp/mp3/mp3.img': No such file or directory
+make: warning:  Clock skew detected.  Your build may be incomplete.

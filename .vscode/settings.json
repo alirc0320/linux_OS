@@ -3,6 +3,7 @@
         "types.h": "c",
         "lib.h": "c",
         "tests.h": "c",
-        "x86_desc.h": "c"
+        "x86_desc.h": "c",
+        "paging_asm.h": "c"
     }
 }

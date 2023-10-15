@@ -1,5 +1,6 @@
 boot.o: boot.S multiboot.h x86_desc.h types.h
 idt_assembly.o: idt_assembly.S
+paging_asm.o: paging_asm.S
 x86_desc.o: x86_desc.S x86_desc.h types.h
 Device_init.o: Device_init.c Device_init.h types.h lib.h
 i8259.o: i8259.c i8259.h types.h lib.h
@@ -9,4 +10,5 @@ idt_init.o: idt_init.c idt_init.h x86_desc.h types.h idt_assembly.h \
 kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h i8259.h debug.h \
   tests.h Device_init.h idt_init.h idt_assembly.h idt_handlers.h
 lib.o: lib.c lib.h types.h
+paging_init.o: paging_init.c x86_desc.h types.h paging_asm.h
 tests.o: tests.c tests.h x86_desc.h types.h lib.h
