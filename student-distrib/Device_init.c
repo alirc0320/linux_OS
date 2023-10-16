@@ -36,6 +36,12 @@ enable_irq(1); //enable interrupt 1
 }
 
 
+/* Real-Time Clock (RTC) Initialization Function
+ * Inputs: None
+ * Outputs: None
+ * Function: Initializes the RTC by configuring its control registers.
+ *           It sets up the RTC to generate interrupts on IRQ 8 (RTC interrupt).
+ *           This function should be called during system initialization. */
 void init_RTC() {
     //cli();
     outb(0x8B,0x70); // Select Register B and disable NMI forsureskis. 0x8B =  Register B && 0x70 = used to specifiy index and disable NMI
