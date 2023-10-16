@@ -56,10 +56,126 @@ int idt_test(){
 
 /* Test suite entry point */
 void launch_tests(){
+
+	//NOT SURE IF WE NEED THIS 
 	//TEST_OUTPUT("idt_test", idt_test());
+	
+	
+	//MAKE FLAG = 1 FOR RTC OR 0 FOR KEYBOARD INTERRUPT 
 	flag = 1;
-	//int a = 1/0; //Test for div 0 exception
-	// int* c = 0;  // Test for page fault
-	// int b = *c;  //  Test for page fault
+	
+
+	// // Trigger exception 0
+	// asm volatile("int $0");
+
+	// // Trigger exception 1
+	// asm volatile("int $1");
+
+    // // Trigger exception 2
+    // asm volatile("int $2");
+
+    // // Trigger exception 3
+    // asm volatile("int $3");
+
+    // // Trigger exception 4
+    // asm volatile("int $4");
+
+	// // Trigger exception 5
+	// asm volatile("int $5");
+
+    // // Trigger exception 6
+    // asm volatile("int $6");
+
+    // // Trigger exception 7
+    // asm volatile("int $7");
+
+    // // Trigger exception 8
+    // asm volatile("int $8");
+
+    // // Trigger exception 10
+    // asm volatile("int $10");
+
+    // // Trigger exception 11
+    // asm volatile("int $11");
+
+    // // Trigger exception 12
+    // asm volatile("int $12");
+
+    // // Trigger exception 13
+    // asm volatile("int $13");
+
+    // // Trigger exception 14
+    // asm volatile("int $14");
+
+    // // Trigger exception 16
+    // asm volatile("int $16");
+
+    // // Trigger exception 17
+    // asm volatile("int $17");
+
+    // // Trigger exception 18
+    // asm volatile("int $18");
+
+    // // Trigger exception 19
+    // asm volatile("int $19");
+
+    // // Trigger exception 20
+    // asm volatile("int $20");
+
+    // // Trigger exception 21
+    // asm volatile("int $21");
+
+    // // Trigger exception 28
+    // asm volatile("int $28");
+
+    // // Trigger exception 29
+    // asm volatile("int $29");
+
+    // // Trigger exception 30
+    // asm volatile("int $30");
+	
+	// // System Call
+    //asm volatile("int $128");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+	//Overflow excpetion 
+	//asm volatile("int $4");
+	
+	// Trigger a Non-Maskable Interrupt (NMI)
+    //asm volatile("int $2");
+
+	//Debug exception
+	//asm volatile("int $1");
+
+	//Invalid Opcode Exception
+	//asm volatile("ud2");  // Execute an undefined instruction (UD2)
+
+	//breakpoint exception
+	//asm volatile("int $3");
+	
+	//div 0 exception
+	//int a = 1/0; 
+	
+	// Test for page fault
+	// int* c = 0; 
+	// int b = *c; 
 
 }

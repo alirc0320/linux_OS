@@ -3,9 +3,9 @@
 // #include "types.h"
 #include "tests.h"
 
+//declaration for exception handlers, interrupt handelrs and system calls functions 
 
-
- void division_error_handler(void);
+ void division_error_handler(void); 
  void debug_handler(void);
  void non_maskable_interrupt_handler(void);
  void breakpoint_handler(void);

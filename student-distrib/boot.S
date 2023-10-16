@@ -27,15 +27,15 @@ _start:
 
 continue:
 # Load the GDT
-lgdt gdt_desc 
+lgdt gdt_desc #initialize the gdt and load it 
 
 pushal
 pushfl
-call initialize_idt
+call initialize_idt   # initialize the idt and save all flags and registers 
 popfl
 popal
 
-lidt idt_desc_ptr
+lidt idt_desc_ptr  #load the idt
 
 
  # Load CS with the new descriptor value

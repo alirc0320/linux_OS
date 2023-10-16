@@ -142,36 +142,24 @@ void entry(unsigned long magic, unsigned long addr) {
 
     i8259_init();
 
-
-    //////////////////////////////////////////////////////////////////////////////////////////////
     //Mask all interrupts to start
     int i;
     for (i = 0; i< 16; i++){
         disable_irq(i);
     }
     enable_irq(2);
-
+//
     /* Init the PIC */
     
 
-    /* Initialize devices, memory, filesystem, enable device interrupts on the
-     * PIC, any other initialization stuff... */
-       init_paging(); 
-
-     //functions written in Device_init.c
-    
+   // initializing paging
+    init_paging(); 
+// initialize rtc
     init_RTC(); 
-  
+
+//intialize keyboard 
     init_keyboard(); 
     
-    //enable_irq(8);
-    // enable_irq(1);
-    
-
-    /* Enable interrupts */
-   
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 
     /* Do not enable the following until after you have set up your

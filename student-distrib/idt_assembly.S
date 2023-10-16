@@ -31,233 +31,239 @@
 .globl system_call_asm
 
 
-    division_error_handler_asm:                            
-    pushal                               
-    pushfl                              
-    call division_error_handler                    
-    popfl                                
-    popal                               
-    iret
+   # Division Error Handler
+division_error_handler_asm:
+    pushal                              # Push all general-purpose registers (EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI)
+    pushfl                              # Push the EFLAGS register (processor status flags)
+    call division_error_handler          # Call the 'division_error_handler' function
+    popfl                               # Pop the EFLAGS register, restoring the processor status flags
+    popal                               # Pop all the general-purpose registers, restoring their values
+    iret                                # Return from the interrupt, resuming normal execution
 
-    debug_handler_asm:                            
-    pushal                               
-    pushfl                              
-    call debug_handler                    
-    popfl                                
-    popal                               
-    iret
+# Debug Exception Handler
+debug_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call debug_handler                    # Call the 'debug_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
-    non_maskable_interrupt_handler_asm:                            
-    pushal                               
-    pushfl                              
-    call non_maskable_interrupt_handler                    
-    popfl                                
-    popal                               
-    iret
-    
-    breakpoint_handler_asm:                            
-    pushal                               
-    pushfl                              
-    call breakpoint_handler                    
-    popfl                                
-    popal                               
-    iret
-    
-    overflow_handler_asm:                            
-    pushal                               
-    pushfl                              
-    call overflow_handler                    
-    popfl                                
-    popal                               
-    iret
-    
-    bound_range_exceeded_handler_asm:                            
-    pushal                               
-    pushfl                              
-    call bound_range_exceeded_handler                    
-    popfl                                
-    popal                               
-    iret
-    
-    invalid_opcode_handler_asm:                            
-    pushal                               
-    pushfl                              
-    call invalid_opcode_handler                    
-    popfl                                
-    popal                               
-    iret
-    
-    device_not_available_handler_asm:                            
-    pushal                               
-    pushfl                              
-    call device_not_available_handler                    
-    popfl                                
-    popal                               
-    iret
-    
-    double_fault_handler_asm:                            
-    pushal                               
-    pushfl                              
-    call double_fault_handler                    
-    popfl                                
-    popal                               
-    iret
-    
-    invalid_tss_handler_asm:                            
-    pushal                               
-    pushfl                              
-    call invalid_tss_handler                    
-    popfl                                
-    popal                               
-    iret
+# Non-Maskable Interrupt (NMI) Handler
+non_maskable_interrupt_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call non_maskable_interrupt_handler    # Call the 'non_maskable_interrupt_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
+# Breakpoint Exception Handler
+breakpoint_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call breakpoint_handler                # Call the 'breakpoint_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
+# Overflow Exception Handler
+overflow_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call overflow_handler                  # Call the 'overflow_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
-    segment_not_present_handler_asm:
-    pushal                               
-    pushfl                              
-    call segment_not_present_handler                    
-    popfl                                
-    popal                               
-    iret
+# Bound Range Exceeded Exception Handler
+bound_range_exceeded_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call bound_range_exceeded_handler      # Call the 'bound_range_exceeded_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
+# Invalid Opcode Exception Handler
+invalid_opcode_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call invalid_opcode_handler            # Call the 'invalid_opcode_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
-    
-    stack_segment_fault_handler_asm:
-    pushal                               
-    pushfl                              
-    call stack_segment_fault_handler                    
-    popfl                                
-    popal                               
-    iret
+# Device Not Available Exception Handler
+device_not_available_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call device_not_available_handler      # Call the 'device_not_available_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
+# Double Fault Exception Handler
+double_fault_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call double_fault_handler              # Call the 'double_fault_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
+# Invalid TSS (Task State Segment) Exception Handler
+invalid_tss_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call invalid_tss_handler               # Call the 'invalid_tss_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
-    general_protection_fault_handler_asm:
-    pushal                               
-    pushfl                              
-    call general_protection_fault_handler                    
-    popfl                                
-    popal                               
-    iret
+# Segment Not Present Exception Handler
+segment_not_present_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call segment_not_present_handler      # Call the 'segment_not_present_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
+# Stack Segment Fault Exception Handler
+stack_segment_fault_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call stack_segment_fault_handler       # Call the 'stack_segment_fault_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
+# General Protection Fault Exception Handler
+general_protection_fault_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call general_protection_fault_handler  # Call the 'general_protection_fault_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
+# Page Fault Exception Handler
+page_fault_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call page_fault_handler                # Call the 'page_fault_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
-    
-    page_fault_handler_asm:
-    pushal                               
-    pushfl                              
-    call page_fault_handler                    
-    popfl                                
-    popal                               
-    iret
+# x87 Floating-Point Exception Handler
+x87_floating_point_exception_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call x87_floating_point_exception_handler # Call the 'x87_floating_point_exception_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
+# Alignment Check Exception Handler
+alignment_check_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call alignment_check_handler           # Call the 'alignment_check_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
+# Machine Check Exception Handler
+machine_check_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call machine_check_handler            # Call the 'machine_check_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
+# SIMD Floating-Point Exception Handler
+SIMD_floating_point_exception_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call SIMD_floating_point_exception_handler # Call the 'SIMD_floating_point_exception_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
-    
-    x87_floating_point_exception_handler_asm:
-    pushal                               
-    pushfl                              
-    call x87_floating_point_exception_handler                    
-    popfl                                
-    popal                               
-    iret
+# Virtualization Exception Handler
+virtualization_exception_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call virtualization_exception         # Call the 'virtualization_exception' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
+# Control Protection Exception Handler
+control_protection_exception_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call control_protection_exception_handler # Call the 'control_protection_exception_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
-    
-    alignment_check_handler_asm:
-    pushal                               
-    pushfl                              
-    call alignment_check_handler                    
-    popfl                                
-    popal                               
-    iret
-    
-    machine_check_handler_asm:
-    pushal                               
-    pushfl                              
-    call machine_check_handler                    
-    popfl                                
-    popal                               
-    iret
-    
-    SIMD_floating_point_exception_handler_asm:
-    pushal                               
-    pushfl                              
-    call SIMD_floating_point_exception_handler                    
-    popfl                                
-    popal                               
-    iret
-    
-    virtualization_exception_asm:
-    pushal                               
-    pushfl                              
-    call virtualization_exception                    
-    popfl                                
-    popal                               
-    iret
-    
-    control_protection_exception_handler_asm:
-    pushal                               
-    pushfl                              
-    call control_protection_exception_handler                    
-    popfl                                
-    popal                               
-    iret
-    
-    hypervisor_exception_handler_asm:
-    pushal                               
-    pushfl                              
-    call hypervisor_exception_handler                    
-    popfl                                
-    popal                               
-    iret
-    
-    vmm_communication_exception_handler_asm:
-    pushal                               
-    pushfl                              
-    call vmm_communication_exception_handler                    
-    popfl                                
-    popal                               
-    iret
-    
-    security_exception_handler_asm:
-    pushal                               
-    pushfl                              
-    call security_exception_handler                    
-    popfl                                
-    popal                               
-    iret
+# Hypervisor Exception Handler
+hypervisor_exception_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call hypervisor_exception_handler      # Call the 'hypervisor_exception_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
-    rtc_interrupt_asm:
-    pushal                               
-    pushfl                              
-    call rtc_interrupt                    
-    popfl                                
-    popal                               
-    iret
-    
-    keyboard_interrupt_asm:
-    pushal                               
-    pushfl                              
-    call keyboard_interrupt                    
-    popfl                                
-    popal                               
-    iret
-    
-    system_call_asm:
-    pushal                               
-    pushfl                              
-    call system_call                     
-    popfl                                
-    popal                               
-    iret
+# VMM Communication Exception Handler
+vmm_communication_exception_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call vmm_communication_exception_handler # Call the 'vmm_communication_exception_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
+# Security Exception Handler
+security_exception_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call security_exception_handler        # Call the 'security_exception_handler' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
+# RTC (Real-Time Clock) Interrupt Handler
+rtc_interrupt_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call rtc_interrupt                     # Call the 'rtc_interrupt' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
+# Keyboard Interrupt Handler
+keyboard_interrupt_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call keyboard_interrupt                # Call the 'keyboard_interrupt' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
+# System Call Handler
+system_call_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call system_call                       # Call the 'system_call' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret                                # Return from the interrupt
 
 
     
