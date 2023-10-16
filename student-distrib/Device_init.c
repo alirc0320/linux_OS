@@ -3,6 +3,7 @@
 // #include <stdio.h>
 // #include <stdlib.h>
 #include "Device_init.h"
+#include "i8259.h"
 #include "lib.h"
 
 // Commands

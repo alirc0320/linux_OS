@@ -65,9 +65,15 @@ page_dir_0_t pd[1024] __attribute__((aligned(4096))); //1024 - number of PDEs an
 page_table_t pt[1024] __attribute__((aligned(4096))); //1024 - number of PTEs and 4096 is the number of bytes for a page 
 
 //linkage - this is for the assembly function so that we can enable paging and CR3 
+void init_paging(); 
 void loadPageDirectory_asm(page_dir_t *pd);
 // void enablePaging_asm();
 // void loadPSE(); 
 #endif /* ASM */
 
 //#endif /* _x86_DESC_H */
+
+
+
+
+

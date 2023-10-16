@@ -265,5 +265,4 @@ system_call_asm:
     popal                               # Pop all the general-purpose registers
     iret                                # Return from the interrupt
 
-
     

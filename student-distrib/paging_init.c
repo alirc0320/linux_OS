@@ -9,7 +9,7 @@
  * Function: this funtion sets up paging my creating enteries in the PD and the PT. We have 2 entried in the directory and 1 PTE - used for video 
  * memeory and for kernel 
  *  */
-void init_paging(); 
+
 
 void init_paging(){
     int i;
@@ -92,10 +92,15 @@ void init_paging(){
     // pd[0].bits_31_12 = ((unsigned int)pt>>12);
 
 //call for assembly linkage for setting up paging 
-    loadPageDirectory_asm((unsigned int*)pd);//we need to pass by pointer I think thissl automaticalyl take mem address
+    loadPageDirectory_asm((page_dir_t*)pd);//we need to pass by pointer I think thissl automaticalyl take mem address
     //printf("calling enable paging");
 //     enablePaging_asm();
 //    // printf("paging enable called");
 //     loadPSE();
 
 }
+
+
+
+
+

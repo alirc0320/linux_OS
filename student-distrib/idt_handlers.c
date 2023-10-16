@@ -1,7 +1,7 @@
 // #include <stdio.h>
 // #include <stdlib.h>
 // #include "x86_desc.h"
-// #include "i8259.h"
+#include "i8259.h"
 #include "lib.h"
 #include "idt_handlers.h"
 // #include "Device_init.c"
