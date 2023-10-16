@@ -46,6 +46,46 @@ int idt_test(){
 
 // add more tests here
 
+int invalidPageAccess(){
+    int i;
+    char * ptr;
+    int value;
+    for(i = 0x400000; i < 0x800000; i++){
+        ptr = (char *)i;
+        value = *ptr;
+    }
+    return PASS;
+}
+
+int invalidMaxTest(){
+    int i = 0x810000;
+    char* ptr;
+    int value;
+    ptr = (char *)i;
+    value = *ptr;
+    return FAIL;
+}
+
+int invalidMinTest(){
+    int i = 0x390000;
+    char* ptr;
+    int value;
+    ptr = (char *)i;
+    value = *ptr;
+    return FAIL;
+}
+
+int invalidVidMemTest(){
+    int i;
+    char* ptr;
+    int value;
+    for(i = 0xb8000; i < 0xb9000; i++){
+        ptr = (char *)i;
+        value = *ptr;
+    }
+    return PASS;
+}
+
 
 
 /* Checkpoint 2 tests */
@@ -62,7 +102,7 @@ void launch_tests(){
 	
 	
 	//MAKE FLAG = 1 FOR RTC OR 0 FOR KEYBOARD INTERRUPT 
-	flag = 1;
+	flag = 0;
 	
 
 	// // Trigger exception 0
@@ -136,6 +176,12 @@ void launch_tests(){
 	
 	// // System Call
    // asm volatile("int $128");
+
+
+    // invalidPageAccess();
+    // invalidMaxTest();
+    // invalidMinTest();
+    //invalidVidMemTest();
 
 
 
