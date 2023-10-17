@@ -4,6 +4,7 @@
 #include "i8259.h"
 #include "lib.h"
 #include "idt_handlers.h"
+#include "cursor.h"
 // #include "Device_init.c"
 
 
@@ -221,7 +222,7 @@ void security_exception_handler() {
  * The array provides a lookup table for translating scan codes into readable characters. */
 //0x59 is limit on array whihch is 89 in decimal 
 unsigned char keyScanCodeArray_one[0x59] = {'\0','\0','1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', 
-'=', '\0', '\0', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\0', '\0', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\0', '\0', '\0', '\0', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '\0', 
+'=', '\0', '\0', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', '\0', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\0', '\0', '\0', '\0', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '\0', 
 '\0', '*', '\0', ' ', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '7', '8', 
 '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};   
 
@@ -234,10 +235,32 @@ unsigned char keyScanCodeArray_one[0x59] = {'\0','\0','1', '2', '3', '4', '5', '
  * Function: Handles keyboard interrupt, reads the scan code from the keyboard controller, 
  *           maps it to a character using keyScanCodeArray_one, and prints the corresponding character. */
 void keyboard_interrupt() {
+   
     int scan_code = inb(0x60);  // Read the scan code from the keyboard controller. x60 is the keyboard data port 
-    if (scan_code < 89) { //array index is less than 89
+    //int ctrl_flag = 1; 
+    if(scan_code == 0x1D){
+        ctrl_flag = 1; 
+    }
+    if (scan_code == 0x9D){
+        ctrl_flag = 0; 
+    }
+    if (ctrl_flag==1 && scan_code == 0x26){//this is for ctrl+L, we'll need to make arrays for ctrl and shifted characters
+        clear(); 
+        
+        
+       // printf("Ali Rizwan Chaudry");
+        send_eoi(1);
+        return; 
+    }
+
+    if (scan_code == 0x0E){
+        backspace(); //move cursor back-created fn in lib.h
+         //print null character
+    }
+    
+    else if (scan_code < 89) { //array index is less than 89
         char output = keyScanCodeArray_one[scan_code];  // Map the scan code to a character.
-        printf(" %c", output);  // Print the corresponding character.
+        putc(output);  // SHOULD BE PUTC
     }
     send_eoi(1);  // Send an End-of-Interrupt signal to acknowledge the interrupt. This was IRQ NUM 1 
 }

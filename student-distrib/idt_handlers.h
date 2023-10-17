@@ -32,6 +32,7 @@
  void keyboard_interrupt(void);
  void system_call(void); 
 
+static int ctrl_flag = 0; 
 
 
 

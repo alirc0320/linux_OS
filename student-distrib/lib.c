@@ -2,6 +2,7 @@
  * vim:ts=4 noexpandtab */
 
 #include "lib.h"
+#include "cursor.h"
 
 #define VIDEO       0xB8000
 #define NUM_COLS    80
@@ -22,6 +23,10 @@ void clear(void) {
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
         *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
     }
+
+        screen_x = 0; 
+        screen_y = 0; 
+        init_cursor(); //this works assumuing we want init cursor at 0,0
 }
 
 /* Standard printf().
@@ -175,9 +180,14 @@ void putc(uint8_t c) {
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
         screen_x++;
+        if(screen_x >= VGA_WIDTH){
+        screen_y += 1;
+    }
         screen_x %= NUM_COLS;
         screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
     }
+
+    update_cursor(screen_x, screen_y);
 }
 
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
@@ -473,4 +483,22 @@ void test_interrupts(void) {
     for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
         video_mem[i << 1]++;
     }
+}
+
+
+void backspace(void){
+    screen_x -=1; 
+    if (screen_x < 0){
+        screen_x = 79; 
+        screen_y -=1; 
+        putc('\0');
+        screen_x = 79;
+        screen_y -=1;  
+        update_cursor(screen_x, screen_y);
+        return; 
+    }
+    putc('\0');
+    
+    screen_x -=1; 
+    update_cursor(screen_x, screen_y);
 }

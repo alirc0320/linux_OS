@@ -11,6 +11,7 @@
 #include "Device_init.h"
 #include "idt_init.h"
 #include "paging_asm.h"
+#include "cursor.h"
 
 #define RUN_TESTS
 
@@ -160,6 +161,12 @@ void entry(unsigned long magic, unsigned long addr) {
 //intialize keyboard 
     init_keyboard(); 
     
+    init_cursor();
+    
+    // update_cursor(5,5);
+
+    //disable_cursor(); 
+    
 
 
     /* Do not enable the fong until after you have set up your
@@ -169,7 +176,7 @@ void entry(unsigned long magic, unsigned long addr) {
      // I think well have to uncomment this at some point
 
 
-    printf("Enabling Interrupts\n");
+    //printf("Enabling Interrupts\n");
     sti();
 
 
