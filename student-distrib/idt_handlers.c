@@ -226,6 +226,11 @@ unsigned char keyScanCodeArray_one[0x59] = {'\0','\0','1', '2', '3', '4', '5', '
 '\0', '*', '\0', ' ', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '7', '8', 
 '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};   
 
+unsigned char keyScanCodeArray_for_shift[0x59] = {'\0','\0','!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', 
+'+', '\0', '\0', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n', '\0', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '\0', '\0', '\0', '\0', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '\0', 
+'\0', '*', '\0', ' ', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '7', '8', 
+'9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};   
+
 
 
 
@@ -238,6 +243,8 @@ void keyboard_interrupt() {
    
     int scan_code = inb(0x60);  // Read the scan code from the keyboard controller. x60 is the keyboard data port 
     //int ctrl_flag = 1; 
+
+   
     if(scan_code == 0x1D){
         ctrl_flag = 1; 
     }
@@ -255,13 +262,37 @@ void keyboard_interrupt() {
 
     if (scan_code == 0x0E){
         backspace(); //move cursor back-created fn in lib.h
-         //print null character
+         //print null character'
+         send_eoi(1);
+         return; 
+    }
+
+    if(scan_code == 0xAA){
+       shift_flag = 0; 
     }
     
+    if(scan_code == 0x2A){
+        shift_flag = 1;
+    }
+
     else if (scan_code < 89) { //array index is less than 89
+        if(shift_flag == 1){
+            char output = keyScanCodeArray_for_shift[scan_code];  // Map the scan code to a character.
+            putc(output);  // SHOULD BE PUTC
+        }
+        else{
         char output = keyScanCodeArray_one[scan_code];  // Map the scan code to a character.
         putc(output);  // SHOULD BE PUTC
+        }
+
+        //  char output = keyScanCodeArray_one[scan_code];  // Map the scan code to a character.
+        // putc(output);  // SHOULD BE PUTC
     }
+
+    
+
+
+
     send_eoi(1);  // Send an End-of-Interrupt signal to acknowledge the interrupt. This was IRQ NUM 1 
 }
 

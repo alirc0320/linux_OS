@@ -487,13 +487,24 @@ void test_interrupts(void) {
 
 
 void backspace(void){
+    
+    
     screen_x -=1; 
     if (screen_x < 0){
         screen_x = 79; 
         screen_y -=1; 
+        if(screen_y < 0){
+            screen_y = 0;
+            screen_x = 0;  
+        }
         putc('\0');
         screen_x = 79;
         screen_y -=1;  
+        if (screen_y < 0){
+            screen_y = 0; 
+            screen_x = 0; 
+        }
+        
         update_cursor(screen_x, screen_y);
         return; 
     }
