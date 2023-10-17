@@ -10,7 +10,7 @@ void init_cursor() {
     outb(0, 0x3D5);
 
     outb(0x0B, 0x3D4);  // Set cursor end line
-    outb(25, 0x3D5);
+    outb(30, 0x3D5);
 
     // Set the cursor location to top-left (row 0, column 0)
     outb(0x0F, 0x3D4);  // High byte of cursor location

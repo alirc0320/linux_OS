@@ -29,6 +29,14 @@ void clear(void) {
         init_cursor(); //this works assumuing we want init cursor at 0,0
 }
 
+    void scroll(){
+        int i;
+    for (i = 80; i < NUM_ROWS * NUM_COLS; i++) {
+        *(uint8_t *)(video_mem + (i-80 << 1)) =  *(uint8_t *)(video_mem + (i<< 1));
+        *(uint8_t *)(video_mem + (i-80 << 1) + 1) = ATTRIB;
+    }
+}
+
 /* Standard printf().
  * Only supports the following format strings:
  * %%  - print a literal '%' character
@@ -172,19 +180,39 @@ int32_t puts(int8_t* s) {
  * Inputs: uint_8* c = character to print
  * Return Value: void
  *  Function: Output a character to the console */
+ static int relative_to_screen_y;
 void putc(uint8_t c) {
     if(c == '\n' || c == '\r') {
         screen_y++;
         screen_x = 0;
+        if(screen_y >= 25){
+            scroll();
+            update_cursor(0,24);
+             screen_x %= NUM_COLS;
+            //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS; 
+            return;  
+        }
     } else {
+
+       if(screen_x >= VGA_WIDTH){
+        screen_y += 1;
+       }
+        if(screen_y >= 25){
+            scroll(); 
+            update_cursor(0,24);
+        screen_x %= NUM_COLS;
+        //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS; 
+        return; 
+        }
+    
+
+
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
         screen_x++;
-        if(screen_x >= VGA_WIDTH){
-        screen_y += 1;
-    }
+     
         screen_x %= NUM_COLS;
-        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS; //might to take out
     }
 
     update_cursor(screen_x, screen_y);
