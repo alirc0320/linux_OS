@@ -35,6 +35,18 @@ void clear(void) {
         *(uint8_t *)(video_mem + (i-80 << 1)) =  *(uint8_t *)(video_mem + (i<< 1));
         *(uint8_t *)(video_mem + (i-80 << 1) + 1) = ATTRIB;
     }
+
+
+    // Clear the last line
+    int last_line_start = (NUM_ROWS - 1) * NUM_COLS;
+    int p;
+    for ( p = last_line_start; p < last_line_start + NUM_COLS; p++) {
+        *(uint8_t *)(video_mem + p * 2) = ' ';
+        *(uint8_t *)(video_mem + p * 2 + 1) = ATTRIB;
+    }
+
+
+
 }
 
 /* Standard printf().
@@ -180,43 +192,84 @@ int32_t puts(int8_t* s) {
  * Inputs: uint_8* c = character to print
  * Return Value: void
  *  Function: Output a character to the console */
- static int relative_to_screen_y;
+
 void putc(uint8_t c) {
-    if(c == '\n' || c == '\r') {
-        screen_y++;
+    if (c == '\n' || c == '\r') {
         screen_x = 0;
-        if(screen_y >= 25){
+        screen_y++;
+        
+        if (screen_y >= NUM_ROWS) {
             scroll();
-            update_cursor(0,24);
-             screen_x %= NUM_COLS;
-            //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS; 
-            return;  
+            screen_y = NUM_ROWS - 1; // Adjust to the last row
         }
     } else {
-
-       if(screen_x >= VGA_WIDTH){
-        screen_y += 1;
-       }
-        if(screen_y >= 25){
-            scroll(); 
-            update_cursor(0,24);
-        screen_x %= NUM_COLS;
-        //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS; 
-        return; 
-        }
-    
-
-
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
         screen_x++;
-     
-        screen_x %= NUM_COLS;
-        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS; //might to take out
+
+        if (screen_x >= NUM_COLS) {
+            screen_x = 0;
+            screen_y++;
+
+            if (screen_y >= NUM_ROWS) {
+                scroll();
+                screen_y = NUM_ROWS - 1; // Adjust to the last row
+            }
+        }
     }
 
     update_cursor(screen_x, screen_y);
 }
+
+
+
+// void putc(uint8_t c) {
+//     if (c == '\n' || c == '\r') {
+//         screen_x = 0;
+//         screen_y++;
+        
+//         if (screen_y >= NUM_ROWS) {
+//             scroll();
+//             screen_y = NUM_ROWS - 1; // Adjust to the last row
+//         } else {
+//             // Clear the new line by writing spaces to it
+//             int clear_row = screen_y;
+//             int clear_col;
+//             for (clear_col = 0; clear_col < NUM_COLS; clear_col++) {
+//                 *(uint8_t *)(video_mem + ((NUM_COLS * clear_row + clear_col) << 1)) = ' ';
+//                 *(uint8_t *)(video_mem + ((NUM_COLS * clear_row + clear_col) << 1) + 1) = ATTRIB;
+//             }
+//         }
+//     } else {
+//         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
+//         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
+//         screen_x++;
+
+//         if (screen_x >= NUM_COLS) {
+//             screen_x = 0;
+//             screen_y++;
+
+//             if (screen_y >= NUM_ROWS) {
+//                 scroll();
+//                 screen_y = NUM_ROWS - 1; // Adjust to the last row
+//             }
+//         }
+//     }
+
+//     update_cursor(screen_x, screen_y);
+// }
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
  * Inputs: uint32_t value = number to convert
