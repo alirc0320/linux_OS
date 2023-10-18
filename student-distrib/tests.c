@@ -102,7 +102,7 @@ void launch_tests(){
 	
 	
 	//MAKE FLAG = 1 FOR RTC OR 0 FOR KEYBOARD INTERRUPT 
-	flag = 0;
+	flag = 1;
 	
 
 	// // Trigger exception 0

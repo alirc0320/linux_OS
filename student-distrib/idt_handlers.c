@@ -233,18 +233,23 @@ unsigned char keyScanCodeArray_for_shift[0x59] = {'\0','\0','!', '@', '#', '$', 
 
 
 
-
 /* Keyboard Interrupt Handler Function
  * Inputs: None
  * Outputs: None
  * Function: Handles keyboard interrupt, reads the scan code from the keyboard controller, 
  *           maps it to a character using keyScanCodeArray_one, and prints the corresponding character. */
-void keyboard_interrupt() {
-   
-    int scan_code = inb(0x60);  // Read the scan code from the keyboard controller. x60 is the keyboard data port 
-    //int ctrl_flag = 1; 
+int keyboard_interrupt() {
+    scan_code = inb(0x60);  // Read the scan code from the keyboard controller. x60 is the keyboard data port 
+    kb_flag = 1; 
+    write(keyboard_buffer, 0); 
+    read(keyboard_buffer, 0);
+    send_eoi(1);
 
-   
+    return scan_code;
+}
+
+ void write (const char* buf, int nbytes){//need to add fd as a function once file system worknig
+
     if(scan_code == 0x1D){
         ctrl_flag = 1; 
     }
@@ -253,47 +258,73 @@ void keyboard_interrupt() {
     }
     if (ctrl_flag==1 && scan_code == 0x26){//this is for ctrl+L, we'll need to make arrays for ctrl and shifted characters
         clear(); 
-        
-        
-       // printf("Ali Rizwan Chaudry");
-        send_eoi(1);
+        init_buffer(); 
+   
+       
         return; 
     }
 
     if (scan_code == 0x0E){
         backspace(); //move cursor back-created fn in lib.h
-         //print null character'
-         send_eoi(1);
+     if (keyboard_buffer_index > 0){
+        keyboard_buffer[keyboard_buffer_index -1] = '\0';
+        keyboard_buffer_index --; 
+    }
+       
          return; 
     }
-
     if(scan_code == 0xAA){
        shift_flag = 0; 
     }
-    
     if(scan_code == 0x2A){
         shift_flag = 1;
     }
 
-    else if (scan_code < 89) { //array index is less than 89
+    else if (scan_code < 89 && scan_code != 0x1C) { //array index is less than 89
         if(shift_flag == 1){
             char output = keyScanCodeArray_for_shift[scan_code];  // Map the scan code to a character.
-            putc(output);  // SHOULD BE PUTC
+            keyboard_buffer[keyboard_buffer_index] = output; 
+            keyboard_buffer_index ++;
+            putc(output);
+
         }
         else{
         char output = keyScanCodeArray_one[scan_code];  // Map the scan code to a character.
+        keyboard_buffer[keyboard_buffer_index] = output; 
+        keyboard_buffer_index ++; 
         putc(output);  // SHOULD BE PUTC
         }
+}
+   
+}
 
-        //  char output = keyScanCodeArray_one[scan_code];  // Map the scan code to a character.
-        // putc(output);  // SHOULD BE PUTC
+ int read(const char* buf, int nbytes){//need to add fd as a function once file system worknig
+
+     if (scan_code != 0x1C){
+        return; 
+     }
+     //enter case
+    else if(scan_code == 0x1C){
+       
+        putc('\n');
+        int i; 
+        for (i = 0; i<keyboard_buffer_index; i++){
+            putc(keyboard_buffer[i]);
+        }
+        putc('\n');
+        init_buffer(); 
+        return; 
+     }
+
+}
+
+
+void init_buffer(){
+    int i; 
+    for (i = 0; i< 128; i++){
+        keyboard_buffer[i] = '\0';
     }
-
-    
-
-
-
-    send_eoi(1);  // Send an End-of-Interrupt signal to acknowledge the interrupt. This was IRQ NUM 1 
+    keyboard_buffer_index = 0; 
 }
 
 
@@ -322,8 +353,5 @@ void system_call() {
     printf("System call invoked.\n");  // Print a message indicating that a system call was invoked.
     while (1);  // Enter an infinite loop.
 }
-
-
-
 
 

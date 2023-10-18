@@ -29,18 +29,24 @@
  void vmm_communication_exception_handler(void);
  void security_exception_handler(void);
  void rtc_interrupt(void);
- void keyboard_interrupt(void);
+ int keyboard_interrupt(void);
  void system_call(void); 
 
 static int ctrl_flag = 0; 
 static int shift_flag = 0; 
 
+int read(const char* buf, int nbytes) ;
+void write(const char* buf, int nbytes);
+static int scan_code;
+
+void init_buffer();
+static char keyboard_buffer[128];
+static int keyboard_buffer_index; 
+static int kb_flag = 0; 
 
 
 
 #endif /* _IDT_HANDLERS_H */
-
-
 
 
 
