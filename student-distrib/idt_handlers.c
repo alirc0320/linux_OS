@@ -215,31 +215,32 @@ void security_exception_handler() {
     while (1);
 }
 
-
 /* Array that maps keyboard scan codes to characters and control codes.
  * Each element in the array represents the character or control code associated with a specific scan code.
  * Note: Some entries are marked as '\0', which means they have no corresponding character or control code.
  * The array provides a lookup table for translating scan codes into readable characters. */
 //0x59 is limit on array whihch is 89 in decimal 
+
+
 unsigned char keyScanCodeArray_one[0x59] = {'\0','\0','1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', 
-'=', '\0', '\0', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', '\0', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\0', '\0', '\0', '\0', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '\0', 
+'=', '\0', '\0', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', '\0', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`', '\0', '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 
 '\0', '*', '\0', ' ', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '7', '8', 
 '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};   
 
 unsigned char keyScanCodeArray_for_shift[0x59] = {'\0','\0','!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', 
-'+', '\0', '\0', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n', '\0', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '\0', '\0', '\0', '\0', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '\0', 
+'+', '\0', '\0', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n', '\0', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', '~', '\0', '|', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', 
 '\0', '*', '\0', ' ', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '7', '8', 
 '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};   
 
 unsigned char keyScanCodeArray_for_just_capslock[0x59] = {'\0','\0','1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', 
-'=', '\0', '\0', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\n', '\0', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\0', '\0', '\0', '\0', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '\0', 
+'=', '\0', '\0', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\n', '\0', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\'', '`','\0', '\\', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/', 
 '\0', '*', '\0', ' ', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '7', '8', 
 '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};   
 
 
 
 unsigned char keyScanCodeArray_for_shift_and_capslock[0x59] = {'\0','\0','!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', 
-'+', '\0', '\0', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '{', '}', '\n', '\0', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ':', '\0', '\0', '\0', '\0', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '<', '>', '\0', 
+'+', '\0', '\0', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '{', '}', '\n', '\0', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ':', '"', '~', '\0', '|', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '<', '>', '?', 
 '\0', '*', '\0', ' ', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '7', '8', 
 '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};  
 
@@ -261,7 +262,7 @@ int keyboard_interrupt() {
 }
 
  void write (const char* buf, int nbytes){//need to add fd as a function once file system worknig
-    if (scan_code == 0x3A){
+    if (scan_code == 0x3A){//Caps lock
         capslock_flag += 1; 
         capslock_flag %= 2; 
         return; 
@@ -280,7 +281,7 @@ int keyboard_interrupt() {
         return; 
     }
 
-    if (scan_code == 0x0E){
+    if (scan_code == 0x0E){ //backspace
         backspace(); //move cursor back-created fn in lib.h
      if (keyboard_buffer_index > 0){
         keyboard_buffer[keyboard_buffer_index -1] = '\0';
@@ -289,15 +290,33 @@ int keyboard_interrupt() {
        
          return; 
     }
-    if(scan_code == 0xAA){
+
+    if (scan_code == 0x0F){//tab
+        int i; 
+        for (i = 0; i< 4; i++){
+             //update new buffer, tab puts 4 spaces in 
+            if (keyboard_buffer_index>= 127){
+                return; 
+            }
+            
+            keyboard_buffer[keyboard_buffer_index] = ' ';
+            putc(' ');
+            keyboard_buffer_index += 1;
+            
+
+        }
+        return; 
+    }
+
+    if(scan_code == 0xAA){//shift released
        shift_flag = 0; 
     }
-    if(scan_code == 0x2A){
+    if(scan_code == 0x2A){//shift pressed
         shift_flag = 1;
     }
 
     else if (scan_code < 89 && scan_code != 0x1C) { //array index is less than 89
-    if(keyboard_buffer_index >= 127){
+    if(keyboard_buffer_index >= 127 || keyScanCodeArray_one[scan_code] == '\0'){
         return; 
     }
         if(shift_flag == 1 && capslock_flag == 0){
