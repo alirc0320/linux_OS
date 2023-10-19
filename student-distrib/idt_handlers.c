@@ -306,7 +306,7 @@ int keyboard_interrupt() {
 
     return;
 }
-
+//ali
 if (scan_code == 0x0F) { // Tab
     int i;
     for (i = 0; i < 4; i++) {
