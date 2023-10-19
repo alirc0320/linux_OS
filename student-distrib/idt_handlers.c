@@ -368,12 +368,45 @@ void rtc_interrupt() {
    if (flag) {
         test_interrupts();  // Call 'test_interrupts' function if the 'flag' is set.
     }
-    
     outb(0x0C, 0x70);  // Select register C of the RTC. x70 is the index
     inb(0x71);         // Read register C to clear the interrupt. this is the read or write port is 0x71
     
     send_eoi(8);        // Send an End-of-Interrupt signal to acknowledge the interrupt. interrupt numbr 8 is the rtc
 }
+
+
+ int rtc_write(int32_t freq){
+        if ((freq & (freq - 1)) != 0 || freq > 1024){
+            return -1; 
+        }
+
+    int rate = 0; 
+    int temp = 32768/freq; 
+    //printf("temp: %d", temp);
+    //log base 2
+     while (temp >= 1) {
+        temp /= 2;
+        rate += 1;
+        // printf("temp: %d", temp);
+        // printf("rate: %d", rate);
+    }
+    //rate++; 
+    //printf("rate: %d", rate);
+    //Select Register A and disable the NMI
+    outb(0x8A, 0x70);
+    // Get the initial value of Register A
+    char prev = inb(0x71);
+    // Reset the index to Register A
+    outb(0x8A, 0x70);
+    // Write the new rate to Register A
+    outb((prev & 0xF0) | rate, 0x71);
+
+    return 4; 
+
+ }
+
+
+    
 
 
 /* System Call Handler Function

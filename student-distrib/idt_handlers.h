@@ -32,6 +32,8 @@
  int keyboard_interrupt(void);
  void system_call(void); 
 
+int rtc_write(int32_t freq);
+
 static int ctrl_flag = 0; 
 static int shift_flag = 0; 
 static int capslock_flag = 0;

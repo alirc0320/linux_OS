@@ -5,6 +5,7 @@
 #include "Device_init.h"
 #include "i8259.h"
 #include "lib.h"
+#include "idt_handlers.h"
 
 // Commands
 #define RESET               0xFF            // Command to reset
@@ -52,8 +53,7 @@ void init_RTC() {
 
     outb(0x8A, 0x70);		// set index to register A, disable NMI. Reg A is 8A and 70 is the index
     prev=inb(0x71);	// get initial value of register A. 71 is used to read or write to and form 
-    outb(0x8A, 0x70);		// reset index to A. Index is 70 and 8A is regsiter 
-
+    outb(0x8A, 0x70);		// reset index to A. Index is 70 and 8A is regsiter  
     enable_irq(8);  //8th Interrupt 
     // //sti();
 }

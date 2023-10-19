@@ -3,7 +3,8 @@ idt_assembly.o: idt_assembly.S
 paging_asm.o: paging_asm.S
 x86_desc.o: x86_desc.S x86_desc.h types.h
 cursor.o: cursor.c cursor.h lib.h types.h
-Device_init.o: Device_init.c Device_init.h types.h i8259.h lib.h
+Device_init.o: Device_init.c Device_init.h types.h i8259.h lib.h \
+  idt_handlers.h tests.h
 i8259.o: i8259.c i8259.h types.h lib.h
 idt_handlers.o: idt_handlers.c i8259.h types.h lib.h idt_handlers.h \
   tests.h cursor.h
