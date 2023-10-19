@@ -280,33 +280,49 @@ int keyboard_interrupt() {
         init_buffer(); 
         return; 
     }
+    
+    if (scan_code == 0x0E) { // Backspace
+    int i;
+    int backspace_count = 0;
 
-    if (scan_code == 0x0E){ //backspace
-        backspace(); //move cursor back-created fn in lib.h
-     if (keyboard_buffer_index > 0){
-        keyboard_buffer[keyboard_buffer_index -1] = '\0';
-        keyboard_buffer_index --; 
-    }
-       
-         return; 
-    }
-
-    if (scan_code == 0x0F){//tab
-        int i; 
-        for (i = 0; i< 4; i++){
-             //update new buffer, tab puts 4 spaces in 
-            if (keyboard_buffer_index>= 127){
-                return; 
-            }
-            
-            keyboard_buffer[keyboard_buffer_index] = ' ';
-            putc(' ');
-            keyboard_buffer_index += 1;
-            
-
+    for (i = 0; i < 4; i++) {
+        if (keyboard_buffer_index > 0 && keyboard_buffer[keyboard_buffer_index - 1] == ' ') {
+            backspace();
+            keyboard_buffer_index--;
+            backspace_count++;
+        } else {
+            break;
         }
-        return; 
     }
+
+    // If no tab spaces were removed, perform a regular backspace
+    if (backspace_count == 0) {
+        backspace();
+        if (keyboard_buffer_index > 0) {
+            keyboard_buffer[keyboard_buffer_index - 1] = '\0';
+            keyboard_buffer_index--;
+        }
+    }
+
+    return;
+}
+
+if (scan_code == 0x0F) { // Tab
+    int i;
+    for (i = 0; i < 4; i++) {
+        // Update the buffer with four spaces
+        if (keyboard_buffer_index < 127) {
+            keyboard_buffer[keyboard_buffer_index] = ' ';
+            putc(' '); // Print a space character
+            keyboard_buffer_index++;
+        }
+    }
+    return;
+}
+
+
+
+
 
     ///////SHIFT////////////
     if(scan_code == 0xAA || scan_code == 0xB6){//shift released

@@ -48,8 +48,9 @@ static char keyboard_buffer[128];
 static int keyboard_buffer_index; 
 static int kb_flag = 0; 
  
-
-
+static int tab_count;
+static int flaggy;
+static int flaggy_2;
 
 #endif /* _IDT_HANDLERS_H */
 
