@@ -308,12 +308,26 @@ int keyboard_interrupt() {
         return; 
     }
 
-    if(scan_code == 0xAA){//shift released
+    ///////SHIFT////////////
+    if(scan_code == 0xAA || scan_code == 0xB6){//shift released
        shift_flag = 0; 
     }
-    if(scan_code == 0x2A){//shift pressed
+    if(scan_code == 0x2A || scan_code == 0x36){//shift pressed
         shift_flag = 1;
     }
+
+    //////Alt
+    if(scan_code == 0xB8){//released
+       alt_flag = 0; 
+    }
+    if(scan_code == 0x38){//pressed
+        alt_flag = 1;
+    }
+    //used to test alt flag works when alt + l pressed bc idrk what alt does yet
+    // if (alt_flag == 1 && scan_code == 0x26){
+    //     printf("alt flag works");
+    // }
+
 
     else if (scan_code < 89 && scan_code != 0x1C) { //array index is less than 89
     if(keyboard_buffer_index >= 127 || keyScanCodeArray_one[scan_code] == '\0'){
