@@ -231,6 +231,18 @@ unsigned char keyScanCodeArray_for_shift[0x59] = {'\0','\0','!', '@', '#', '$', 
 '\0', '*', '\0', ' ', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '7', '8', 
 '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};   
 
+unsigned char keyScanCodeArray_for_just_capslock[0x59] = {'\0','\0','1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', 
+'=', '\0', '\0', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\n', '\0', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\0', '\0', '\0', '\0', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '\0', 
+'\0', '*', '\0', ' ', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '7', '8', 
+'9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};   
+
+
+
+unsigned char keyScanCodeArray_for_shift_and_capslock[0x59] = {'\0','\0','!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', 
+'+', '\0', '\0', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '{', '}', '\n', '\0', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ':', '\0', '\0', '\0', '\0', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '<', '>', '\0', 
+'\0', '*', '\0', ' ', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '7', '8', 
+'9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};  
+
 
 
 /* Keyboard Interrupt Handler Function
@@ -249,18 +261,22 @@ int keyboard_interrupt() {
 }
 
  void write (const char* buf, int nbytes){//need to add fd as a function once file system worknig
-
+    if (scan_code == 0x3A){
+        capslock_flag += 1; 
+        capslock_flag %= 2; 
+        return; 
+    }
     if(scan_code == 0x1D){
         ctrl_flag = 1; 
+        return;
     }
     if (scan_code == 0x9D){
         ctrl_flag = 0; 
+        return; 
     }
     if (ctrl_flag==1 && scan_code == 0x26){//this is for ctrl+L, we'll need to make arrays for ctrl and shifted characters
         clear(); 
         init_buffer(); 
-   
-       
         return; 
     }
 
@@ -281,12 +297,27 @@ int keyboard_interrupt() {
     }
 
     else if (scan_code < 89 && scan_code != 0x1C) { //array index is less than 89
-        if(shift_flag == 1){
+    if(keyboard_buffer_index >= 127){
+        return; 
+    }
+        if(shift_flag == 1 && capslock_flag == 0){
             char output = keyScanCodeArray_for_shift[scan_code];  // Map the scan code to a character.
             keyboard_buffer[keyboard_buffer_index] = output; 
             keyboard_buffer_index ++;
             putc(output);
 
+        }
+        else if (shift_flag == 1 && capslock_flag == 1){
+            char output = keyScanCodeArray_for_shift_and_capslock[scan_code];  // Map the scan code to a character.
+            keyboard_buffer[keyboard_buffer_index] = output; 
+            keyboard_buffer_index ++;
+            putc(output);
+        }
+         else if (shift_flag == 0 && capslock_flag == 1){
+            char output = keyScanCodeArray_for_just_capslock[scan_code];  // Map the scan code to a character.
+            keyboard_buffer[keyboard_buffer_index] = output; 
+            keyboard_buffer_index ++;
+            putc(output);
         }
         else{
         char output = keyScanCodeArray_one[scan_code];  // Map the scan code to a character.
