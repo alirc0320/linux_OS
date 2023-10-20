@@ -89,6 +89,13 @@ int invalidVidMemTest(){
 
 
 /* Checkpoint 2 tests */
+//verylargetextwithverylongname.txt
+//  init_file_sys(); 
+//  read_dentry_by_name(verylargetextwithverylongname.txt, dentry_t* dentry);
+//  read_dentry_by_index(uint32_t index, dentry_t* dentry);
+//  read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length);
+ 
+
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
