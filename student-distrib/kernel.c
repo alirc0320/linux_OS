@@ -57,7 +57,9 @@ void entry(unsigned long magic, unsigned long addr) {
         int mod_count = 0;
         int i;
         module_t* mod = (module_t*)mbi->mods_addr;
-        myfileSystem = mod->mod_start; //get  pointer to the start of the file system 
+        myfileSystem = mod->mod_start;
+        fileSysEnd = mod->mod_end;
+         //get  pointer to the start of the file system 
         while (mod_count < mbi->mods_count) {
             printf("Module %d loaded at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_start);
             printf("Module %d ends at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_end);
@@ -166,7 +168,7 @@ void entry(unsigned long magic, unsigned long addr) {
     
     init_cursor();
     
-    init_file_sys(myfileSystem);
+    init_file_sys(myfileSystem, fileSysEnd);
     
     // update_cursor(5,5);
 

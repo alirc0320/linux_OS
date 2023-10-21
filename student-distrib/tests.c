@@ -1,6 +1,7 @@
 #include "tests.h"
 #include "x86_desc.h"
 #include "lib.h"
+#include "file_system.h"
 
 #define PASS 1
 #define FAIL 0
@@ -92,33 +93,41 @@ int invalidVidMemTest(){
 //verylargetextwithverylongname.txt
 // init_file_sys(); 
 int k;
-uint8_t buf_name[32] = "ls";
+uint8_t buf_name[32] = ".";
 
-uint8_t* boofer;
+uint8_t boofer[999];
 
 void launch_tests(){
-	//printf("Abhee likes Advaith");
+
 	//MAKE FLAG = 1 FOR RTC OR 0 FOR KEYBOARD INTERRUPT 
 	flag = 0;
-    uint32_t ret = open_file(buf_name);
+    
 
-    if(ret == 0){
-        printf("Abhee can get a coffee");
-    }
-    else{
-        printf("israel more like isnotreal");
-    }
-    
-    
-    printf("Ali Rizwan Chaudry Hepburn");
-     
-    int ret_value = read_data(5, 0, boofer, 10);
-    // printf("Return Value: %d", ret_value);
-    int i; 
-    // for (i = 0; i<10; i++){
-    //     printf("%c", boofer[i]);
+    // if(ret == 0){
+    //     printf("Abhee can get a coffee");
     // }
+    // else{
+    //     printf("abhee can't get a coffee");
+    // }
+    
+    
+    //READ DATA TEST
+    int ret_value = read_data(55, 0, boofer, 1000000);
+     printf("Return Value: %d", ret_value);
+    int i,j; 
+    // printf("%c", boofer[10]);
+    for(i = 0; i < ret_value; i++){
+            printf("%c", boofer[i]);
+        // printf("\n");
+    }
+    
 
+//    init_file_sys(myfileSystem, fileSysEnd);
+//    inode_passed_in = 5;
+//    offset_passed_in = 0;
+//    length_passed_in_read_file = 999;
+   //read_file(NULL, boofer, length_passed_in_read_file);
+    // read_data(25, 0, boofer, 1000000);
 
     // printf("return value: %d", ret);
 

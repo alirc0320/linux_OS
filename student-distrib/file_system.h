@@ -10,9 +10,8 @@ typedef struct dentry {
 } dentry_t; 
 
 typedef struct boot_block {
-    int32_t inode_count; 
     int32_t dir_count; 
-    
+    int32_t inode_count; 
     int32_t data_count; 
     int8_t reserved[52]; //52 * 8 bits 
     dentry_t direntries[63]; //63 * 8 bits 
@@ -30,12 +29,16 @@ typedef struct data_block {
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry);
 int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
 int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length);
-void init_file_sys(uint32_t* myfileSystem);
+void init_file_sys(uint32_t* myfileSystem, uint32_t* fileSysEnd);
 
 static uint32_t* myfileSystem;
+static uint32_t* fileSysEnd;
 boot_block_t* my_boot_block; //ADDED - MADE IT GLOBAL   
 inode_t* inodeArr[63]; //inode array - how to make global with size boot_block_count; 
 data_block_t* data_block_arr[1023]; 
+static uint32_t inode_passed_in;
+static uint32_t offset_passed_in;
+static int32_t length_passed_in_read_file; 
 
 
 ///////////////////////read,write,open,close////////////////////////////////
