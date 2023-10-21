@@ -86,31 +86,41 @@ int invalidVidMemTest(){
     return PASS;
 }
 
-
+ 
 
 /* Checkpoint 2 tests */
 //verylargetextwithverylongname.txt
-//  init_file_sys(); 
-//  read_dentry_by_name(verylargetextwithverylongname.txt, dentry_t* dentry);
-//  read_dentry_by_index(uint32_t index, dentry_t* dentry);
-//  read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length);
- 
+// init_file_sys(); 
+int k;
+uint8_t buf_name[32] = "ls";
 
-/* Checkpoint 3 tests */
-/* Checkpoint 4 tests */
-/* Checkpoint 5 tests */
+uint8_t* boofer;
 
-
-/* Test suite entry point */
 void launch_tests(){
-
-	//NOT SURE IF WE NEED THIS 
-	//TEST_OUTPUT("idt_test", idt_test());
-	
-	
+	//printf("Abhee likes Advaith");
 	//MAKE FLAG = 1 FOR RTC OR 0 FOR KEYBOARD INTERRUPT 
 	flag = 0;
-	
+    uint32_t ret = open_file(buf_name);
+
+    if(ret == 0){
+        printf("Abhee can get a coffee");
+    }
+    else{
+        printf("israel more like isnotreal");
+    }
+    
+    
+    printf("Ali Rizwan Chaudry Hepburn");
+     
+    int ret_value = read_data(5, 0, boofer, 10);
+    // printf("Return Value: %d", ret_value);
+    int i; 
+    // for (i = 0; i<10; i++){
+    //     printf("%c", boofer[i]);
+    // }
+
+
+    // printf("return value: %d", ret);
 
 	// // Trigger exception 0
 	// asm volatile("int $0");

@@ -166,6 +166,8 @@ void entry(unsigned long magic, unsigned long addr) {
     
     init_cursor();
     
+    init_file_sys(myfileSystem);
+    
     // update_cursor(5,5);
 
     //disable_cursor(); 
