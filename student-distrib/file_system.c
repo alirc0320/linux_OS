@@ -21,14 +21,22 @@ void init_file_sys(uint32_t * myfileSystem){
 ///////////DO WE WANT THE ARRAY TO THE SIZE OF INODES?//////////////////////////////////////////////////////
     
     int i; 
+    int counter = 0; 
     for(i=0; i<my_boot_block->dir_count; i++){ //this is to only create the number of inodes needed 
         //had to pass inodeArr as an addr 
         //memcpy(&inodeArr[i], myfileSystem + copy_size * (i+1),copy_size); //creating inode arr at i+1 index of the giant buffer 
         dentry_t temp_dentry = my_boot_block->direntries[i];
-        if (temp_dentry.filename != NULL){
-        read_dentry_by_name(temp_dentry.filename, &temp_dentry);
-        inodeArr[temp_dentry.inode_num] = (inode_t*)(myfileSystem + copy_size * (i+1));
+        
+        int res = read_dentry_by_name(temp_dentry.filename, &temp_dentry);
+        if (temp_dentry.inode_num == 5){
+            printf("5 reached");
+            printf("5 reached");
         }
+        if (res == 0){
+        inodeArr[temp_dentry.inode_num] = (inode_t*)(myfileSystem + copy_size * (counter+1));
+        counter ++; 
+        }
+        
     }  
 
    
