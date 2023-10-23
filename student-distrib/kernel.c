@@ -8,7 +8,9 @@
 #include "i8259.h"
 #include "debug.h"
 #include "tests.h"
-#include "Device_init.h"
+
+#include "rtc.h"
+#include "keyboard.h"
 #include "idt_init.h"
 #include "paging_asm.h"
 #include "cursor.h"
@@ -57,8 +59,7 @@ void entry(unsigned long magic, unsigned long addr) {
         int mod_count = 0;
         int i;
         module_t* mod = (module_t*)mbi->mods_addr;
-        myfileSystem = mod->mod_start;
-        fileSysEnd = mod->mod_end;
+        myfileSystem = (uint32_t *)mod->mod_start;
          //get  pointer to the start of the file system 
         while (mod_count < mbi->mods_count) {
             printf("Module %d loaded at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_start);
@@ -153,22 +154,24 @@ void entry(unsigned long magic, unsigned long addr) {
         disable_irq(i);
     }
     enable_irq(2);
-//
+
     /* Init the PIC */
-    
+    init_file_sys(myfileSystem);
 
    // initializing paging
     init_paging(); 
 // initialize rtc
     init_RTC(); 
-    //rtc_write(8);
+   // rtc_open(); 
+    // rtc_write(8);
+    
     
 //intialize keyboard 
     init_keyboard(); 
     
     init_cursor();
     
-    init_file_sys(myfileSystem, fileSysEnd);
+    
     
     // update_cursor(5,5);
 

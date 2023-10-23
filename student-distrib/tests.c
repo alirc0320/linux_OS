@@ -89,11 +89,12 @@ int invalidVidMemTest(){
 
  
 
+
 /* Checkpoint 2 tests */
 //verylargetextwithverylongname.txt
 // init_file_sys(); 
 int k;
-uint8_t buf_name[32] = ".";
+// uint8_t buf_name[32] = "fram";
 
 uint8_t boofer[999];
 
@@ -101,26 +102,85 @@ void launch_tests(){
 
 	//MAKE FLAG = 1 FOR RTC OR 0 FOR KEYBOARD INTERRUPT 
 	flag = 0;
-    
+    uint8_t buf_name[32];
+    uint8_t dir_name[32];
 
-    // if(ret == 0){
-    //     printf("Abhee can get a coffee");
+    //;
+
+
+        // First test for file system (frame0.txt)
+    // strcpy((int8_t*)buf_name, "frame0.txt");  // Copy "frame0.txt" into buf_name
+    // open_file(buf_name);
+    // read_file(NULL, boofer, 200);
+    // close_file(NULL);
+
+
+
+
+
+        // Second test for file system (cat)
+    // strcpy(buf_name, "cat");  // Copy "cat" into buf_name
+    // open_file(buf_name);
+    // read_file(NULL, boofer, 200);
+    // close_file(NULL);
+
+
+
+
+
+        // Third test for file system w/ consecutive read
+    // strcpy(buf_name, "frame1.txt");
+    // open_file(buf_name);
+    // int i;
+    // for(i = 0; i < 100000000; i++){
+    //     read_file(NULL, boofer, 1);
     // }
-    // else{
-    //     printf("abhee can't get a coffee");
+    // close_file(NULL);
+
+
+
+
+
+    // strcpy(buf_name, "verylargetextwithverylongname.txt");
+    // open_file(buf_name);
+    // read_file(NULL,boofer,10);
+    // read_file(NULL,boofer,10);
+    // read_file(NULL,boofer,10);
+    // read_file(NULL,boofer,10);
+    // read_file(NULL,boofer,10);
+    // close_file(NULL);
+
+
+
+
+
+
+    // strcpy((int8_t*)dir_name, ".");
+    // uint8_t dir_boofer[999];
+
+    // open_dir(dir_name);
+    // read_dir(NULL, dir_boofer, 0);
+    // read_dir(NULL, dir_boofer, 0);
+    // close_dir(NULL);
+    // read_dir(NULL, dir_boofer, 0);
+    // read_dir(NULL, dir_boofer, 0);
+    // close_dir(NULL);
+
+
+
+
+
+    // strcpy((int8_t*)dir_name, ".");
+    // uint8_t dir_boofer[999];
+    // int i;
+    // open_dir(dir_name);
+    // for(i =0; i< 17;i++){
+    //     read_dir(NULL, dir_boofer, 0);
     // }
-    
-    
-    //READ DATA TEST
-    int ret_value = read_data(55, 0, boofer, 1000000);
-     printf("Return Value: %d", ret_value);
-    int i,j; 
-    // printf("%c", boofer[10]);
-    for(i = 0; i < ret_value; i++){
-            printf("%c", boofer[i]);
-        // printf("\n");
-    }
-    
+    // close_dir(NULL);
+
+
+
 
 //    init_file_sys(myfileSystem, fileSysEnd);
 //    inode_passed_in = 5;
@@ -130,6 +190,8 @@ void launch_tests(){
     // read_data(25, 0, boofer, 1000000);
 
     // printf("return value: %d", ret);
+
+
 
 	// // Trigger exception 0
 	// asm volatile("int $0");
@@ -209,25 +271,6 @@ void launch_tests(){
     // invalidMinTest();
     //invalidVidMemTest();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-	
 	//Overflow excpetion 
 	//asm volatile("int $4");
 	

@@ -1,11 +1,8 @@
-//This file is where we will initialize device and RTC
-
-// #include <stdio.h>
-// #include <stdlib.h>
-#include "Device_init.h"
+#include "rtc.h"
 #include "i8259.h"
 #include "lib.h"
 #include "idt_handlers.h"
+#include "cursor.h"
 
 // Commands
 #define RESET               0xFF            // Command to reset
@@ -21,21 +18,6 @@
 //ports-apparently these are convention for PS2 keyboard
 #define COMMAND_PORT 0x64   // COMMAND_PORT: Port address for command communication with the keyboard controller
 #define DATA_PORT 0x60      // DATA_PORT: Port address for data communication with the keyboard controller
-
-
-/* Initialize the Real-Time Clock (RTC)
- *
- * This function initializes the Real-Time Clock (RTC) for system timekeeping.
- * It configures the RTC's Register B to enable RTC interrupts on IRQ 8, which
- * allows the system to receive periodic timekeeping updates.
- *
- * Inputs: None
- * Outputs: None
- */
-void init_keyboard(){
-enable_irq(1); //enable interrupt 1
-}
-
 
 /* Real-Time Clock (RTC) Initialization Function
  * Inputs: None
@@ -57,3 +39,68 @@ void init_RTC() {
     enable_irq(8);  //8th Interrupt 
     // //sti();
 }
+
+
+
+/* Real-Time Clock (RTC) Interrupt Handler Function
+ * Inputs: None
+ * Outputs: None
+ * Function: Handles RTC interrupt. If the 'flag' is set, it calls 'test_interrupts' function.
+ *           Reads register C of the RTC to clear the interrupt and acknowledges the interrupt. */
+void rtc_interrupt() {
+   if (flag) {
+       // test_interrupts();  // Call 'test_interrupts' function if the 'flag' is set.
+        printf("1");
+    }
+    outb(0x0C, 0x70);  // Select register C of the RTC. x70 is the index
+    inb(0x71);         // Read register C to clear the interrupt. this is the read or write port is 0x71
+    
+    send_eoi(8);        // Send an End-of-Interrupt signal to acknowledge the interrupt. interrupt numbr 8 is the rtc
+}
+
+
+ int rtc_write(int32_t freq){
+        if ((freq & (freq - 1)) != 0 || freq > 1024){
+            return -1; 
+        }
+
+    int rate = 0; 
+    int temp = 32768/freq; 
+    //printf("temp: %d", temp);
+    //log base 2
+     while (temp >= 1) {
+        temp /= 2;
+        rate += 1;
+        // printf("temp: %d", temp);
+        // printf("rate: %d", rate);
+    }
+
+    //rate++; 
+    //printf("rate: %d", rate);
+    //Select Register A and disable the NMI
+    outb(0x8A, 0x70);
+    // Get the initial value of Register A
+    char prev = inb(0x71);
+    // Reset the index to Register A
+    outb(0x8A, 0x70);
+    // Write the new rate to Register A
+    outb((prev & 0xF0) | rate, 0x71);
+
+    return 4; 
+
+ }
+
+
+int rtc_open(){
+    rtc_write(2);
+    return 0; 
+}
+
+int rtc_read() {
+    return 0;
+}
+//return 0
+int rtc_close(){
+    return 0;
+}
+

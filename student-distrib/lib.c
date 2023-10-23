@@ -32,8 +32,8 @@ void clear(void) {
     void scroll(){
         int i;
     for (i = 80; i < NUM_ROWS * NUM_COLS; i++) {
-        *(uint8_t *)(video_mem + (i-80 << 1)) =  *(uint8_t *)(video_mem + (i<< 1));
-        *(uint8_t *)(video_mem + (i-80 << 1) + 1) = ATTRIB;
+        *(uint8_t *)(video_mem + ((i-80) << 1)) =  *(uint8_t *)(video_mem + (i << 1));
+        *(uint8_t *)(video_mem + ((i-80) << 1) + 1) = ATTRIB;
     }
 
 

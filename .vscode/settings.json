@@ -8,6 +8,11 @@
     "idt_handlers.h": "c",
     "limits.h": "c",
     "file_system.h": "c",
-    "multiboot.h": "c"
+    "multiboot.h": "c",
+    "i8259.h": "c",
+    "rtc.h": "c",
+    "cursor.h": "c",
+    "idt_init.h": "c",
+    "keyboard.h": "c"
   }
 }

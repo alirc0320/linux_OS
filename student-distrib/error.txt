@@ -1,57 +1,20 @@
 Makefile:39: Makefile.dep: No such file or directory
-make: Warning: File `file_system.c' has modification time 37 s in the future
-make: Warning: File `Makefile.dep' has modification time 61 s in the future
+make: Warning: File `keyboard.c' has modification time 2.7e+02 s in the future
+make: Warning: File `Makefile.dep' has modification time 6.3e+02 s in the future
 idt_assembly.S:268:5: warning: no newline at end of file
-idt_handlers.h:37: warning: ‘ctrl_flag’ defined but not used
-idt_handlers.h:38: warning: ‘shift_flag’ defined but not used
-idt_handlers.h:39: warning: ‘capslock_flag’ defined but not used
-idt_handlers.h:40: warning: ‘alt_flag’ defined but not used
-idt_handlers.h:44: warning: ‘scan_code’ defined but not used
-idt_handlers.h:47: warning: ‘keyboard_buffer’ defined but not used
-idt_handlers.h:48: warning: ‘keyboard_buffer_index’ defined but not used
-idt_handlers.h:49: warning: ‘kb_flag’ defined but not used
-idt_handlers.h:51: warning: ‘tab_count’ defined but not used
-idt_handlers.h:52: warning: ‘flaggy’ defined but not used
-idt_handlers.h:53: warning: ‘flaggy_2’ defined but not used
-file_system.h:34: warning: ‘myfileSystem’ defined but not used
-idt_handlers.c: In function ‘read’:
-idt_handlers.c:384: warning: ‘return’ with no value, in function returning non-void
-idt_handlers.c:396: warning: ‘return’ with no value, in function returning non-void
-idt_handlers.c: At top level:
-idt_handlers.h:51: warning: ‘tab_count’ defined but not used
-idt_handlers.h:52: warning: ‘flaggy’ defined but not used
-idt_handlers.h:53: warning: ‘flaggy_2’ defined but not used
-idt_handlers.h:37: warning: ‘ctrl_flag’ defined but not used
-idt_handlers.h:38: warning: ‘shift_flag’ defined but not used
-idt_handlers.h:39: warning: ‘capslock_flag’ defined but not used
-idt_handlers.h:40: warning: ‘alt_flag’ defined but not used
-idt_handlers.h:44: warning: ‘scan_code’ defined but not used
-idt_handlers.h:47: warning: ‘keyboard_buffer’ defined but not used
-idt_handlers.h:48: warning: ‘keyboard_buffer_index’ defined but not used
-idt_handlers.h:49: warning: ‘kb_flag’ defined but not used
-idt_handlers.h:51: warning: ‘tab_count’ defined but not used
-idt_handlers.h:52: warning: ‘flaggy’ defined but not used
-idt_handlers.h:53: warning: ‘flaggy_2’ defined but not used
-kernel.c: In function ‘entry’:
-kernel.c:60: warning: assignment makes pointer from integer without a cast
-kernel.c: At top level:
-idt_handlers.h:37: warning: ‘ctrl_flag’ defined but not used
-idt_handlers.h:38: warning: ‘shift_flag’ defined but not used
-idt_handlers.h:39: warning: ‘capslock_flag’ defined but not used
-idt_handlers.h:40: warning: ‘alt_flag’ defined but not used
-idt_handlers.h:44: warning: ‘scan_code’ defined but not used
-idt_handlers.h:47: warning: ‘keyboard_buffer’ defined but not used
-idt_handlers.h:48: warning: ‘keyboard_buffer_index’ defined but not used
-idt_handlers.h:49: warning: ‘kb_flag’ defined but not used
-idt_handlers.h:51: warning: ‘tab_count’ defined but not used
-idt_handlers.h:52: warning: ‘flaggy’ defined but not used
-idt_handlers.h:53: warning: ‘flaggy_2’ defined but not used
-lib.c: In function ‘scroll’:
-lib.c:35: warning: suggest parentheses around + or - inside shift
-lib.c:36: warning: suggest parentheses around + or - inside shift
+In file included from kernel.c:12:
+rtc.h:19:19: warning: no newline at end of file
+In file included from kernel.c:13:
+keyboard.h:32:25: warning: no newline at end of file
+In file included from keyboard.c:1:
+keyboard.h:32:25: warning: no newline at end of file
+keyboard.c: In function ‘read’:
+keyboard.c:212: warning: control reaches end of non-void function
+In file included from rtc.c:1:
+rtc.h:19:19: warning: no newline at end of file
 tests.c: In function ‘launch_tests’:
-tests.c:101: warning: implicit declaration of function ‘open_file’
-tests.o: In function `launch_tests':
-/workdir/mp3/student-distrib/tests.c:101: undefined reference to `open_file'
-collect2: ld returned 1 exit status
-make: *** [bootimg] Error 1
+tests.c:111: warning: cast from pointer to integer of different size
+tests.c:111: warning: passing argument 1 of ‘strcpy’ makes pointer from integer without a cast
+tests.c:141: warning: cast from pointer to integer of different size
+tests.c:141: warning: passing argument 1 of ‘strcpy’ makes pointer from integer without a cast
+make: warning:  Clock skew detected.  Your build may be incomplete.

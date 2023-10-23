@@ -28,29 +28,10 @@
  void hypervisor_exception_handler(void);
  void vmm_communication_exception_handler(void);
  void security_exception_handler(void);
- void rtc_interrupt(void);
- int keyboard_interrupt(void);
+ 
  void system_call(void); 
 
-int rtc_write(int32_t freq);
 
-static int ctrl_flag = 0; 
-static int shift_flag = 0; 
-static int capslock_flag = 0;
-static int alt_flag = 0; 
-
-int read(const char* buf, int nbytes) ;
-void write(const char* buf, int nbytes);
-static int scan_code;
-
-void init_buffer();
-static char keyboard_buffer[128];
-static int keyboard_buffer_index; 
-static int kb_flag = 0; 
- 
-static int tab_count;
-static int flaggy;
-static int flaggy_2;
 
 #endif /* _IDT_HANDLERS_H */
 
