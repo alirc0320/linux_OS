@@ -162,7 +162,7 @@ void entry(unsigned long magic, unsigned long addr) {
     init_paging(); 
 // initialize rtc
     init_RTC(); 
-   // rtc_open(); //to set frequenct at 2 Hz
+    //rtc_open(); //to set frequenct at 2 Hz
     // rtc_write(8);      //to change frequency at will, in this vcase to 8      
     
     

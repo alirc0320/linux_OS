@@ -1,58 +1,45 @@
 #include "file_system.h"
 #include "lib.h"
 
-//initalize the giant buffer 
+/* Init File System - Initialize the file system
+ * 
+ * Initializes the file system, including the boot block, inodes, and data blocks.
+ * Inputs: Pointer to the file system data
+ * Outputs: None
+ * Side Effects: Initializes the file system data structures
+ * Coverage: File system initialization
+ * Return: None
+ */
 void init_file_sys(uint32_t * myfileSystem){
-    // printf("entering init\n");
-    //?????? we don't  have access to size_t 
-    
-    //printf("Value of var: %x\n", var);
-    
-    //memcpy(&my_boot_block, myfileSystem, copy_size); //taking the first 4kb of the file sys and put it in boot block 
-    my_boot_block = (boot_block_t*)(myfileSystem);
-    if(my_boot_block == (boot_block_t*)(myfileSystem)){
-
-    }
-    //printf("after memcpy \n");
+    int i;
+    my_boot_block = (boot_block_t*)(myfileSystem); 
 
 
-///////////DO WE WANT THE ARRAY TO THE SIZE OF INODES?//////////////////////////////////////////////////////
-    
-    int i; 
-    // int counter = 0; 
     for(i=0; i<my_boot_block->dir_count; i++){ //this is to only create the number of inodes needed 
-        //had to pass inodeArr as an addr 
-        //memcpy(&inodeArr[i], myfileSystem + copy_size * (i+1),copy_size); //creating inode arr at i+1 index of the giant buffer 
         dentry_t temp_dentry = my_boot_block->direntries[i];
-        
         read_dentry_by_name((const uint8_t*)temp_dentry.filename, &temp_dentry);
-        // if (temp_dentry.inode_num == 5){
-        //     printf("5 reached");
-        // }
-        
-        inodeArr[temp_dentry.inode_num] = (inode_t*)(myfileSystem + 1024  + (1024 * temp_dentry.inode_num));
-        
+        inodeArr[temp_dentry.inode_num] = (inode_t*)(myfileSystem + 1024  + (1024 * temp_dentry.inode_num));    
     }  
 
-   
-    //printf("after first for loop");
-
-    
     //make new arr for data blocks 
     for(i = 0; i< my_boot_block->data_count; i++){
-        // memcpy(&data_block_arr[i], myfileSystem + copy_size * (i+1+my_boot_block->inode_count),copy_size);
-         data_block_arr[i] = (data_block_t*)(myfileSystem + (1024 * 65) + (i * 1024));
+         data_block_arr[i] = (data_block_t*)(myfileSystem + (1024 * 65) + (i * 1024)); // Addr logic: start of the file system + all bytes for inodes + all bytes for all past blocks
+         // L----> 1024 : the number of bytes per block / 4 ; 65: the nunmber of (inode blocks + boot block)  
     }
-    //printf("after forst for loop");
-
 }
 
+/* Read Directory Entry by Name - Search for a directory entry by name
+ * 
+ * Searches for a directory entry with the specified name and returns its information.
+ * Inputs: fname - The name of the directory entry to search for
+ *         dentry - A pointer to a dentry_t structure to store the found entry's information
+ * Outputs: 0 if the entry is found, -1 if not found
+ * Side Effects: None
+ * Coverage: Directory entry lookup by name
+  * Return: 0 if the entry is found, -1 if not found
+ */
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
     int i; 
-    // for(i = 0; i< 32; i++){
-    //     printf("%c", fname[i]);
-    // }
-    // printf("entered dentry by name\n");
 
     int8_t bounded_fname[32];  // 32 characters plus null-terminator
     int length = 0;
@@ -63,24 +50,17 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
     while (fname[length] != '\0' && length < 32) { // get the length of the fname
        length++;
     }
-    //printf("finished while looop for length\n");
 
-  
-   // int i; 
+
     for ( i = 0; i < 32; i++) {
         bounded_fname[i] = fname[i];
     }
     
-    // for (i = 0; i< 32; i++){
-    //     printf("%c", bounded_fname[i]);
-    // }
+
     int index = 0; 
     strcpy(dentry->filename, bounded_fname);
-    // printf("bounded name: %c", bounded_fname[0]);
-    // printf("dentry fileName: %c", dentry->filename[0]);
-        for(i = 0; i < 64; i++){        ////WE NEED THE LENGTH AS A PARAM 
-            // if(i < 3)
-            //     printf("Currname: %c\n", my_boot_block->direntries[i].filename[0]);
+
+        for(i = 0; i < 64; i++){        ////WE NEED THE LENGTH AS A PARAMETER. 64: because 64 inodes 
             if (strncmp(bounded_fname, my_boot_block->direntries[i].filename, length) == 0) {//if 0, means the strings are the same 
                 index = i; 
                 read_dentry_by_index(index, dentry);
@@ -91,22 +71,46 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
  return -1;
 }
 
+/* Read Directory Entry by Index - Get a directory entry by its index
+ * 
+ * Retrieves a directory entry by its index in the directory entry table.
+ * Inputs: index - The index of the directory entry to retrieve
+ *         dentry - A pointer to a dentry_t structure to store the entry's information
+ * Outputs: 0 if the entry is valid and retrieved, -1 if the index is out of bounds
+ * Side Effects: None
+ * Coverage: Directory entry lookup by index
+  * Return: 0 if the entry is valid and retrieved, -1 if the index is out of bounds
+ */
 int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry){
-    if (index < 0 || index >= 63){
+    if (index < 0 || index >= 63){ // 63 will go over the bound limit for the index
         return -1; 
     }
-    dentry->filetype = my_boot_block->direntries[index].filetype;
-    dentry->inode_num = my_boot_block->direntries[index].inode_num;
+    dentry->filetype = my_boot_block->direntries[index].filetype; // update the filetype 
+    dentry->inode_num = my_boot_block->direntries[index].inode_num; // update the inode num
     return 0; 
 }
 
+
+
+/* Read Data - Read data from a file
+ * 
+ * Reads data from the specified inode starting at the given offset and stores it in a buffer.
+ * Inputs: inode - The inode number of the file to read from
+ *         offset - The offset within the file to start reading from
+ *         buf - A buffer to store the read data
+ *         length - The number of bytes to read
+ * Outputs: The number of bytes successfully read, or -1 on failure
+ * Side Effects: None
+ * Coverage: File data reading
+  * Return: The number of bytes successfully read, or -1 on failure
+ */
 int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length){
     //offset = offset within file - where you want to start reading 
             // in bytes, can start within a data block 
     int i;
   
       //null check
-    if(inode < 0 || inode >= 63){ //if outside of num of files 
+    if(inode < 0 || inode >= 63){ //if outside of num of files (63 is always the limit)
         return -1; 
     }
 
@@ -123,73 +127,44 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 
       int ret_length = length;
 
-    //printf("a bad word\n");
-
-    int iNode_block_idx = offset/4096; //index of the block data array from out inode struct 
+    int iNode_block_idx = offset/4096; //index of the block data array from out inode struct. 4096: number of bytes per block
 
     int start_block_num = tempInode->data_block_num[iNode_block_idx]; //get data block located in the inode - nemory addr 
 
 
-    int offset_into_start_block = offset % 4096; //getting the offset for the correct 4kb block of data in the file 
-    int temp_start_len = 0; //
+    int offset_into_start_block = offset % 4096; //getting the offset for the correct 4kb block of data in the file. 4096: number of bytes per block
+    int temp_start_len = 0; // initially we wanna start at 0
     if(4096 - offset_into_start_block > length ){  //if the space between the end of the data block and the offset is larger than the area we want to read (read within a block)
         temp_start_len = length; //then set our temp length = to bytes we want to read, bc its within a block 
-        //printf("if ");
     }
     else{ //if the space between the end of the block and the offset is smaller than the total length we want to read 
         temp_start_len = 4096 - offset_into_start_block; //our temp length is just from the offset to the end of the block 
-       // printf("else");
     }
-   // printf("temp_start_len is: %d\n", temp_start_len);
     for( i = 0; i < temp_start_len; i++){
-        //index the buff at the # of the block at the certain index of our inode 
-        //start block num = 237 
-        //start block num * 4096 = to become kB
-        // + offset to get the start 
-        //+ i so that we can increment through each byte 
-        //
-        //printf("i: %u", i);
-        
-       //memcpy(&buf[(start_block_num * 4096) + offset_into_start_block + i], &(data_block_arr[start_block_num]->data_value[i + offset_into_start_block]) ,1);
-    //    buf[(start_block_num * 4096) + offset_into_start_block + i] = (data_block_arr[start_block_num]->data_value[i + offset_into_start_block]);
         buf[i] = (data_block_arr[start_block_num]->data_value[i + offset_into_start_block]);
-       // &data_block_arr[curr_block_num].data_value[i]
-       //buf[(start_block_num * 4096) + offset_into_start_block + i] = data_block_arr[(start_block_num * 4096) + offset_into_start_block + i];
     }
-    // printf("first for loop completed\n");
-    // printf("pee pee poo poo");
     length -= temp_start_len;
-   // printf("length: \n", length);
     iNode_block_idx+=1;
 
     int count = 0; 
-//offset is actually temp _start_length
+    //offset is actually temp _start_length
     while(length/4096 != 0){
         int curr_block_num = tempInode->data_block_num[iNode_block_idx]; //get data block located in the inode - nemory addr 
        
         for(i=0; i<4096; i++){
-            //memcpy(&buf[(curr_block_num * 4096) + i], &data_block_arr[curr_block_num]->data_value[i] ,1); 
-            //buf[(curr_block_num * 4096) + i] = data_block_arr[curr_block_num]->data_value[i];
-            //data_block_arr - holds all data blocks , curr_block_num - is the data block we want
-            //then data_value[i] is getting the actual data value 
             buf[i + temp_start_len] = data_block_arr[curr_block_num]->data_value[i];
         }
 
-        length -= 4096;
-        iNode_block_idx+=1; 
-        count ++; 
+        length -= 4096; // decrement the size of bytes for 1 block each iteration
+        iNode_block_idx+=1;  // increment the block index by 1 each iteration 
+        count ++; // increment the count each iteration
     }
-
-    //printf("first while loop completed\n");
-
 
     if(length != 0){
         int curr_block_num = tempInode->data_block_num[iNode_block_idx]; //get data block located in the inode - nemory addr 
 
         for(i=0; i<length; i++){
-            //memcpy(&buf[(curr_block_num * 4096) + i],  &data_block_arr[start_block_num]->data_value[i] ,1);
-            //buf[(curr_block_num * 4096) + i] = data_block_arr[start_block_num]->data_value[i];
-            buf[i + 4096 * count + temp_start_len] = data_block_arr[curr_block_num]->data_value[i];
+            buf[i + 4096 * count + temp_start_len] = data_block_arr[curr_block_num]->data_value[i]; // 4096 is the size of bytes per block
         }
         length = 0;
     }
@@ -202,85 +177,158 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 }
 
 
-
-
+/* Function to read data from a file
+ * 
+ * Reads data from the currently open file starting at the current offset.
+ * Inputs: fd - File descriptor (not used in the function)
+ *         buf - A buffer to store the read data
+ *         nbytes - The number of bytes to read
+ * Outputs: The number of bytes successfully read, or -1 on failure
+ * Side Effects: Advances the global offset for the currently open file
+  * Return: The number of bytes successfully read, or -1 on failure
+ */
 int32_t read_file(int32_t fd, void* buf, int32_t nbytes){
     int temp_offset = global_offset;
     global_offset += nbytes;
     return read_data(global_dentry->inode_num, temp_offset, buf, nbytes);
 }
 
-
+/* Function to open a file
+ * 
+ * Finds and stores the directory entry for the given filename and resets the file offset.
+ * Inputs: filename - The name of the file to open
+ * Outputs: 0 on success
+ * Side Effects: Resets the global offset for the currently open file
+ * Coverage: File opening
+ * Return: 0 on success
+ */
 int32_t open_file(const uint8_t* filename){
-    //init_file_sys(myfileSystem, fileSysEnd);
-    read_dentry_by_name(filename,global_dentry);
-    global_offset = 0;
-    return 0;
+    // Find and store the directory entry for the given filename
+    read_dentry_by_name(filename, global_dentry);
+    global_offset = 0; // Reset the file offset to the beginning
+    return 0; // Return success
 }
 
 
+
+/* Function to write to a file (Not implemented, returns -1)
+ * 
+ * This function is not implemented and always returns an error.
+ * Inputs: fd - File descriptor (not used in the function)
+ *         buf - A buffer containing data to write (not used)
+ *         nbytes - The number of bytes to write (not used)
+ * Outputs: -1 to indicate an error
+ * Side Effects: None
+ * Coverage: Not implemented
+ * Return: -1 to indicate an error
+ */
 int32_t write_file(int32_t fd, const void* buf, int32_t nbytes){
-    return -1; 
+    return -1; // Not implemented, return an error
 }
 
+/* Function to close a file
+ * 
+ * Resets the global offset for the currently open file.
+ * Inputs: fd - File descriptor (not used in the function)
+ * Outputs: 0 on success
+ * Side Effects: Resets the global offset for the currently open file
+ * Coverage: File closing
+ * Return: 0 on success
+ */
 int32_t close_file(int32_t fd){
-    global_offset = 0;
-    return 0; 
+    global_offset = 0; // Reset the file offset
+    return 0; // Return success
 }
 
 
 
-
+/* Function to open a directory
+ * 
+ * Resets the index offset for reading directory entries and finds and stores the directory entry for the given filename.
+ * Inputs: filename - The name of the directory to open
+ * Outputs: 0 on success
+ * Side Effects: Resets the index offset for reading directory entries
+ * Coverage: Directory opening
+ * Return: 0 on success
+ */
 int32_t open_dir(const uint8_t* filename){
-    index_offset = 0;
-    read_dentry_by_name(filename, dir_dentry);
-    //open a directory file
-    return 0;
+    index_offset = 0; // Reset the index offset for reading directory entries
+    read_dentry_by_name(filename, dir_dentry); // Find and store the directory entry for the given filename
+    return 0; // Return success
 }
 
-int32_t read_dir(int32_t fd, void* buf, int32_t nbytes){
-  // read each file's file name by file name
-  int j,k; 
-  //for(i = 0 ; i<17; i++){
 
-    if(index_offset >= 17)
-        return 0;
+/* Function to read directory entries
+ * 
+ * Reads and prints directory entries starting from the current index offset.
+ * Inputs: fd - File descriptor (not used in the function)
+ *         buf - A buffer to store the directory entry data
+ *         nbytes - The maximum number of bytes to read (not used)
+ * Outputs: The size of the directory entry read, or 0 if no more entries are available
+ * Side Effects: Advances the index offset for reading directory entries
+ * Coverage: Directory entry reading
+ * Return: The size of the directory entry read, or 0 if no more entries are available
+ */
+int32_t read_dir(int32_t fd, void* buf, int32_t nbytes){
+    int j, k;
+    if (index_offset >= 17)
+        return 0; // No more directory entries to read
     
-    dentry_t* temp_dentry; 
-    // read_dentry_by_index(i, &temp_dentry);
+    dentry_t* temp_dentry;
+    // Read the directory entry at the current index
     read_dentry_by_name((const uint8_t*)my_boot_block->direntries[index_offset].filename, temp_dentry);
-    printf("%d: ",index_offset+1);
-    for(j =0 ; j<32; j++){
+    printf("%d: ", index_offset + 1);
+
+    // Print the filename
+    for (j = 0; j < 32; j++){ // 32 is the number of max characters per file name
         if (temp_dentry->filename[j] == ' ' || temp_dentry->filename[j] == '\0')
-            break; 
+            break;
         printf("%c", temp_dentry->filename[j]);
-       
     }
 
-     for (k = j; k< 35; k++){
-        printf(" "); 
-     }
-     printf("file type: %d ", temp_dentry->filetype); 
-     printf("file size: %d ", inodeArr[temp_dentry->inode_num]->length); 
-    
+    // Print spaces for formatting
+    for (k = j; k < 35; k++){ // the max number of spaces we want to align the file type and size 
+        printf(" ");
+    }
+
+    // Print file type and file size
+    printf("file type: %d ", temp_dentry->filetype);
+    printf("file size: %d ", inodeArr[temp_dentry->inode_num]->length);
+
     printf("\n");
-    index_offset++;
-    
-  //}
-  return inodeArr[temp_dentry->inode_num]->length; 
+    index_offset++; // Move to the next directory entry
+
+    return inodeArr[temp_dentry->inode_num]->length; // Return the size of the directory entry
 }
 
+
+
+/* Function to close a directory
+ * 
+ * Resets the index offset for reading directory entries.
+ * Inputs: fd - File descriptor (not used in the function)
+ * Outputs: 0 on success
+ * Side Effects: Resets the index offset for reading directory entries
+ * Coverage: Directory closing
+ * Return: 0 on success
+ */
 int32_t close_dir(int32_t fd){
-    index_offset = 0;
-    return 0; 
+    index_offset = 0; // Reset the index offset for directory entries
+    return 0; // Return success
 }
 
+
+/* Function to write to a directory (Not implemented, returns -1)
+ * 
+ * This function is not implemented and always returns an error.
+ * Inputs: fd - File descriptor (not used in the function)
+ *         buf - A buffer containing data to write (not used)
+ *         nbytes - The number of bytes to write (not used)
+ * Outputs: -1 to indicate an error
+ * Side Effects: None
+ * Coverage: Not implemented
+ * Return: -1 to indicate an error
+ */
 int32_t write_dir(int32_t fd, const void* buf, int32_t nbytes){
-    return -1; 
+    return -1; // Not implemented, return an error
 }
-
-
-
-
-
-

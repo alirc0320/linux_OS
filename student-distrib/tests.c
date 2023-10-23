@@ -18,7 +18,6 @@ static inline void assertion_failure(){
 	asm volatile("int $15"); //change this everytime you wanna test 
 }
 
-//ali likes you
 /* Checkpoint 1 tests */
 
 /* IDT Test - Example
@@ -91,19 +90,13 @@ int invalidVidMemTest(){
 
 
 /* Checkpoint 2 tests */
-//verylargetextwithverylongname.txt
-// init_file_sys(); 
-int k;
-// uint8_t buf_name[32] = "fram";
-
-uint8_t boofer[999];
-
 void launch_tests(){
 
 	//MAKE FLAG = 1 FOR RTC OR 0 FOR KEYBOARD INTERRUPT 
 	flag = 0;
-    uint8_t buf_name[32];
-    uint8_t dir_name[32];
+    // uint8_t buf_name[32];
+    // uint8_t dir_name[32];
+    // uint8_t boofer[37000];
 
     //;
 
@@ -111,25 +104,33 @@ void launch_tests(){
         // First test for file system (frame0.txt)
     // strcpy((int8_t*)buf_name, "frame0.txt");  // Copy "frame0.txt" into buf_name
     // open_file(buf_name);
-    // read_file(NULL, boofer, 200);
+    // read_file(NULL, boofer, 20000);
     // close_file(NULL);
 
 
 
 
 
-        // Second test for file system (cat)
-    // strcpy(buf_name, "cat");  // Copy "cat" into buf_name
+    //     // Second test for file system (cat)
+    // strcpy((int8_t*)buf_name, "ls");  // Copy "ls" into buf_name
     // open_file(buf_name);
     // read_file(NULL, boofer, 200);
     // close_file(NULL);
 
 
+          // Second test for file system (cat)
+    // strcpy((int8_t*)buf_name, "ls");  // Copy "ls" into buf_name
+    // open_file(buf_name);
+    // read_file(NULL, boofer, 600000); //1068 and above is fucked
+    // close_file(NULL);
+
+    //read_data(5, 0, buf, nbytes);
+
 
 
 
         // Third test for file system w/ consecutive read
-    // strcpy(buf_name, "frame1.txt");
+    // strcpy((int8_t*)buf_name, "frame1.txt");
     // open_file(buf_name);
     // int i;
     // for(i = 0; i < 100000000; i++){
@@ -141,7 +142,7 @@ void launch_tests(){
 
 
 
-    // strcpy(buf_name, "verylargetextwithverylongname.txt");
+    // strcpy((int8_t*)buf_name, "verylargetextwithverylongname.txt");
     // open_file(buf_name);
     // read_file(NULL,boofer,10);
     // read_file(NULL,boofer,10);
@@ -155,28 +156,32 @@ void launch_tests(){
 
 
 
-    // strcpy((int8_t*)dir_name, ".");
-    // uint8_t dir_boofer[999];
-
-    // open_dir(dir_name);
-    // read_dir(NULL, dir_boofer, 0);
-    // read_dir(NULL, dir_boofer, 0);
-    // close_dir(NULL);
-    // read_dir(NULL, dir_boofer, 0);
-    // read_dir(NULL, dir_boofer, 0);
-    // close_dir(NULL);
-
-
-
-
 
     // strcpy((int8_t*)dir_name, ".");
     // uint8_t dir_boofer[999];
     // int i;
     // open_dir(dir_name);
-    // for(i =0; i< 17;i++){
+    // for(i =0; i< 1068;i++){
     //     read_dir(NULL, dir_boofer, 0);
     // }
+    // close_dir(NULL);
+
+
+
+
+
+
+
+
+    // strcpy((int8_t*)dir_name, ".");
+    // uint8_t dir_boofer[999];
+
+    // open_dir(dir_name);
+    // read_dir(NULL, dir_boofer, 0);
+    // read_dir(NULL, dir_boofer, 0);
+    // close_dir(NULL);
+    // read_dir(NULL, dir_boofer, 0);
+    // read_dir(NULL, dir_boofer, 0);
     // close_dir(NULL);
 
 
