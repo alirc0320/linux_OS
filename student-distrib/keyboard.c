@@ -30,16 +30,28 @@ enable_irq(1); //enable interrupt 1
  * The array provides a lookup table for translating scan codes into readable characters. */
 //0x59 is limit on array whihch is 89 in decimal 
 
-
 unsigned char keyScanCodeArray_one[0x59] = {'\0','\0','1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', 
 '=', '\0', '\0', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', '\0', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`', '\0', '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 
 '\0', '*', '\0', ' ', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '7', '8', 
 '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};   
 
+/* Array that maps keyboard scan codes to characters and control codes.
+ * Each element in the array represents the character or control code associated with a specific scan code.
+ * Note: Some entries are marked as '\0', which means they have no corresponding character or control code.
+ * The array provides a lookup table for translating scan codes into readable characters. */
+//0x59 is limit on array whihch is 89 in decimal 
+
 unsigned char keyScanCodeArray_for_shift[0x59] = {'\0','\0','!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', 
 '+', '\0', '\0', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n', '\0', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', '~', '\0', '|', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', 
 '\0', '*', '\0', ' ', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '7', '8', 
 '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};   
+
+
+/* Array that maps keyboard scan codes to characters and control codes.
+ * Each element in the array represents the character or control code associated with a specific scan code.
+ * Note: Some entries are marked as '\0', which means they have no corresponding character or control code.
+ * The array provides a lookup table for translating scan codes into readable characters. */
+//0x59 is limit on array whihch is 89 in decimal 
 
 unsigned char keyScanCodeArray_for_just_capslock[0x59] = {'\0','\0','1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', 
 '=', '\0', '\0', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\n', '\0', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\'', '`','\0', '\\', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/', 
@@ -47,6 +59,11 @@ unsigned char keyScanCodeArray_for_just_capslock[0x59] = {'\0','\0','1', '2', '3
 '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.', '\0', '\0', '\0', '\0', '\0'};   
 
 
+/* Array that maps keyboard scan codes to characters and control codes.
+ * Each element in the array represents the character or control code associated with a specific scan code.
+ * Note: Some entries are marked as '\0', which means they have no corresponding character or control code.
+ * The array provides a lookup table for translating scan codes into readable characters. */
+//0x59 is limit on array whihch is 89 in decimal 
 
 unsigned char keyScanCodeArray_for_shift_and_capslock[0x59] = {'\0','\0','!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', 
 '+', '\0', '\0', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '{', '}', '\n', '\0', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ':', '"', '~', '\0', '|', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '<', '>', '?', 
@@ -62,47 +79,63 @@ unsigned char keyScanCodeArray_for_shift_and_capslock[0x59] = {'\0','\0','!', '@
  *           maps it to a character using keyScanCodeArray_one, and prints the corresponding character. */
 int keyboard_interrupt() {
     scan_code = inb(0x60);  // Read the scan code from the keyboard controller. x60 is the keyboard data port 
-    write(keyboard_buffer, 0); 
-    read(keyboard_buffer, 0);
-    send_eoi(1);
+    write(keyboard_buffer, 0);  //call write to write to the buffer
+    read(keyboard_buffer, 0); //prints buffer to screen on enter 
+    send_eoi(1);                //end of interrupt
 
-    return scan_code;
+    return scan_code;           //returns the scan code
 }
 
+
+
+
+/*
+ * write - Process and display keyboard input.
+ *
+ * This function processes keyboard input, including handling control keys (Ctrl, Shift, Caps Lock)
+ * and special keys (Tab, Backspace), and writes characters to a keyboard buffer and displays
+ * them on the screen.
+ *
+ * Inputs:
+ *   - buf: The buffer for storing keyboard input.
+ *   - nbytes: The number of bytes to write (not used in this function).
+ *
+ * Outputs: None (void)
+ */
  void write (const char* buf, int nbytes){//need to add fd as a function once file system worknig
-    if (scan_code == 0x3A){//Caps lock
-        capslock_flag += 1; 
-        capslock_flag %= 2; 
-        return; 
+    if (scan_code == 0x3A){//Caps lock key code 
+        capslock_flag += 1; // Increment the capslock_flag by 1.
+        capslock_flag %= 2;  // Use modulo to ensure capslock_flag stays within the range of 0 or 1.
+        return;                //return from function 
     }
-    if(scan_code == 0x1D){
-        ctrl_flag = 1; 
+    if(scan_code == 0x1D){  //if control is pressed then set flag to 1 
+        ctrl_flag = 1;  //if control is pressed then set flag to 1 
         return;
     }
-    if (scan_code == 0x9D){
-        ctrl_flag = 0; 
+    if (scan_code == 0x9D){    //if CONTROL IS released bc 9d is key released code for control 
+        ctrl_flag = 0;             // set control flag to 0 
         return; 
     }
-    if (ctrl_flag==1 && scan_code == 0x26){//this is for ctrl+L, we'll need to make arrays for ctrl and shifted characters
-        clear(); 
-        init_buffer(); 
+    if (ctrl_flag==1 && scan_code == 0x26){//this is for ctrl+L, we'll need to make arrays for ctrl and shifted characters. L is keycode 0x26
+        clear(); //call clear function to clear screen
+        init_buffer(); //reinitalize th ebuffer
         return; 
     }
 
-    if (ctrl_flag)
+    if (ctrl_flag)                  //if control is pressed return bc it does nothing for now
         return; 
     
-    if (scan_code == 0x0E) { // Backspace
+    if (scan_code == 0x0E) { // Backspace is keycode 0E
     if (keyboard_buffer_index == 0)
         return; 
     int i;
-    int backspace_count = 0;
+    int backspace_count = 0;            //set back space coutn to 0 to intialize it 
 
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i < 4; i++) {           //perform 4 backspaces for a tab
         if (keyboard_buffer_index > 0 && keyboard_buffer[keyboard_buffer_index - 1] == ' ') {
             backspace();
-            keyboard_buffer_index--;
-            backspace_count++;
+            keyboard_buffer_index--;        //subtract the buffe rindex 
+            backspace_count++;              //increase backspace count 
         } else {
             break;
         }
@@ -110,24 +143,24 @@ int keyboard_interrupt() {
 
     // If no tab spaces were removed, perform a regular backspace
     if (backspace_count == 0) {
-        backspace();
+        backspace();            
         if (keyboard_buffer_index > 0) {
-            keyboard_buffer[keyboard_buffer_index - 1] = '\0';
-            keyboard_buffer_index--;
+            keyboard_buffer[keyboard_buffer_index - 1] = '\0';         //print regular null character for regular back space and put into buffer 
+            keyboard_buffer_index--; //subtract the buffer index when back space is clicked 
         }
     }
 
     return;
 }
 //ali
-if (scan_code == 0x0F) { // Tab
+if (scan_code == 0x0F) { // Tab is keycode 0F.
     int i;
-    for (i = 0; i < 4; i++) {
-        // Update the buffer with four spaces
-        if (keyboard_buffer_index < 127) {
-            keyboard_buffer[keyboard_buffer_index] = ' ';
-            putc(' '); // Print a space character
-            keyboard_buffer_index++;
+    for (i = 0; i < 4; i++) {                           //if tab is pressed then print 4 spaces
+                                                        // Update the buffer with four spaces
+        if (keyboard_buffer_index < 127) {                  //128 character limit
+            keyboard_buffer[keyboard_buffer_index] = ' ';     //putting space into buffer
+            putc(' ');                                      // Print a space character            
+            keyboard_buffer_index++;                        //increase buffer indez
         }
     }
     return;
@@ -138,18 +171,18 @@ if (scan_code == 0x0F) { // Tab
 
 
     ///////SHIFT////////////
-    if(scan_code == 0xAA || scan_code == 0xB6){//shift released
-       shift_flag = 0; 
+    if(scan_code == 0xAA || scan_code == 0xB6){//left shift releases is AA and B6 is right shift release 
+       shift_flag = 0;                              //set shift flag to zero 
     }
-    if(scan_code == 0x2A || scan_code == 0x36){//shift pressed
-        shift_flag = 1;
+    if(scan_code == 0x2A || scan_code == 0x36){//shift pressed left shif tis 2A and right shift is 36 
+        shift_flag = 1;                         //set flag to 1
     }
 
     //////Alt
-    if(scan_code == 0xB8){//released
+    if(scan_code == 0xB8){//released            Alt key release is key B8
        alt_flag = 0; 
     }
-    if(scan_code == 0x38){//pressed
+    if(scan_code == 0x38){//pressed ALT KEY pressed is x38 scancode 
         alt_flag = 1;
     }
     //used to test alt flag works when alt + l pressed bc idrk what alt does yet
@@ -158,32 +191,32 @@ if (scan_code == 0x0F) { // Tab
     // }
 
 
-    else if (scan_code < 89 && scan_code != 0x1C) { //array index is less than 89
-    if(keyboard_buffer_index >= 127 || keyScanCodeArray_one[scan_code] == '\0'){
+    else if (scan_code < 89 && scan_code != 0x1C) { //array index is less than 89 and ENTER NOT PRESSED BC ENTER = 1C
+    if(keyboard_buffer_index >= 127 || keyScanCodeArray_one[scan_code] == '\0'){ // If buffer is full >= 127. 128 character limit
         return; 
     }
-        if(shift_flag == 1 && capslock_flag == 0){
+        if(shift_flag == 1 && capslock_flag == 0){  //if shift is pressed but not capslock 
             char output = keyScanCodeArray_for_shift[scan_code];  // Map the scan code to a character.
             keyboard_buffer[keyboard_buffer_index] = output; 
             keyboard_buffer_index ++;
             putc(output);
 
         }
-        else if (shift_flag == 1 && capslock_flag == 1){
+        else if (shift_flag == 1 && capslock_flag == 1){            //handling cas eif shift and capslock pressed at same time
             char output = keyScanCodeArray_for_shift_and_capslock[scan_code];  // Map the scan code to a character.
-            keyboard_buffer[keyboard_buffer_index] = output; 
+            keyboard_buffer[keyboard_buffer_index] = output; //writing to buffer
             keyboard_buffer_index ++;
             putc(output);
         }
-         else if (shift_flag == 0 && capslock_flag == 1){
+         else if (shift_flag == 0 && capslock_flag == 1){       //if capslock is pressed but not shift 
             char output = keyScanCodeArray_for_just_capslock[scan_code];  // Map the scan code to a character.
-            keyboard_buffer[keyboard_buffer_index] = output; 
+            keyboard_buffer[keyboard_buffer_index] = output; //writing to buffer
             keyboard_buffer_index ++;
             putc(output);
         }
         else{
         char output = keyScanCodeArray_one[scan_code];  // Map the scan code to a character.
-        keyboard_buffer[keyboard_buffer_index] = output; 
+        keyboard_buffer[keyboard_buffer_index] = output; //writing to buffer
         keyboard_buffer_index ++; 
         putc(output);  // SHOULD BE PUTC
         }
@@ -191,39 +224,79 @@ if (scan_code == 0x0F) { // Tab
    
 }
 
+
+/* Read function for handling keyboard input
+ *
+ * This function is called when reading input from the keyboard. It checks if
+ * the input corresponds to an "Enter" key press (scan code 0x1C), and if so,
+ * it prints the contents of the keyboard buffer to the screen, followed by
+ * a newline character. The keyboard buffer is then reset for the next input.
+ *
+ * Inputs:
+ * - buf: A pointer to a character buffer (not used in this function)
+ * - nbytes: The number of bytes to read (not used in this function)
+ *
+ * Outputs:
+ * - Returns 0 to indicate success (keyboard input handled)
+ */
  int read(const char* buf, int nbytes){//need to add fd as a function once file system worknig
 
-     if (scan_code != 0x1C){
+     if (scan_code != 0x1C){        //if eneter is not pressed return and do nothing 
         return 0; 
      }
-     //enter case
-    else if(scan_code == 0x1C){
+     //enter case   
+    else if(scan_code == 0x1C){             //if enter is pressed print buffer
        
-        putc('\n');
+        putc('\n');                     //print a new line 
         int i; 
-        for (i = 0; i<keyboard_buffer_index; i++){
+        for (i = 0; i<keyboard_buffer_index; i++){      //print each keyboard index bc a characte ris store din eahc index 
             putc(keyboard_buffer[i]);
         }
-        putc('\n');
-        init_buffer(); 
+        putc('\n');             //print new line after printing the whole buffer 
+        init_buffer();      //reinitialize the buffer 
         return 0; 
      }
      return 0;
 
 }
 
+/* Initialize the keyboard input buffer
+ *
+ * This function initializes the keyboard input buffer by setting all its
+ * elements to null characters ('\0'). It also resets the buffer index to zero.
+ *
+ * Inputs: None
+ * Outputs: None (void)
+ */
 void init_buffer(){
     int i; 
-    for (i = 0; i< 128; i++){
+    for (i = 0; i< 128; i++){           //iterate through each of the 128 character limit to initialize them to null
         keyboard_buffer[i] = '\0';
     }
-    keyboard_buffer_index = 0; 
+    keyboard_buffer_index = 0;              //reset the keyboar dindex to zero 
 }
 
+/* Terminal Open Function
+ *
+ * This function is a placeholder for the open operation of a terminal device,
+ * and it returns 0 to indicate success.
+ *
+ * Inputs: None
+ * Outputs: Returns 0 to indicate success
+ */
 int terminal_open(){
     return 0;
 }
 
+
+/* Terminal Close Function
+ *
+ * This function is a placeholder for the close operation of a terminal device,
+ * and it returns 0 to indicate success.
+ *
+ * Inputs: None
+ * Outputs: Returns 0 to indicate success
+ */
 int terminal_close(){
     return 0;
 }

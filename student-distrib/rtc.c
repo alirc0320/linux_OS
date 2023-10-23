@@ -58,19 +58,32 @@ void rtc_interrupt() {
     send_eoi(8);        // Send an End-of-Interrupt signal to acknowledge the interrupt. interrupt numbr 8 is the rtc
 }
 
+/* RTC Write Function
+ *
+ * This function sets the update rate of the Real-Time Clock (RTC) chip.
+ * The update rate determines how often the RTC generates interrupts. The provided
+ * frequency should be a power of 2 between 2 and 1024 Hz.
+ *
+ * Inputs:
+ *   - freq: The desired RTC update frequency (in Hz).
+ *
+ * Outputs:
+ *   - Returns 4 if the frequency is set successfully, or -1 if the provided
+ *     frequency is not a power of 2 between 2 and 1024 Hz.
+ */
 
  int rtc_write(int32_t freq){
-        if ((freq & (freq - 1)) != 0 || freq > 1024){
-            return -1; 
+        if ((freq & (freq - 1)) != 0 || freq > 1024){ //chekcing that freqeuncy is non negative and that it is not over the max 1024 Hz
+            return -1;                                  //if so then retunr -1 for failiure
         }
 
-    int rate = 0; 
-    int temp = 32768/freq; 
+    int rate = 0;                                         //initialize rate to 0 
+    int temp = 32768/freq;                                  //base frequency of the RTC's oscillator in Hertz
     //printf("temp: %d", temp);
     //log base 2
-     while (temp >= 1) {
-        temp /= 2;
-        rate += 1;
+     while (temp >= 1) {      // This loop continues as long as the 'temp' value remains greater than or equal to 1.                               
+        temp /= 2;             // Within the loop, the 'temp' value is halved (divided by 2) in each iteration.
+        rate += 1;              // The 'rate' variable is incremented by 1 in each iteration of the loop, effectively counting the number of times 'temp' is halved.
         // printf("temp: %d", temp);
         // printf("rate: %d", rate);
     }
@@ -78,28 +91,55 @@ void rtc_interrupt() {
     //rate++; 
     //printf("rate: %d", rate);
     //Select Register A and disable the NMI
-    outb(0x8A, 0x70);
+    outb(0x8A, 0x70); //index at port 70
     // Get the initial value of Register A
-    char prev = inb(0x71);
+    char prev = inb(0x71);      //data port 71 reading from there
     // Reset the index to Register A
-    outb(0x8A, 0x70);
+    outb(0x8A, 0x70); //index at port 70
     // Write the new rate to Register A
-    outb((prev & 0xF0) | rate, 0x71);
+    outb((prev & 0xF0) | rate, 0x71);  //F0 masks getting anded with prev then set at data port 71
 
-    return 4; 
+    return 4;                           //return 4 for bytes returned 
 
  }
 
 
+/* Open the Real-Time Clock (RTC)
+ *
+ * This function is responsible for opening the RTC and configuring it to generate
+ * periodic interrupts at a specific frequency (2 Hz in this case).
+ *
+ * Inputs: None
+ * Outputs: 0 if the RTC is successfully opened
+ */
 int rtc_open(){
-    rtc_write(2);
+    rtc_write(2); //change frequency to 2 Hz
     return 0; 
 }
 
+
+/* Read from the Real-Time Clock (RTC)
+ *
+ * This function is responsible for reading data from the RTC. In this minimal
+ * implementation, it always returns 0 as reading from the RTC is not implemented.
+ *
+ * Inputs: None
+ * Outputs: Always returns 0 in this implementation
+ */
 int rtc_read() {
     return 0;
 }
 //return 0
+
+
+/* Close the Real-Time Clock (RTC)
+ *
+ * This function is responsible for closing the RTC. In this minimal
+ * implementation, it always returns 0 as closing the RTC is not implemented.
+ *
+ * Inputs: None
+ * Outputs: Always returns 0 in this implementation
+ */
 int rtc_close(){
     return 0;
 }

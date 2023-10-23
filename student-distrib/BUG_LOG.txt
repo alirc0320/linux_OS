@@ -41,3 +41,39 @@ Resolution: The issue was traced back to header files improperly included in ass
 Difficulty: High
 Amount of Time Spent: A significant amount of time was needed due to the variable number of lines that needed to be fixed, involving both header file inclusions and resolving undefined references.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+//CHECKPOINT 3.2 ECE 391 BUG LOG ERRORS AND BUGS
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Bug Report for Initialization of File System Inaccuracy Leading to Null Pointers and Page Faults
+Description: The init function that sets up the inode array and data block arrays did not populate the arrays correctly. This resulted in null pointers and page faults in later functions.
+Resolution: The issue was found to be related to the calculation of the inode index. The calculation was updated from (inode_t*)mod_start + 4096 * (inode num + 1) to (inode_t*)mod_start + 1024 * (inode num + 1) to account for pointer increments.
+Difficulty: Moderate – Required changing a number in two places.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Bug Report for RTC Not Writing Frequencies Accurately
+Description: When specifying a frequency for the RTC, the set frequency was not reflected accurately.
+Resolution: It was discovered that the rate was being written to the port instead of the frequency. The resolution involved calculating the rate based on the given frequency and updating the write operation accordingly.
+Difficulty: Moderate – Required adding around 5 lines to calculate the rate from the frequency.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Bug Report for Backspacing After Enter Allows Going to Previous Line on Multi-Line Buffer
+Description: Backspacing after pressing enter allowed users to navigate to the previous line if the buffer contained more than 80 characters (one row).
+Resolution: The issue was related to flags set up for backspacing. The flag logic was removed (~4 lines), and a check was added in the keyboard handler to ensure that the global keyboard buffer index was not zero. If it was, backspace functionality was bypassed.
+Difficulty: Low – Removed around 4 lines and added one line.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Bug Report for Ctrl+L Functionality Issue
+Description: When the Ctrl key was pressed, the 'l' key would always clear the screen even when Ctrl was no longer pressed.
+Resolution: The flag for Ctrl was not being reset when Ctrl was released. An if statement was added to set the flag back to low when Ctrl was released.
+Difficulty: Low – Required adding one if statement.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
