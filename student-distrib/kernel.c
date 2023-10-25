@@ -16,8 +16,6 @@
 #include "cursor.h"
 #include "file_system.h"
 
-
-
 #define RUN_TESTS
 
 /* Macros. */

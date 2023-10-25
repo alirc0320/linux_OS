@@ -32,6 +32,9 @@
  //void system_call(void); 
 void halt(void); 
 void execute(void);
+void read_syscall(void);
+void write_syscall(void);
+void open_sycall(void);
 
 
 #endif /* _IDT_HANDLERS_H */

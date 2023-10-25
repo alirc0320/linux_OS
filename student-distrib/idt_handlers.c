@@ -232,3 +232,13 @@ void execute() {
     //while (1);
 }
 
+void read_syscall(void){
+     printf("read syscall");
+}
+void write_syscall(void){
+     printf("write syscall");
+
+}
+void open_syscall(void){
+     printf("open syscall");
+}
