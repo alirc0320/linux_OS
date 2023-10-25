@@ -3,6 +3,7 @@
 
 
 
+
 .globl division_error_handler_asm
 .globl debug_handler_asm
 .globl non_maskable_interrupt_handler_asm
@@ -29,6 +30,8 @@
 .globl rtc_interrupt_asm
 .globl keyboard_interrupt_asm
 .globl system_call_asm
+
+.globl system_call_dispatcher#new for cp 3.3
 
 
    # Division Error Handler
@@ -257,11 +260,78 @@ keyboard_interrupt_asm:
     iret                                # Return from the interrupt
 
 # System Call Handler
+#handler will call dispatcher which will index into jump table
 system_call_asm:
     pushal                               # Push all general-purpose registers
     pushfl                               # Push the EFLAGS register
-    call system_call                       # Call the 'system_call' function
+    call system_call_dispatcher                       # Call the 'system_call' function
     popfl                               # Pop the EFLAGS register
     popal                               # Pop all the general-purpose registers
     iret                                # Return from the interrupt
+
+
+
+
+system_call_dispatcher:
+movl $1, %eax //temporary for testing, index into eax (0 is halt, 1 execute etc), remove once you figure out how to use do_call
+cmpl $0, %eax
+jb failure
+cmpl $9, %eax 
+ja failure
+jmp *sys_call_table( ,%eax, 4) #in lecture they said to use call not but idrk why we can chang ethis later w the correct setup 
+//call *sys_call_table( ,%eax, 4)
+//ret
+failure: 
+movl $-1, %EAX
+ret
+
+ece391_halt_asm:
+    // pushal                               # Push all general-purpose registers
+    // pushfl                               # Push the EFLAGS register
+    // call halt                       # Call the 'halt' function
+    // popfl                               # Pop the EFLAGS register
+    // popal                               # Pop all the general-purpose registers
+    // iret 
+
+    pushl %ebp
+	movl %esp, %ebp
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call halt                       # Call the 'halt' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    leave
+    ret 
+
+
+
+ece391_execute_asm: 
+   pushl %ebp
+	movl %esp, %ebp
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call execute                       # Call the 'halt' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    leave
+    ret 
+
+ece391_read_asm: 
+
+ece391_write_asm: 
+
+ece391_open_asm: 
+
+ece391_close_asm: 
+
+ece391_getargs_asm: 
+
+ece391_vidmap_asm: 
+
+ece391_set_handler_asm: 
+
+ece391_sigreturn_asm:
+
+ sys_call_table:
+ .long ece391_halt_asm, ece391_execute_asm, ece391_read_asm, ece391_write_asm, ece391_open_asm, ece391_close_asm, ece391_getargs_asm, ece391_vidmap_asm, ece391_set_handler_asm, ece391_sigreturn_asm
 

@@ -215,9 +215,20 @@ void security_exception_handler() {
  * Inputs: None
  * Outputs: None
  * Function: Handles a system call interrupt. It prints a message and enters an infinite loop. */
-void system_call() {
-    printf("System call invoked.\n");  // Print a message indicating that a system call was invoked.
-    while (1);  // Enter an infinite loop.
+// void system_call() {
+//     printf("System call invoked.\n");  // Print a message indicating that a system call was invoked.
+//     while (1);  // Enter an infinite loop.
+// }
+
+
+void halt() {
+    printf("halt");
+    //while (1);
 }
 
+
+void execute() {
+    printf("execute");
+    //while (1);
+}
 

@@ -29,8 +29,9 @@
  void vmm_communication_exception_handler(void);
  void security_exception_handler(void);
  
- void system_call(void); 
-
+ //void system_call(void); 
+void halt(void); 
+void execute(void);
 
 
 #endif /* _IDT_HANDLERS_H */

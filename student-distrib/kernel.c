@@ -16,6 +16,8 @@
 #include "cursor.h"
 #include "file_system.h"
 
+
+
 #define RUN_TESTS
 
 /* Macros. */
@@ -187,6 +189,7 @@ void entry(unsigned long magic, unsigned long addr) {
 
 
     //printf("Enabling Interrupts\n");
+
     sti();
 
 
