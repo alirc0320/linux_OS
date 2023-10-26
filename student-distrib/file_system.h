@@ -99,3 +99,14 @@ file_descriptor_struct* file_descriptor_array[8];
 
 void init_file_sys(uint32_t* myfileSystem);
 void add_file_descriptor_table_entry(int fd, uint8_t* filename);
+
+
+
+
+typedef struct PCB {
+    file_descriptor_struct* fd_array[8];
+} PCB_t;
+
+PCB_t my_pcb __attribute__((section(".custom_section"))) __attribute__((aligned(8192)));
+
+
