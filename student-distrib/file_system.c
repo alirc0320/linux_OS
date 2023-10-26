@@ -339,6 +339,7 @@ int32_t write_dir(int32_t fd, const void* buf, int32_t nbytes){
 
 
 void init_file_descriptor() {
+    
     int i;
     //for (i = 0; i < 10; i++) {fd->jmp_table[i] = sys_call_table[i];}
     //printf("entering init function");
@@ -410,50 +411,12 @@ void add_file_descriptor_table_entry(int fd, uint8_t* filename){
     temp_struct.file_position = 0; //init to zero, each read will change its value
     
     file_descriptor_array[fd] = &temp_struct; 
-   
+   return;
 
 }
 
 //this is incomplete its just there to show linkage btwn add file descriptor table entru and our main open
-uint32_t open(uint8_t* filename){
-    //step one find fd
-    int i = 0; 
-    while (file_descriptor_array[i] !=NULL){
-        i ++; 
-        if (i == 8)
-            return -1; //open failed, no space in arrau
-    }
-    printf("i: %d\n", i);
 
-    //step two figure out which open youre calling
-    dentry_t temp_dentry; 
-    read_dentry_by_name(filename, &temp_dentry); 
-    int ret_val; 
-    if (temp_dentry.filetype == 0){
-        printf("file type 0");
-        ret_val = rtc_open(); //this should take a filename but I think we set up the arg st it didn't we prib need to change this idrk tho 
-    }
-
-     if (temp_dentry.filetype == 1){
-        printf("file type 1");
-        ret_val = open_dir(filename); 
-    }
-    if (temp_dentry.filetype == 2){
-        printf("open file called");
-        ret_val = open_file(filename); 
-    }
-    if (ret_val == -1)
-        return -1; 
-
-    //step 3 add the file to the fd array
-    printf("entering add function");
-    add_file_descriptor_table_entry(i, filename);
-
-    //printf("ret val: %d\n", ret_val);
-    return ret_val; 
-
-
-}
 
 // open(filename){
     

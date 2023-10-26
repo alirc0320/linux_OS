@@ -31,10 +31,10 @@
  
  //void system_call(void); 
 void halt(void); 
-void execute(void);
+int32_t execute(const uint8_t* command);
 void read_syscall(void);
 void write_syscall(void);
-void open_sycall(void);
+uint32_t open_syscall(uint8_t* filename);
 
 
 #endif /* _IDT_HANDLERS_H */

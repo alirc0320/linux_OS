@@ -93,10 +93,9 @@ typedef struct file_descriptor_struct {
 
 void init_file_descriptor();
 
-static file_descriptor_struct* file_descriptor_array[8]; 
+file_descriptor_struct* file_descriptor_array[8]; 
 
 
 
 void init_file_sys(uint32_t* myfileSystem);
 void add_file_descriptor_table_entry(int fd, uint8_t* filename);
-uint32_t open(uint8_t* filename);

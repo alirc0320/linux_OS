@@ -15,6 +15,7 @@
 #include "paging_asm.h"
 #include "cursor.h"
 #include "file_system.h"
+#include "idt_handlers.h"
 
 #define RUN_TESTS
 
@@ -189,7 +190,8 @@ void entry(unsigned long magic, unsigned long addr) {
     //printf("Enabling Interrupts\n");
     init_file_descriptor(); 
     // printf("init worked");
-    open("fish");
+    open_syscall("ls");
+    execute("ls a");
     
     sti();
 

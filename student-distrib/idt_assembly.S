@@ -306,7 +306,9 @@ ece391_execute_asm:
 	movl %esp, %ebp
     pushal                               # Push all general-purpose registers
     pushfl                               # Push the EFLAGS register
+    //pushl %ebx                          #I think you need to push ebx bc you need to push one arg 
     call execute                       # Call the 'halt' function
+    //popl %ebx
     popfl                               # Pop the EFLAGS register
     popal                               # Pop all the general-purpose registers
     leave
@@ -341,7 +343,7 @@ ece391_open_asm:
 	movl %esp, %ebp
     pushal                               # Push all general-purpose registers
     pushfl                               # Push the EFLAGS register
-    call write_syscall                       # Call the 'halt' function
+    call open_syscall                       # Call the 'halt' function
     popfl                               # Pop the EFLAGS register
     popal                               # Pop all the general-purpose registers
     leave
