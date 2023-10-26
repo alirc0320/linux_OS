@@ -1,5 +1,7 @@
 #include "file_system.h"
 #include "lib.h"
+#include "idt_assembly.h"
+
 
 /* Init File System - Initialize the file system
  * 
@@ -332,3 +334,128 @@ int32_t close_dir(int32_t fd){
 int32_t write_dir(int32_t fd, const void* buf, int32_t nbytes){
     return -1; // Not implemented, return an error
 }
+
+
+
+
+void init_file_descriptor() {
+    int i;
+    //for (i = 0; i < 10; i++) {fd->jmp_table[i] = sys_call_table[i];}
+    //printf("entering init function");
+    file_descriptor_struct struct_0; 
+    file_descriptor_struct struct_1; 
+    for(i = 2; i<8; i++){
+        file_descriptor_array[i] = 0;
+        //printf("i: %d\n", i );
+    }
+    //printf("finished for loop setting nulls \n");
+
+
+    //initializing 0 and 1 with correct jump table
+    //idk if this syntax is right but the idea is map functions into array of jump table one by one
+    for (i = 0; i< 4; i++){
+        struct_0.jmp_table[i] = terminal_jump_table[i];
+        struct_1.jmp_table[i] =  terminal_jump_table[i];
+        //printf("i: %d\n", i );
+    }
+
+    //printf("finished second for loop");
+    struct_0.inode = 0;
+    struct_1.inode = 0;
+
+    struct_0.file_position = 0; 
+    struct_1.file_position = 0; 
+
+    //in use
+    struct_0.flags = 1; 
+    struct_1.flags = 1; 
+//printf("finished temp structs");
+
+file_descriptor_array[0] = &struct_0; 
+file_descriptor_array[1] = &struct_1; 
+//printf("finished init");
+}
+
+void add_file_descriptor_table_entry(int fd, uint8_t* filename){
+    //i think this will have to be called from open 
+
+    //file types: 0 is RTC, 1 is directory, 2 is regular file
+    int i=0;
+    dentry_t temp_dentry; 
+    file_descriptor_struct temp_struct; 
+    temp_struct.inode = 0; //initialized to zero, only non zero if a file
+    read_dentry_by_name(filename, &temp_dentry); 
+    if (temp_dentry.filetype == 0){
+        
+        for (i = 0; i< 4; i++){
+            temp_struct.jmp_table[i] = rtc_jump_table[i];
+        }
+    }
+
+
+    if (temp_dentry.filetype == 1){
+        for (i = 0; i< 4; i++){
+            temp_struct.jmp_table[i] = dir_jump_table[i];
+        }
+    }
+
+    if (temp_dentry.filetype == 2){
+        for (i = 0; i< 4; i++){
+            temp_struct.jmp_table[i] = file_jump_table[i];
+        }
+        temp_struct.inode = temp_dentry.inode_num;//reset inode num for file
+    }
+
+    temp_struct.flags = 1; //always at 1? idrk 
+    temp_struct.file_position = 0; //init to zero, each read will change its value
+    
+    file_descriptor_array[fd] = &temp_struct; 
+   
+
+}
+
+//this is incomplete its just there to show linkage btwn add file descriptor table entru and our main open
+uint32_t open(uint8_t* filename){
+    //step one find fd
+    int i = 0; 
+    while (file_descriptor_array[i] !=NULL){
+        i ++; 
+        if (i == 8)
+            return -1; //open failed, no space in arrau
+    }
+    printf("i: %d\n", i);
+
+    //step two figure out which open youre calling
+    dentry_t temp_dentry; 
+    read_dentry_by_name(filename, &temp_dentry); 
+    int ret_val; 
+    if (temp_dentry.filetype == 0){
+        printf("file type 0");
+        ret_val = rtc_open(); //this should take a filename but I think we set up the arg st it didn't we prib need to change this idrk tho 
+    }
+
+     if (temp_dentry.filetype == 1){
+        printf("file type 1");
+        ret_val = open_dir(filename); 
+    }
+    if (temp_dentry.filetype == 2){
+        printf("open file called");
+        ret_val = open_file(filename); 
+    }
+    if (ret_val == -1)
+        return -1; 
+
+    //step 3 add the file to the fd array
+    printf("entering add function");
+    add_file_descriptor_table_entry(i, filename);
+
+    //printf("ret val: %d\n", ret_val);
+    return ret_val; 
+
+
+}
+
+// open(filename){
+    
+// }
+

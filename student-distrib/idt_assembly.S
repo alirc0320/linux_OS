@@ -31,8 +31,8 @@
 .globl keyboard_interrupt_asm
 .globl system_call_asm
 
-.globl system_call_dispatcher#new for cp 3.3
-
+.globl system_call_dispatcher #new for cp 3.3
+.globl sys_call_table         #new for cp 3.3
 
    # Division Error Handler
 division_error_handler_asm:
@@ -347,6 +347,8 @@ ece391_open_asm:
     leave
     ret
     
+
+
 
 
 #for the rest of these do the setup as we make the functions and have them declared

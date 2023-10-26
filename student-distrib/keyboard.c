@@ -102,32 +102,32 @@ int keyboard_interrupt() {
  *
  * Outputs: None (void)
  */
- void write (const char* buf, int nbytes){//need to add fd as a function once file system worknig
+ int32_t write (const char* buf, int nbytes){//need to add fd as a function once file system worknig
     if (scan_code == 0x3A){//Caps lock key code 
         capslock_flag += 1; // Increment the capslock_flag by 1.
         capslock_flag %= 2;  // Use modulo to ensure capslock_flag stays within the range of 0 or 1.
-        return;                //return from function 
+        return 0;                //return from function 
     }
     if(scan_code == 0x1D){  //if control is pressed then set flag to 1 
         ctrl_flag = 1;  //if control is pressed then set flag to 1 
-        return;
+        return 0;
     }
     if (scan_code == 0x9D){    //if CONTROL IS released bc 9d is key released code for control 
         ctrl_flag = 0;             // set control flag to 0 
-        return; 
+        return 0; 
     }
     if (ctrl_flag==1 && scan_code == 0x26){//this is for ctrl+L, we'll need to make arrays for ctrl and shifted characters. L is keycode 0x26
         clear(); //call clear function to clear screen
         init_buffer(); //reinitalize th ebuffer
-        return; 
+        return 0; 
     }
 
     if (ctrl_flag)                  //if control is pressed return bc it does nothing for now
-        return; 
+        return 0; 
     
     if (scan_code == 0x0E) { // Backspace is keycode 0E
     if (keyboard_buffer_index == 0)
-        return; 
+        return 0; 
     int i;
     int backspace_count = 0;            //set back space coutn to 0 to intialize it 
 
@@ -150,7 +150,7 @@ int keyboard_interrupt() {
         }
     }
 
-    return;
+    return 0;
 }
 //ali
 if (scan_code == 0x0F) { // Tab is keycode 0F.
@@ -163,7 +163,7 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
             keyboard_buffer_index++;                        //increase buffer indez
         }
     }
-    return;
+    return 0;
 }
 
 
@@ -193,7 +193,7 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
 
     else if (scan_code < 89 && scan_code != 0x1C) { //array index is less than 89 and ENTER NOT PRESSED BC ENTER = 1C
     if(keyboard_buffer_index >= 127 || keyScanCodeArray_one[scan_code] == '\0'){ // If buffer is full >= 127. 128 character limit
-        return; 
+        return 0; 
     }
         if(shift_flag == 1 && capslock_flag == 0){  //if shift is pressed but not capslock 
             char output = keyScanCodeArray_for_shift[scan_code];  // Map the scan code to a character.
@@ -221,7 +221,7 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
         putc(output);  // SHOULD BE PUTC
         }
 }
-   
+   return 0; 
 }
 
 
@@ -239,7 +239,7 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
  * Outputs:
  * - Returns 0 to indicate success (keyboard input handled)
  */
- int read(const char* buf, int nbytes){//need to add fd as a function once file system worknig
+ int32_t read(const char* buf, int nbytes){//need to add fd as a function once file system worknig
 
      if (scan_code != 0x1C){        //if eneter is not pressed return and do nothing 
         return 0; 
@@ -284,7 +284,7 @@ void init_buffer(){
  * Inputs: None
  * Outputs: Returns 0 to indicate success
  */
-int terminal_open(){
+int32_t terminal_open(){
     return 0;
 }
 
@@ -297,6 +297,6 @@ int terminal_open(){
  * Inputs: None
  * Outputs: Returns 0 to indicate success
  */
-int terminal_close(){
+int32_t terminal_close(){
     return 0;
 }
