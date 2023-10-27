@@ -3,6 +3,7 @@
 #include "idt_handlers.h"
 #include "cursor.h"
 #include "file_system.h"
+#include "paging_asm.h"
 
 
 /* Signal handler function for Division Error Exception
@@ -275,6 +276,30 @@ int32_t execute(const uint8_t* command) {
 
     //////////////////////////////////CHECK IF IS AN EXECUTABLE//////////////////////////////////////////////////////////////
 
+    //Set up program paging (4MB)
+    void init_paging(); 
+    //User-level Program Loader (load from FS to program page)
+    page_dir_0_t program_page = pd[32];
+    if (!eight_MB_occupied) {
+        pd[2] = program_page; 
+        eight_MB_occupied = 1; 
+    }
+
+    else{
+        pd[3] = program_page; 
+    }
+
+    // /Create Process Control Block (PCB)
+    pcb_t my_pcb; 
+    my_pcb.pid = program_offset;
+    uint32_t* pd_abhees_mom = &(pd[2]);
+    uint8_t* pd_addr = (uint8_t*)pd_abhees_mom;
+    pcb_t* first_pcb_addr = (pcb_t*)(pd_addr - (program_offset)*( 1024 * 8)); // casting, should be 8MB- 8KB
+    program_offset ++; 
+    
+   
+    
+
     //while (1);
     return 255; 
 }
@@ -286,9 +311,7 @@ void write_syscall(void){
      printf("write syscall");
 
 }
-// void open_syscall(void){
-//      printf("open syscall");
-// }
+
 
 uint32_t open_syscall(uint8_t* filename){
     //step one find fd
@@ -319,6 +342,7 @@ uint32_t open_syscall(uint8_t* filename){
     }
     if (ret_val == -1)
         return -1; 
+
 
     //step 3 add the file to the fd array
     printf("entering add function");

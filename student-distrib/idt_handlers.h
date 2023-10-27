@@ -35,7 +35,8 @@ int32_t execute(const uint8_t* command);
 void read_syscall(void);
 void write_syscall(void);
 uint32_t open_syscall(uint8_t* filename);
-
+int program_offset = 0;
+int eight_MB_occupied = 0; 
 
 #endif /* _IDT_HANDLERS_H */
 

@@ -28,14 +28,7 @@ void init_paging(){
         pd[0].PS = 0;
         pd[0].AVL4 = 0;
         pd[0].bits_31_12 = ((unsigned int)pt>>12);//this is to a put the address of the the page table into the PDE 
-        //only using the upper bits of the address 
-
-        // if(i == 0 || i == 1){
-        //     pd[i].P = 1;
-        //     // pd[0].bits_31_12 = ((unsigned int)pt>>12);
-        // }
-        
-    //}
+     
 
 
 //this is to create an entry of the PD at index 1 for the kernel space 
@@ -49,23 +42,6 @@ void init_paging(){
     pd[1].PS = 1; //set that the size should be 4MB 
     pd[1].AVL4 = 1; //since we're using the same 32 bits as when ps 0, we need to set the LSB of AVL4 to be 1, this sets the G bit high for flushing CR3 
     pd[1].bits_31_12 = 1024;//points to the pages in the kernel - we "skip" the PTE step 
-
-    //ali
-     //for kernel
-    // pd[1].dir_1.P = 1; 
-    // pd[1].dir_1.PS = 1; 
-    // pd[1].dir_1.bits_31_22 = 1024;
-    // pd[1].dir_1.G = 1; 
-    // pd[1].dir_1.RW = 1; 
-    // pd[1].dir_1.US = 0; 
-    // pd[1].dir_1.PWT = 0; 
-    // pd[1].dir_1.PCD = 0; 
-    // pd[1].dir_1.A = 0; 
-    // pd[1].dir_1.D = 0; 
-    // pd[1].dir_1.AVL = 0; 
-    // pd[1].dir_1.PAT = 0; 
-    // pd[1].dir_1.bits_39_32 = 0; 
-    // pd[1].dir_1.RSVD = 0; 
 
     // This is for each video mem (PTE)
     for(i = 0; i < 1024; i++){ // each PTE - this is to create an entire 
@@ -87,16 +63,12 @@ void init_paging(){
             }
     }
 
-    //0 video memory
-    // pd[0].P = 1; 
-    // pd[0].bits_31_12 = ((unsigned int)pt>>12);
+//uint8_t* pd_addr = (pd[2]);
 
-//call for assembly linkage for setting up paging 
+
+
+//call for assembly linkage for setting up paging
     loadPageDirectory_asm((page_dir_t*)pd);//we need to pass by pointer I think thissl automaticalyl take mem address
-    //printf("calling enable paging");
-//     enablePaging_asm();
-//    // printf("paging enable called");
-//     loadPSE();
 
 }
 

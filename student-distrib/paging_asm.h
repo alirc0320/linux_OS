@@ -64,6 +64,36 @@ typedef union page_dir_t{
 page_dir_0_t pd[1024] __attribute__((aligned(4096))); //1024 - number of PDEs and 4096 is the number of bytes for a page 
 page_table_t pt[1024] __attribute__((aligned(4096))); //1024 - number of PTEs and 4096 is the number of bytes for a page 
 
+typedef struct pcb {
+    // Process ID
+    int pid;
+    // Process state (e.g., running, ready, blocked, terminated)
+    int state;
+    // CPU registers
+    // You may include registers like EAX, EBX, ECX, etc. as needed for context switching
+    uint32_t registers[8];
+    // Program Counter (PC)
+    void* pc;
+    // Stack Pointer (SP)
+    void* sp;
+} pcb_t;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //linkage - this is for the assembly function so that we can enable paging and CR3 
 void init_paging(); 
 void loadPageDirectory_asm(page_dir_t *pd);
