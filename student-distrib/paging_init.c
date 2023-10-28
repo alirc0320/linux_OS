@@ -76,8 +76,6 @@ void init_paging(){
 
 void program_pages(uint8_t send_pid, uint8_t my_boofer){
 
-    pd[32] = (page_dir_0_t)my_boofer;
-    
     /////////////////////////////pde for progam image////////////////////////////////////////////
     pd[32].P = 1; 
     pd[32].RW = 1;
@@ -89,6 +87,16 @@ void program_pages(uint8_t send_pid, uint8_t my_boofer){
     pd[32].PS = 1; //set that the size should be 4MB 
     pd[32].AVL4 = 1; //since we're using the same 32 bits as when ps 0, we need to set the LSB of AVL4 to be 1, this sets the G bit high for flushing CR3 
     pd[32].bits_31_12 = 2048+send_pid*1024;//points to the pages in the kernel - we "skip" the PTE step 
+
+
+    /*
+    read_data(5,0,0x08048000,nbytes);
+    */
+
+
+
+
+
 
     return;
 

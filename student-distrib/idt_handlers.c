@@ -283,6 +283,7 @@ int32_t execute(const uint8_t* command) {
      if(send_pid != -1){
         my_pids[send_pid] = 1;
         program_pages(send_pid);
+        read_data(5,0,0x08048000,37000);
     }
     
 
