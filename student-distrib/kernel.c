@@ -190,8 +190,9 @@ void entry(unsigned long magic, unsigned long addr) {
     //printf("Enabling Interrupts\n");
     init_file_descriptor(); 
     // printf("init worked");
-    open_syscall("ls");
-    execute("ls a");
+    // open_syscall("ls");
+    // execute("ls a");
+   // printf("execute done");
     
     sti();
 

@@ -275,34 +275,34 @@ int32_t execute(const uint8_t* command) {
     file_descriptor_array[fd]->file_position = 4; 
 
     //////////////////////////////////CHECK IF IS AN EXECUTABLE//////////////////////////////////////////////////////////////
-
-    //Set up program paging (4MB)
-    void init_paging(); 
-    //User-level Program Loader (load from FS to program page)
-    page_dir_0_t program_page = pd[32];
-    if (!eight_MB_occupied) {
-        pd[2] = program_page; 
-        eight_MB_occupied = 1; 
-    }
-
-    else{
-        pd[3] = program_page; 
-    }
-
-    // /Create Process Control Block (PCB)
-    pcb_t my_pcb; 
-    my_pcb.pid = program_offset;
-    uint32_t* pd_abhees_mom = &(pd[2]);
-    uint8_t* pd_addr = (uint8_t*)pd_abhees_mom;
-    pcb_t* first_pcb_addr = (pcb_t*)(pd_addr - (program_offset)*( 1024 * 8)); // casting, should be 8MB- 8KB
-    program_offset ++; 
-    
    
+    //Set up program paging (4MB)
+    printf("at added part");
+    
+    uint8_t send_pid = get_new_pid();
+     if(send_pid != -1){
+        my_pids[send_pid] = 1;
+        program_pages(send_pid);
+    }
     
 
     //while (1);
     return 255; 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void read_syscall(void){
      printf("read syscall");
@@ -353,3 +353,18 @@ uint32_t open_syscall(uint8_t* filename){
 
 
 }
+
+
+ 
+
+
+
+ uint8_t get_new_pid(){
+    int i;
+    for(i =0; i < 6; i++){
+        if(my_pids[i] == 0){
+            return i;
+        } 
+    }
+    return -1;
+ }

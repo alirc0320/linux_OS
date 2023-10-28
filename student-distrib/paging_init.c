@@ -23,7 +23,7 @@ void init_paging(){
         pd[0].US = 0;
         pd[0].PWT = 0;
         pd[0].PCD = 0;
-        pd[0].A=  0;
+        pd[0].A =  0;
         pd[0].AVL1 = 0;
         pd[0].PS = 0;
         pd[0].AVL4 = 0;
@@ -63,16 +63,35 @@ void init_paging(){
             }
     }
 
-//uint8_t* pd_addr = (pd[2]);
+
 
 
 
 //call for assembly linkage for setting up paging
     loadPageDirectory_asm((page_dir_t*)pd);//we need to pass by pointer I think thissl automaticalyl take mem address
-
 }
 
 
 
+
+void program_pages(uint8_t send_pid, uint8_t my_boofer){
+
+    pd[32] = (page_dir_0_t)my_boofer;
+    
+    /////////////////////////////pde for progam image////////////////////////////////////////////
+    pd[32].P = 1; 
+    pd[32].RW = 1;
+    pd[32].US = 0;                   
+    pd[32].PWT = 0;
+    pd[32].PCD = 0;
+    pd[32].A=  0;
+    pd[32].AVL1 = 0;
+    pd[32].PS = 1; //set that the size should be 4MB 
+    pd[32].AVL4 = 1; //since we're using the same 32 bits as when ps 0, we need to set the LSB of AVL4 to be 1, this sets the G bit high for flushing CR3 
+    pd[32].bits_31_12 = 2048+send_pid*1024;//points to the pages in the kernel - we "skip" the PTE step 
+
+    return;
+
+}
 
 

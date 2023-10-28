@@ -94,9 +94,9 @@ void launch_tests(){
 
 	//MAKE FLAG = 1 FOR RTC OR 0 FOR KEYBOARD INTERRUPT 
 	flag = 0;
-    // uint8_t buf_name[32];
-    // uint8_t dir_name[32];
-    // uint8_t boofer[37000];
+    uint8_t buf_name[32];
+    uint8_t dir_name[32];
+    uint8_t boofer[37000];
 
     //;
 
@@ -112,10 +112,10 @@ void launch_tests(){
 
 
     //     // Second test for file system (cat)
-    // strcpy((int8_t*)buf_name, "ls");  // Copy "ls" into buf_name
-    // open_file(buf_name);
-    // read_file(NULL, boofer, 200);
-    // close_file(NULL);
+    strcpy((int8_t*)buf_name, "ls");  // Copy "ls" into buf_name
+    open_file(buf_name);
+    read_file(NULL, boofer, 37000);
+    close_file(NULL);
 
 
           // Second test for file system (cat)
@@ -198,6 +198,7 @@ void launch_tests(){
 
 
 
+
 	// // Trigger exception 0
 	// asm volatile("int $0");
 
@@ -268,9 +269,14 @@ void launch_tests(){
     // asm volatile("int $30");
 	
 	// // System Call
-   asm volatile("int $128");
+//    asm volatile("int $128");
 
-   printf("returned from sys call");
+//    printf("returned from sys call");
+
+    open_syscall("ls");
+    read_file("ls");
+    execute("ls a");
+    printf("finished execute\n");
 
 
     // invalidPageAccess();

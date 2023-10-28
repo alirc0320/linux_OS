@@ -7,7 +7,8 @@ file_system.o: file_system.c file_system.h types.h multiboot.h rtc.h \
   keyboard.h tests.h lib.h idt_assembly.h idt_handlers.h
 i8259.o: i8259.c i8259.h types.h lib.h
 idt_handlers.o: idt_handlers.c i8259.h types.h lib.h idt_handlers.h \
-  tests.h cursor.h file_system.h multiboot.h rtc.h keyboard.h
+  tests.h cursor.h file_system.h multiboot.h rtc.h keyboard.h \
+  paging_asm.h
 idt_init.o: idt_init.c idt_init.h x86_desc.h types.h idt_assembly.h \
   idt_handlers.h tests.h
 kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h i8259.h debug.h \

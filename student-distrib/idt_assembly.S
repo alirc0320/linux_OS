@@ -273,7 +273,7 @@ system_call_asm:
 
 
 system_call_dispatcher:
-//movl $1, %eax //temporary for testing, index into eax (0 is halt, 1 execute etc), remove once you figure out how to use do_call
+//  movl $1, %eax //temporary for testing, index into eax (0 is halt, 1 execute etc), remove once you figure out how to use do_call
 #invalid checks
 // cmpl $0, %eax
 // jb failure
