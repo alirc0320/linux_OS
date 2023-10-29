@@ -65,7 +65,7 @@ void init_paging(){
 
 
 
-
+// 
 
 //call for assembly linkage for setting up paging
     loadPageDirectory_asm((page_dir_t*)pd);//we need to pass by pointer I think thissl automaticalyl take mem address
@@ -74,7 +74,7 @@ void init_paging(){
 
 
 
-void program_pages(uint8_t send_pid, uint8_t my_boofer){
+void program_pages(uint8_t send_pid){  //, uint8_t my_boofer){
 
     /////////////////////////////pde for progam image////////////////////////////////////////////
     pd[32].P = 1; 
@@ -94,12 +94,7 @@ void program_pages(uint8_t send_pid, uint8_t my_boofer){
     */
 
 
-
-
-
-
     return;
 
 }
-
 

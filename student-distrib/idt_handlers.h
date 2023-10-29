@@ -28,15 +28,6 @@
  void hypervisor_exception_handler(void);
  void vmm_communication_exception_handler(void);
  void security_exception_handler(void);
- 
- //void system_call(void); 
-void halt(void); 
-int32_t execute(const uint8_t* command);
-void read_syscall(void);
-void write_syscall(void);
-uint32_t open_syscall(uint8_t* filename);
-uint8_t my_pids[6];
-uint8_t get_new_pid();
 
 #endif /* _IDT_HANDLERS_H */
 

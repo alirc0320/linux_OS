@@ -19,5 +19,8 @@ keyboard.o: keyboard.c keyboard.h types.h tests.h i8259.h lib.h \
 lib.o: lib.c lib.h types.h cursor.h
 paging_init.o: paging_init.c x86_desc.h types.h paging_asm.h
 rtc.o: rtc.c rtc.h types.h i8259.h lib.h idt_handlers.h tests.h cursor.h
+Systems_Calls.o: Systems_Calls.c i8259.h types.h lib.h idt_handlers.h \
+  tests.h cursor.h file_system.h multiboot.h rtc.h keyboard.h \
+  paging_asm.h System_Calls.h
 tests.o: tests.c tests.h x86_desc.h types.h lib.h file_system.h \
   multiboot.h rtc.h keyboard.h
