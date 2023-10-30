@@ -5,27 +5,23 @@
 #include "tests.h"
 
 
+#define START_OF_USER_STACK 0x8400000
 
 typedef struct pcb {
     // Process ID
     int pid;
-    // Process state (e.g., running, ready, blocked, terminated)
     int state;
-    // CPU registers
-    // You may include registers like EAX, EBX, ECX, etc. as needed for context switching
-    uint32_t registers[8];
-    // Program Counter (PC)
+    uint8_t* sp;
+    uint8_t* prev_ebp;
+    uint8_t* prev_esp;
     void* pc;
-    // Stack Pointer (SP)
-    void* sp;
-
-    //fd array
     file_descriptor_struct* fd_array[8];
-
 } pcb_t;
 
+
+
 pcb_t pcb_array[6];
-pcb_t* create_pcb(int pid, int initial_state, uint32_t initial_pc, uint32_t initial_sp);
+pcb_t create_pcb(int pid);
 
 
 

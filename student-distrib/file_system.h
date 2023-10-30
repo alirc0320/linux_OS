@@ -91,14 +91,14 @@ typedef struct file_descriptor_struct {
     int32_t flags;
 } file_descriptor_struct;
 
-void init_file_descriptor();
+void init_file_descriptor(file_descriptor_struct* file_descriptor_array[8]);
 
-file_descriptor_struct* file_descriptor_array[8]; 
+//file_descriptor_struct* file_descriptor_array[8]; 
 
 
 
 void init_file_sys(uint32_t* myfileSystem);
-void add_file_descriptor_table_entry(int fd, uint8_t* filename);
+void add_file_descriptor_table_entry(int fd, uint8_t* filename, file_descriptor_struct* file_descriptor_array[8]);
 
 
 

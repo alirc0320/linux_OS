@@ -338,7 +338,7 @@ int32_t write_dir(int32_t fd, const void* buf, int32_t nbytes){
 
 
 
-void init_file_descriptor() {
+void init_file_descriptor(file_descriptor_struct* file_descriptor_array[8]) {
     
     int i;
     //for (i = 0; i < 10; i++) {fd->jmp_table[i] = sys_call_table[i];}
@@ -377,7 +377,9 @@ file_descriptor_array[1] = &struct_1;
 //printf("finished init");
 }
 
-void add_file_descriptor_table_entry(int fd, uint8_t* filename){
+
+
+void add_file_descriptor_table_entry(int fd, uint8_t* filename, file_descriptor_struct* file_descriptor_array[8]){
     //i think this will have to be called from open 
 
     //file types: 0 is RTC, 1 is directory, 2 is regular file
