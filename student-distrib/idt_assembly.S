@@ -262,20 +262,9 @@ keyboard_interrupt_asm:
 # System Call Handler
 #handler will call dispatcher which will index into jump table
 system_call_asm:
-    // pushal                               # Push all general-purpose registers
-    // pushfl                               # Push the EFLAGS register
-    // call system_call_dispatcher                       # Call the 'system_call' function
-    // popfl                               # Pop the EFLAGS register
-    // popal                               # Pop all the general-purpose registers
-    // iret                                # Return from the interrupt
-    //movl $1, %eax
-    
-    
-    cmpl $0, %eax
-    jb failure
-    cmpl $9, %eax 
-    ja failure
-    
+    pushl %fs 
+    pushl %es 
+    pushl %ds 
     pushl %eax
     pushl %ebp
     pushl %edi
@@ -283,7 +272,11 @@ system_call_asm:
     pushl %edx
     pushl %ebx
     pushl %ecx
-    pushfl
+  
+    cmpl $0, %eax
+    jb failure
+    cmpl $9, %eax 
+    ja failure
  
     pushl %edx
     pushl %ecx
@@ -291,14 +284,17 @@ system_call_asm:
     call *sys_call_table(, %eax, 4)
     addl $12, %esp
   
-    popfl
+    //popfl
     popl %ecx
     popl %ebx
     popl %edx
     popl %esi
     popl %edi
     popl %ebp
-    addl $4, %esp #we domt wanna overwrite eax
+    addl $4, %esp #we domt wanna overwrite eax 
+    popl %ds 
+    popl %es
+    popl %fs
     iret
 
 
@@ -306,123 +302,11 @@ system_call_asm:
     movl $-1, %eax
     iret
 
-// system_call_dispatcher:
-// //  movl $1, %eax //temporary for testing, index into eax (0 is halt, 1 execute etc), remove once you figure out how to use do_call
-// #invalid checks
-// cmpl $0, %eax
-// jb failure
-// cmpl $9, %eax 
-// ja failure
-// call *sys_call_table( ,%eax, 4) #in lecture they said to use call not but idrk why we can chang ethis later w the correct setup 
-// //call *sys_call_table( ,%eax, 4)
-// ret
-// failure: 
-// movl $-1, %eax
-// ret
 
-// ece391_halt_asm:
-//         #do setup bc it needs to return to sys call handler and do an iret back to test
-//     pushl %ebp
-// 	movl %esp, %ebp
-//     pushal                               # Push all general-purpose registers
-//     pushfl                               # Push the EFLAGS register
-//     pushl %edx
-//     pushl %ecx
-//     pushl %ebx
-//     call halt                       # Call the 'halt' function
-//     addl $12, %esp
-//     popfl                               # Pop the EFLAGS register
-//     popal                               # Pop all the general-purpose registers
-//     leave
-//     ret 
-
-
-
-// ece391_execute_asm: 
-// #do setup bc it needs to return to sys call handler and do an iret back to test
-//    pushl %ebp
-// 	movl %esp, %ebp
-//     pushal                               # Push all general-purpose registers
-//     pushfl                               # Push the EFLAGS register
-//     pushl %edx
-//     pushl %ecx
-//     pushl %ebx
-//     call execute                       # Call the 'halt' function
-//     addl $12, %esp
-//     popfl                               # Pop the EFLAGS register
-//     popal                               # Pop all the general-purpose registers
-//     leave
-//     ret 
-
-// ece391_read_asm: 
-// #do setup bc it needs to return to sys call handler and do an iret back to test
-//    pushl %ebp
-// 	movl %esp, %ebp
-//     pushal                               # Push all general-purpose registers
-//     pushfl       
-//      pushl %edx
-//     pushl %ecx
-//     pushl %ebx                        # Push the EFLAGS register
-//     call read_syscall                       # Call the 'halt' function
-//     addl $12, %esp
-//     popfl                               # Pop the EFLAGS register
-//     popal                               # Pop all the general-purpose registers
-//     leave
-//     ret
-
-// ece391_write_asm: 
-//     #do setup bc it needs to return to sys call handler and do an iret back to test
-//    pushl %ebp
-// 	movl %esp, %ebp
-//     pushal                               # Push all general-purpose registers
-//     pushfl    
-//      pushl %edx
-//     pushl %ecx
-//     pushl %ebx                           # Push the EFLAGS register
-//     call write_syscall                       # Call the 'halt' function
-//     addl $12, %esp
-//     popfl                               # Pop the EFLAGS register
-//     popal                               # Pop all the general-purpose registers
-//     leave
-//     ret
-
-// ece391_open_asm: 
-//     pushl %ebp
-// 	movl %esp, %ebp
-//     pushal                               # Push all general-purpose registers
-//     pushfl                               # Push the EFLAGS register
-//     pushl %edx
-//     pushl %ecx
-//     pushl %ebx
-//     call open_syscall                       # Call the 'halt' function
-//     addl $12, %esp
-//     popfl                               # Pop the EFLAGS register
-//     popal                               # Pop all the general-purpose registers
-//     leave
-//     ret
-    
-
-
-
-
-// #for the rest of these do the setup as we make the functions and have them declared
-// ece391_close_asm: 
-//     ret
-
-// ece391_getargs_asm: 
-//     ret
-
-// ece391_vidmap_asm: 
-//     ret
-
-// ece391_set_handler_asm: 
-//     ret
-
-// ece391_sigreturn_asm:
-//     ret
-
-
- sys_call_table:
- .long 0, halt, execute, read_syscall, write_syscall, open_syscall
- //.long ece391_halt_asm, ece391_execute_asm, ece391_read_asm, ece391_write_asm, ece391_open_asm, ece391_close_asm, ece391_getargs_asm, ece391_vidmap_asm, ece391_set_handler_asm, ece391_sigreturn_asm
-
+sys_call_table:
+.long 0
+.long halt
+.long execute
+.long read_syscall
+.long write_syscall
+.long open_syscall

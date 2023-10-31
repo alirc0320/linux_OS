@@ -94,9 +94,11 @@ void launch_tests(){
 
 	//MAKE FLAG = 1 FOR RTC OR 0 FOR KEYBOARD INTERRUPT 
 	flag = 0;
-    uint8_t buf_name[32];
-    uint8_t dir_name[32];
-    uint8_t boofer[37000];
+    // uint8_t buf_name[32];
+    // uint8_t dir_name[32];
+    // uint8_t boofer[37000];
+    // int i = 0;
+
 
     //;
 
@@ -104,18 +106,27 @@ void launch_tests(){
         // First test for file system (frame0.txt)
     // strcpy((int8_t*)buf_name, "frame0.txt");  // Copy "frame0.txt" into buf_name
     // open_file(buf_name);
-    // read_file(NULL, boofer, 20000);
+    // read_file(0, boofer, 20000);
     // close_file(NULL);
 
 
+    // strcpy((int8_t*)buf_name, ".");  // Copy "frame0.txt" into buf_name
+    // open_syscall(buf_name);
+    // read_syscall(0, boofer, 20000);
+    // //close_file(NULL);
+
+    // while(boofer[i] != 0 || boofer[i] != '\0'){
+    //     printf("%c");
+    //     i++;
+    // }
 
 
 
     //     // Second test for file system (cat)
-    strcpy((int8_t*)buf_name, "ls");  // Copy "ls" into buf_name
-    open_file(buf_name);
-    read_file(NULL, boofer, 37000);
-    close_file(NULL);
+    // strcpy((int8_t*)buf_name, "ls");  // Copy "ls" into buf_name
+    // open_file(buf_name);
+    // read_file(NULL, boofer, 37000);
+    // close_file(NULL);
 
 
           // Second test for file system (cat)

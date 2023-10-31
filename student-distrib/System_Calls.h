@@ -31,8 +31,8 @@ uint8_t send_pid;
 
 void halt(void); 
 int32_t execute(const uint8_t* command);
-void read_syscall(void);
-void write_syscall(void);
+int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes);
+int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes);
 uint32_t open_syscall(uint8_t* filename);
 uint8_t my_pids[6];
 uint8_t get_new_pid();

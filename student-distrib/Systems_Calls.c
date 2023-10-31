@@ -6,6 +6,7 @@
 #include "paging_asm.h"
 #include "System_Calls.h"
 #include "x86_desc.h"
+#include "keyboard.h"
 
 
 void halt() {
@@ -65,7 +66,7 @@ uint32_t ret;
 read_data(temp_dentry.inode_num, 24,buffy, 4);
 start_adrr = *(uint32_t*)(buffy);
 
-tss.esp0 = 0x800000 -4;
+tss.esp0 = 0x800000 - 4;
 tss.ss0 = KERNEL_DS;
 
 register uint32_t ebp_value asm("ebp");
@@ -89,7 +90,7 @@ asm volatile("pushl %0 \n" //push the data segment
               "r" (start_adrr)
             : "memory");
     printf("abhees poo poo hole smells");
-    return 255; 
+    return -1; 
 }
 
 
@@ -101,11 +102,15 @@ asm volatile("pushl %0 \n" //push the data segment
 
 
 
-void read_syscall(void){
-     printf("read syscall");
+int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
+    printf("read syscall\n");
+    //read(keyboard_buffer, 0); 
+    return 10; 
+    //  return; 
 }
-void write_syscall(void){
-     printf("write syscall");
+int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
+     printf("write syscall\n");
+       return 10;  
 
 }
 
