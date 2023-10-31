@@ -79,7 +79,7 @@ void program_pages(uint8_t send_pid){  //, uint8_t my_boofer){
     /////////////////////////////pde for progam image////////////////////////////////////////////
     pd[32].P = 1; 
     pd[32].RW = 1;
-    pd[32].US = 0;                   
+    pd[32].US = 1;                   
     pd[32].PWT = 0;
     pd[32].PCD = 0;
     pd[32].A=  0;

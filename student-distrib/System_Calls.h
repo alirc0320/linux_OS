@@ -21,7 +21,8 @@ typedef struct pcb {
 
 
 pcb_t pcb_array[6];
-pcb_t create_pcb(int index);
+
+void create_pcb(int index);
 
 uint8_t send_pid;
 

@@ -34,31 +34,21 @@ int32_t execute(const uint8_t* command) {
     }
     read_dentry_by_name(name, &temp_dentry);//get inode num to find file descriptor
 
-
-
-//we may need some invalid file checks here idrk 
-
- ////////////////////////////////////CHECK IF IS AN EXECUTABLE//////////////////////////////////////////////////////////////
-   
     ret_val = read_data(temp_dentry.inode_num, 0, boofer, 4); //read first four bytes, check if its the magic numbers signifying an executable
     if (ret_val < 4) 
         return -1; 
         //0: 0x7f; 1: 0x45; 2: 0x4c; 3: 0x46.
     if (boofer[0] != 0x7f || boofer[1] != 0x45 || boofer[2] != 0x4c || boofer[3] != 0x46)
         return -1; 
-/////////////////////////////////////////Set up program paging (4MB) && User-level Program Loader (load from FS to program page////////////////////////////////////////////////////////
 
-//////////////////////////////MAKE SEND PID GLOBAL??????????/////////////////
     send_pid = get_new_pid(); //tells us which pcb is available 
     if(send_pid != -1){ //if its available 
         my_pids[send_pid] = 1;
-        create_pcb(send_pid);
-
-    //we load into the same vm everytime but different phys everytime 
-            program_pages(send_pid); //create page 
-            read_data(5,0,0x08000000,37000); //load page 
-
-    //////////////////flush//////////////////////////////////////////////
+    
+    
+    create_pcb(send_pid);
+    program_pages(send_pid); //create page 
+    read_data(temp_dentry.inode_num,0,0x8048000,0x8400000 - 0x8048000); //load page 
     
         asm volatile (" \
     movl %%cr3, %%eax ; \
@@ -66,23 +56,16 @@ int32_t execute(const uint8_t* command) {
 " : /* no outputs */ \
   : /* no inputs */ \
   : "eax", "memory", "cc");
-    }
+     }
 
- ////////////////////////////////////////////////////////SET UP PCB///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// pcb_t my_pcb = create_pcb(send_pid );
-
-// uint32_t esp_value, ebp_value;
-uint32_t start_addr;
+uint8_t* buffy;
+uint32_t start_adrr;
 uint32_t ret;
 
-ret = read_data(temp_dentry.inode_num, 24,(uint8_t*)(&start_addr), 4);
+read_data(temp_dentry.inode_num, 24,buffy, 4);
+start_adrr = *(uint32_t*)(buffy);
 
-if (ret != 4) {
-    return -1;
-}
-
-// tss.esp0 = 0x800000 - 8kb * pcb- sizeof(uint32_t); // setting up the 
-tss.esp0 = 0x800000;
+tss.esp0 = 0x800000 -4;
 tss.ss0 = KERNEL_DS;
 
 register uint32_t ebp_value asm("ebp");
@@ -91,9 +74,8 @@ register uint32_t esp_value asm("esp");
 pcb_array[send_pid].prev_esp = esp_value;
 pcb_array[send_pid].prev_ebp = ebp_value;
 
-////////////////////////////////////////////////////////SET UP PCB///////////////////////////////////
-printf("entering execute stack set up");
-/////////IRET//////////////////////////////////////
+
+printf("aleenas armpits smell");
 asm volatile("pushl %0 \n" //push the data segment 
               "pushl %1 \n"  //push the pointer to the top of the user stack(esp)
               "pushfl   \n" //push the flags
@@ -104,10 +86,9 @@ asm volatile("pushl %0 \n" //push the data segment
             : "r" (USER_DS), \
               "r" (START_OF_USER_STACK - sizeof(uint32_t)), \
               "r" (USER_CS), \
-              "r" (start_addr)
+              "r" (start_adrr)
             : "memory");
-
-printf("finished execute");
+    printf("abhees poo poo hole smells");
     return 255; 
 }
 
@@ -183,14 +164,7 @@ uint32_t open_syscall(uint8_t* filename){
 
 
 
- pcb_t create_pcb(int index) {
-//ONLY MODIFY THESE IN THE PCB FUNCTION for the current pcb
-//init a new first two entries in the array forthe std values 
-// my_pcb.fd_array = ;
-
-// my_pcb.pid = ;
-
-    //pcb_t my_pcb;
+ void create_pcb(int index) {
     
     pcb_array[index].pid = index; 
     
@@ -198,5 +172,5 @@ uint32_t open_syscall(uint8_t* filename){
 
     init_file_descriptor(pcb_array[index].fd_array);
     
-    //return my_pcb;
+    return;
 }

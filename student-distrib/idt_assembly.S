@@ -275,15 +275,15 @@ system_call_asm:
 system_call_dispatcher:
 //  movl $1, %eax //temporary for testing, index into eax (0 is halt, 1 execute etc), remove once you figure out how to use do_call
 #invalid checks
-// cmpl $0, %eax
-// jb failure
-// cmpl $9, %eax 
-// ja failure
-jmp *sys_call_table( ,%eax, 4) #in lecture they said to use call not but idrk why we can chang ethis later w the correct setup 
+cmpl $0, %eax
+jb failure
+cmpl $9, %eax 
+ja failure
+call *sys_call_table( ,%eax, 4) #in lecture they said to use call not but idrk why we can chang ethis later w the correct setup 
 //call *sys_call_table( ,%eax, 4)
-//ret
-// failure: 
-// movl $-1, %eax
+ret
+failure: 
+movl $-1, %eax
 ret
 
 ece391_halt_asm:
@@ -292,7 +292,11 @@ ece391_halt_asm:
 	movl %esp, %ebp
     pushal                               # Push all general-purpose registers
     pushfl                               # Push the EFLAGS register
+    pushl %edx
+    pushl %ecx
+    pushl %ebx
     call halt                       # Call the 'halt' function
+    addl $12, %esp
     popfl                               # Pop the EFLAGS register
     popal                               # Pop all the general-purpose registers
     leave
@@ -306,9 +310,11 @@ ece391_execute_asm:
 	movl %esp, %ebp
     pushal                               # Push all general-purpose registers
     pushfl                               # Push the EFLAGS register
-    //pushl %ebx                          #I think you need to push ebx bc you need to push one arg 
+    pushl %edx
+    pushl %ecx
+    pushl %ebx
     call execute                       # Call the 'halt' function
-    //popl %ebx
+    addl $12, %esp
     popfl                               # Pop the EFLAGS register
     popal                               # Pop all the general-purpose registers
     leave
@@ -319,8 +325,12 @@ ece391_read_asm:
    pushl %ebp
 	movl %esp, %ebp
     pushal                               # Push all general-purpose registers
-    pushfl                               # Push the EFLAGS register
+    pushfl       
+     pushl %edx
+    pushl %ecx
+    pushl %ebx                        # Push the EFLAGS register
     call read_syscall                       # Call the 'halt' function
+    addl $12, %esp
     popfl                               # Pop the EFLAGS register
     popal                               # Pop all the general-purpose registers
     leave
@@ -331,8 +341,12 @@ ece391_write_asm:
    pushl %ebp
 	movl %esp, %ebp
     pushal                               # Push all general-purpose registers
-    pushfl                               # Push the EFLAGS register
+    pushfl    
+     pushl %edx
+    pushl %ecx
+    pushl %ebx                           # Push the EFLAGS register
     call write_syscall                       # Call the 'halt' function
+    addl $12, %esp
     popfl                               # Pop the EFLAGS register
     popal                               # Pop all the general-purpose registers
     leave
@@ -343,7 +357,11 @@ ece391_open_asm:
 	movl %esp, %ebp
     pushal                               # Push all general-purpose registers
     pushfl                               # Push the EFLAGS register
+    pushl %edx
+    pushl %ecx
+    pushl %ebx
     call open_syscall                       # Call the 'halt' function
+    addl $12, %esp
     popfl                               # Pop the EFLAGS register
     popal                               # Pop all the general-purpose registers
     leave
