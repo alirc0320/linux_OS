@@ -48,81 +48,51 @@ int32_t execute(const uint8_t* command) {
         return -1; 
 /////////////////////////////////////////Set up program paging (4MB) && User-level Program Loader (load from FS to program page////////////////////////////////////////////////////////
 
-    
-    printf("at added part");
-    
-    uint8_t send_pid = get_new_pid();
-    if(send_pid != -1){
+//////////////////////////////MAKE SEND PID GLOBAL??????????/////////////////
+    send_pid = get_new_pid(); //tells us which pcb is available 
+    if(send_pid != -1){ //if its available 
         my_pids[send_pid] = 1;
-
-
+        create_pcb(send_pid);
 
     //we load into the same vm everytime but different phys everytime 
             program_pages(send_pid); //create page 
             read_data(5,0,0x08000000,37000); //load page 
 
     //////////////////flush//////////////////////////////////////////////
+    
         asm volatile (" \
     movl %%cr3, %%eax ; \
     movl %%eax, %%cr3 ; \
 " : /* no outputs */ \
   : /* no inputs */ \
   : "eax", "memory", "cc");
- 
-    ////////////////////////////////////////////////////////////////////
-
-            for(i = 0; i < 1000; i++){
-                printf("%c", *((char*)(0x08000000 + i)));
-            }
     }
 
  ////////////////////////////////////////////////////////SET UP PCB///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- pcb_t my_pcb = create_pcb(send_pid );
+// pcb_t my_pcb = create_pcb(send_pid );
 
-uint32_t esp_value, ebp_value;
+// uint32_t esp_value, ebp_value;
+uint32_t start_addr;
+uint32_t ret;
 
-asm volatile(
-    "mov %%esp, %0;"
-    : "=r"(esp_value)
-);
+ret = read_data(temp_dentry.inode_num, 24,(uint8_t*)(&start_addr), 4);
 
-asm volatile(
-    "mov %%ebp, %0;"
-    : "=r"(ebp_value)
-);
-
-my_pcb.prev_esp = esp_value;
-my_pcb.prev_ebp = ebp_value;
-////////////////////////////////////////////////////////SET UP PCB///////////////////////////////////
-
-
-
-
- /////////////////////////////////////////////////CONTEXT SWITCH///////////////////////////////////////////////////////////////////////////////////////
-//I think these are the only two variables you need to modify in your tss struct
-//bc u need the kernel stack pointer and the starting address of the program you wanna execute(esp0) 
-
-
-
-// Read the 4 bytes starting from offset 24 in the file and store it in 'buffer'
-int32_t ret = read_data(temp_dentry.inode_num, 24, boofer, 4);
-uint32_t start_prog_addr;
-
-if (ret == 4) {
-    // 'buffer' now contains the 4 bytes from bytes 24-27 of the file
-    start_prog_addr = *((uint32_t*)boofer);
-
-    // 'value' now holds the extracted 4-byte unsigned integer
-    // You can use 'value' in your code as needed
-} else {
-    // Handle the case where not all 4 bytes were read
+if (ret != 4) {
     return -1;
 }
 
-
-tss.esp0 = start_prog_addr; // setting up the 
+// tss.esp0 = 0x800000 - 8kb * pcb- sizeof(uint32_t); // setting up the 
+tss.esp0 = 0x800000;
 tss.ss0 = KERNEL_DS;
 
+register uint32_t ebp_value asm("ebp");
+register uint32_t esp_value asm("esp");
+
+pcb_array[send_pid].prev_esp = esp_value;
+pcb_array[send_pid].prev_ebp = ebp_value;
+
+////////////////////////////////////////////////////////SET UP PCB///////////////////////////////////
+printf("entering execute stack set up");
 /////////IRET//////////////////////////////////////
 asm volatile("pushl %0 \n" //push the data segment 
               "pushl %1 \n"  //push the pointer to the top of the user stack(esp)
@@ -134,13 +104,20 @@ asm volatile("pushl %0 \n" //push the data segment
             : "r" (USER_DS), \
               "r" (START_OF_USER_STACK - sizeof(uint32_t)), \
               "r" (USER_CS), \
-              "r" (start_prog_addr)
+              "r" (start_addr)
             : "memory");
- 
 
-    //while (1);
+printf("finished execute");
     return 255; 
 }
+
+
+
+
+
+
+
+
 
 
 void read_syscall(void){
@@ -185,7 +162,7 @@ uint32_t open_syscall(uint8_t* filename){
 
     //step 3 add the file to the fd array
     printf("entering add function");
-    add_file_descriptor_table_entry(i, filename, );
+    add_file_descriptor_table_entry(i, filename, pcb_array[send_pid].fd_array);
 
     //printf("ret val: %d\n", ret_val);
     return ret_val; 
@@ -206,20 +183,20 @@ uint32_t open_syscall(uint8_t* filename){
 
 
 
- pcb_t create_pcb(int pid) {
+ pcb_t create_pcb(int index) {
 //ONLY MODIFY THESE IN THE PCB FUNCTION for the current pcb
 //init a new first two entries in the array forthe std values 
 // my_pcb.fd_array = ;
 
 // my_pcb.pid = ;
 
-    pcb_t my_pcb;
+    //pcb_t my_pcb;
     
-    my_pcb.pid = pid; 
+    pcb_array[index].pid = index; 
     
-    my_pcb.state = 1;
+    pcb_array[index].state = 1;
 
-    init_file_descriptor(my_pcb.fd_array);
+    init_file_descriptor(pcb_array[index].fd_array);
     
-    return my_pcb;
+    //return my_pcb;
 }

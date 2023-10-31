@@ -273,10 +273,9 @@ void launch_tests(){
 
 //    printf("returned from sys call");
 
-    open_syscall("ls");
+   // open_syscall("ls");
     //read_file("ls");
-    execute("ls a");
-    printf("finished execute\n");
+    
 
 
     // invalidPageAccess();

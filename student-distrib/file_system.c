@@ -171,9 +171,9 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
         length = 0;
     }
 
-    for(i = 0; i < ret_length; i++){
-            printf("%c", buf[i]);
-    }
+    // for(i = 0; i < ret_length; i++){
+    //         printf("%c", buf[i]);
+    // }
 
     return ret_length; 
 }

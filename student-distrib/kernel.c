@@ -173,11 +173,10 @@ void entry(unsigned long magic, unsigned long addr) {
     init_cursor();
     
     
-    
-    // update_cursor(5,5);
-
+  
     //disable_cursor(); 
-    
+    //open_syscall("shell");
+    // execute("shell");
 
 
     /* Do not enable the fong until after you have set up your
@@ -188,7 +187,12 @@ void entry(unsigned long magic, unsigned long addr) {
 
 
     //printf("Enabling Interrupts\n");
-    init_file_descriptor(); 
+
+
+    //init_file_descriptor(); 
+
+
+
     // printf("init worked");
     // open_syscall("ls");
     // execute("ls a");
@@ -204,7 +208,7 @@ void entry(unsigned long magic, unsigned long addr) {
    launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
-
+     execute("shell");
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
 }
