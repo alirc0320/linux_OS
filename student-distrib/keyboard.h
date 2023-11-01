@@ -8,8 +8,8 @@
 void init_keyboard(); //initialize keyboard 
 
 
-int32_t read(const char* buf, int nbytes) ;
-int32_t write(const char* buf, int nbytes);
+int32_t read(int32_t fd, void* buf, int32_t nbytes) ;
+int32_t write(int32_t fd, const void* buf, int32_t nbytes);
 int keyboard_interrupt(void);
 void init_buffer();
 int32_t terminal_open();

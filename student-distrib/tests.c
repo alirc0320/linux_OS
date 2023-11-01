@@ -94,10 +94,9 @@ void launch_tests(){
 
 	//MAKE FLAG = 1 FOR RTC OR 0 FOR KEYBOARD INTERRUPT 
 	flag = 0;
-    // uint8_t buf_name[32];
-    // uint8_t dir_name[32];
-    // uint8_t boofer[37000];
-    // int i = 0;
+    uint8_t buf_name[32];
+    uint8_t dir_name[32];
+    uint8_t boofer[37000];
 
 
     //;
@@ -141,13 +140,13 @@ void launch_tests(){
 
 
         // Third test for file system w/ consecutive read
-    // strcpy((int8_t*)buf_name, "frame1.txt");
-    // open_file(buf_name);
-    // int i;
-    // for(i = 0; i < 100000000; i++){
-    //     read_file(NULL, boofer, 1);
-    // }
-    // close_file(NULL);
+    strcpy((int8_t*)buf_name, "frame1.txt");
+    open_file(buf_name);
+    int i;
+    for(i = 0; i < 100000000; i++){
+        read_file(NULL, boofer, 1);
+    }
+    close_file(NULL);
 
 
 

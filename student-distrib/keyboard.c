@@ -78,56 +78,49 @@ unsigned char keyScanCodeArray_for_shift_and_capslock[0x59] = {'\0','\0','!', '@
  * Function: Handles keyboard interrupt, reads the scan code from the keyboard controller, 
  *           maps it to a character using keyScanCodeArray_one, and prints the corresponding character. */
 int keyboard_interrupt() {
+    // keyboard_buffer_index = 0; 
+    // keyboard_buffer = ''; 
+    char* temp_buf; //this is what well write with 
     scan_code = inb(0x60);  // Read the scan code from the keyboard controller. x60 is the keyboard data port 
-    write(keyboard_buffer, 0);  //call write to write to the buffer
-    read(keyboard_buffer, 0); //prints buffer to screen on enter 
-    send_eoi(1);                //end of interrupt
-
-    return scan_code;           //returns the scan code
-}
-
-
-
-
-/*
- * write - Process and display keyboard input.
- *
- * This function processes keyboard input, including handling control keys (Ctrl, Shift, Caps Lock)
- * and special keys (Tab, Backspace), and writes characters to a keyboard buffer and displays
- * them on the screen.
- *
- * Inputs:
- *   - buf: The buffer for storing keyboard input.
- *   - nbytes: The number of bytes to write (not used in this function).
- *
- * Outputs: None (void)
- */
- int32_t write (const char* buf, int nbytes){//need to add fd as a function once file system worknig
-    if (scan_code == 0x3A){//Caps lock key code 
+    // write(keyboard_buffer, 0);  //call write to write to the buffer
+    // read(keyboard_buffer, 0); //prints buffer to screen on enter 
+    
+     if (scan_code == 0x3A){//Caps lock key code 
         capslock_flag += 1; // Increment the capslock_flag by 1.
         capslock_flag %= 2;  // Use modulo to ensure capslock_flag stays within the range of 0 or 1.
+        send_eoi(1);  
         return 0;                //return from function 
     }
     if(scan_code == 0x1D){  //if control is pressed then set flag to 1 
         ctrl_flag = 1;  //if control is pressed then set flag to 1 
+        send_eoi(1);  
         return 0;
     }
     if (scan_code == 0x9D){    //if CONTROL IS released bc 9d is key released code for control 
         ctrl_flag = 0;             // set control flag to 0 
+        send_eoi(1);  
         return 0; 
     }
     if (ctrl_flag==1 && scan_code == 0x26){//this is for ctrl+L, we'll need to make arrays for ctrl and shifted characters. L is keycode 0x26
         clear(); //call clear function to clear screen
         init_buffer(); //reinitalize th ebuffer
+        send_eoi(1);  
         return 0; 
     }
+    // if (scan_code == 0x1C){
+    //     read(NULL, keyboard_buffer, keyboard_buffer_index);
+    // }
 
     if (ctrl_flag)                  //if control is pressed return bc it does nothing for now
+        {
+            send_eoi(1);  
         return 0; 
-    
+        }
     if (scan_code == 0x0E) { // Backspace is keycode 0E
-    if (keyboard_buffer_index == 0)
+    if (keyboard_buffer_index == 0){
+        send_eoi(1);  
         return 0; 
+    }
     int i;
     int backspace_count = 0;            //set back space coutn to 0 to intialize it 
 
@@ -149,7 +142,7 @@ int keyboard_interrupt() {
             keyboard_buffer_index--; //subtract the buffer index when back space is clicked 
         }
     }
-
+    send_eoi(1);  
     return 0;
 }
 //ali
@@ -160,9 +153,11 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
         if (keyboard_buffer_index < 127) {                  //128 character limit
             keyboard_buffer[keyboard_buffer_index] = ' ';     //putting space into buffer
             putc(' ');                                      // Print a space character            
+           
             keyboard_buffer_index++;                        //increase buffer indez
         }
     }
+    send_eoi(1);  
     return 0;
 }
 
@@ -193,6 +188,7 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
 
     else if (scan_code < 89 && scan_code != 0x1C) { //array index is less than 89 and ENTER NOT PRESSED BC ENTER = 1C
     if(keyboard_buffer_index >= 127 || keyScanCodeArray_one[scan_code] == '\0'){ // If buffer is full >= 127. 128 character limit
+        send_eoi(1);  
         return 0; 
     }
         if(shift_flag == 1 && capslock_flag == 0){  //if shift is pressed but not capslock 
@@ -200,27 +196,61 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
             keyboard_buffer[keyboard_buffer_index] = output; 
             keyboard_buffer_index ++;
             putc(output);
-
+            //write (output, 1);
         }
         else if (shift_flag == 1 && capslock_flag == 1){            //handling cas eif shift and capslock pressed at same time
             char output = keyScanCodeArray_for_shift_and_capslock[scan_code];  // Map the scan code to a character.
             keyboard_buffer[keyboard_buffer_index] = output; //writing to buffer
             keyboard_buffer_index ++;
             putc(output);
+             //write (output, 1);
         }
          else if (shift_flag == 0 && capslock_flag == 1){       //if capslock is pressed but not shift 
             char output = keyScanCodeArray_for_just_capslock[scan_code];  // Map the scan code to a character.
             keyboard_buffer[keyboard_buffer_index] = output; //writing to buffer
             keyboard_buffer_index ++;
             putc(output);
+             //write (output, 1);
         }
         else{
         char output = keyScanCodeArray_one[scan_code];  // Map the scan code to a character.
         keyboard_buffer[keyboard_buffer_index] = output; //writing to buffer
         keyboard_buffer_index ++; 
         putc(output);  // SHOULD BE PUTC
+         //write (output, 1);
         }
 }
+    
+    
+    //write(keyboard_buffer, 1); //write character to screen then reset buffer
+    //init_buffer(); 
+    send_eoi(1);                //end of interrupt
+
+    return scan_code;           //returns the scan code
+}
+
+
+
+
+/*
+ * write - Process and display keyboard input.
+ *
+ * This function processes keyboard input, including handling control keys (Ctrl, Shift, Caps Lock)
+ * and special keys (Tab, Backspace), and writes characters to a keyboard buffer and displays
+ * them on the screen.
+ *
+ * Inputs:
+ *   - buf: The buffer for storing keyboard input.
+ *   - nbytes: The number of bytes to write (not used in this function).
+ *
+ * Outputs: None (void)
+ */
+ int32_t write (int32_t fd, const void* buf, int32_t nbytes){//need to add fd as a function once file system worknig
+   int i; 
+   const char* new_buf = (const char*)buf;
+   for (i = 0; i < nbytes; i++){
+    putc (new_buf[i]);
+   }
    return 0; 
 }
 
@@ -239,23 +269,29 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
  * Outputs:
  * - Returns 0 to indicate success (keyboard input handled)
  */
- int32_t read(const char* buf, int nbytes){//need to add fd as a function once file system worknig
-
-     if (scan_code != 0x1C){        //if eneter is not pressed return and do nothing 
-        return 0; 
-     }
-     //enter case   
-    else if(scan_code == 0x1C){             //if enter is pressed print buffer
+ int32_t read(int32_t fd, void* buf, int32_t nbytes){//need to add fd as a function once file system worknig
+        //printf("terminal read");
+    //  if (scan_code != 0x1C){        //if eneter is not pressed return and do nothing 
+    //     return 0; 
+    //  }
+    while (scan_code != 0x1C);
+     //enter case             //if enter is pressed print buffer
        
-        putc('\n');                     //print a new line 
-        int i; 
-        for (i = 0; i<keyboard_buffer_index; i++){      //print each keyboard index bc a characte ris store din eahc index 
-            putc(keyboard_buffer[i]);
-        }
-        putc('\n');             //print new line after printing the whole buffer 
-        init_buffer();      //reinitialize the buffer 
-        return 0; 
-     }
+                             //print a new line 
+        // int i; 
+        // for (i = 0; i<keyboard_buffer_index; i++){      //print each keyboard index bc a characte ris store din eahc index 
+        //     putc(keyboard_buffer[i]);
+        // }
+        //             //print new line after printing the whole buffer 
+        // init_buffer();      //reinitialize the buffer 
+        // return 0; 
+    if (scan_code == 0x1C){
+        
+    //putc('\n'); 
+    write(NULL, buf, nbytes);
+    //putc('\n'); 
+    }
+    init_buffer(); 
      return 0;
 
 }

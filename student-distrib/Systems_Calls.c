@@ -103,14 +103,16 @@ asm volatile("pushl %0 \n" //push the data segment
 
 
 int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
-    printf("read syscall\n");
+    pcb_array[send_pid].fd_array[fd]->jmp_table[0](fd, buf, nbytes);
+    // printf("read syscall\n");
     //read(keyboard_buffer, 0); 
     return 10; 
     //  return; 
 }
 int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
-     printf("write syscall\n");
-       return 10;  
+    pcb_array[send_pid].fd_array[fd]->jmp_table[1](fd, buf, nbytes);
+    //printf("write syscall\n");
+    return 10;  
 
 }
 
