@@ -265,8 +265,8 @@ system_call_asm:
     pushl %fs 
     pushl %es 
     pushl %ds 
-    pushl %eax
-    pushl %ebp
+   // pushl %eax
+    //pushl %ebp
     pushl %edi
     pushl %esi
     pushl %edx
@@ -290,8 +290,8 @@ system_call_asm:
     popl %edx
     popl %esi
     popl %edi
-    popl %ebp
-    addl $4, %esp #we domt wanna overwrite eax 
+    //popl %ebp
+    //addl $4, %esp #we domt wanna overwrite eax 
     popl %ds 
     popl %es
     popl %fs

@@ -106,6 +106,7 @@ int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
     if(fd_full == 1){
         return -1; 
     }
+    //printf("read");
     return pcb_array[send_pid].fd_array[fd]->jmp_table[0](fd, buf, nbytes);
     // printf("read syscall\n");
     //read(keyboard_buffer, 0); 
@@ -114,6 +115,7 @@ int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
     if(fd_full == 1){
         return -1; 
     }
+    //printf("write");
     return pcb_array[send_pid].fd_array[fd]->jmp_table[1](fd, buf, nbytes);
     //printf("write syscall\n");
 }
