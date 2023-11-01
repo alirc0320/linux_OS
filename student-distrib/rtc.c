@@ -112,7 +112,7 @@ void rtc_interrupt() {
  * Inputs: None
  * Outputs: 0 if the RTC is successfully opened
  */
-int rtc_open(){
+int rtc_open(uint8_t* filename){
     rtc_write(2); //change frequency to 2 Hz
     return 0; 
 }

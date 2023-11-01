@@ -9,6 +9,7 @@ int shift_flag = 0;
 int capslock_flag = 0;
 int alt_flag = 0; 
 int kb_flag = 0; 
+int enter_flag = 0; 
 /* Initialize the Real-Time Clock (RTC)
  *
  * This function initializes the Real-Time Clock (RTC) for system timekeeping.
@@ -247,11 +248,13 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
  */
  int32_t write (int32_t fd, const void* buf, int32_t nbytes){//need to add fd as a function once file system worknig
    int i; 
+   //printf("nbytes in write: %d\n", nbytes);
    const char* new_buf = (const char*)buf;
    for (i = 0; i < nbytes; i++){
     putc (new_buf[i]);
    }
-   return 0; 
+   
+   return nbytes; 
 }
 
 
@@ -274,7 +277,26 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
     //  if (scan_code != 0x1C){        //if eneter is not pressed return and do nothing 
     //     return 0; 
     //  }
-    while (scan_code != 0x1C);
+    //printf("read");
+    // if (scan_code == 0x9C){
+    //         enter_flag = 0; 
+    //     } 
+    // if (enter_flag == 1)
+    int i; 
+   // printf("nbytes: %d\n", nbytes);
+    if (nbytes > 128){
+        nbytes = 128; 
+    }
+    //printf("nbytes: %d\n", nbytes);
+    while (enter_flag == 1){
+        if (scan_code == 0x9C){
+            enter_flag = 0; 
+            break; 
+        }
+            
+    }
+        
+    while (scan_code != 0x1C); 
      //enter case             //if enter is pressed print buffer
        
                              //print a new line 
@@ -285,14 +307,24 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
         //             //print new line after printing the whole buffer 
         // init_buffer();      //reinitialize the buffer 
         // return 0; 
-    if (scan_code == 0x1C){
-        
+    if (scan_code == 0x1C && enter_flag != 1){
+         //char* new_buf = (char*)buf;
+    putc('\n'); 
+    // for (i = 0; i< nbytes; i++){
+    //     printf("i: %d\n", i);
+    //     //new_buf[i] = keyboard_buffer[i];
+    //     *(uint8_t*)(buf + i) = keyboard_buffer[i];
+    // }
+    //printf("yippekaiya");
+    //write(NULL, buf, 0);
     //putc('\n'); 
-    write(NULL, buf, nbytes);
-    //putc('\n'); 
+    memcpy(buf, keyboard_buffer, nbytes);
+    //printf("left for loop");
+    enter_flag = 1; 
     }
     init_buffer(); 
-     return 0;
+    //printf("left read");
+     return nbytes;
 
 }
 

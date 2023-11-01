@@ -93,6 +93,8 @@ typedef struct file_descriptor_struct {
 
 void init_file_descriptor(file_descriptor_struct* file_descriptor_array[8]);
 
+int fd_index; 
+
 //file_descriptor_struct* file_descriptor_array[8]; 
 
 

@@ -10,17 +10,17 @@
 
 
 void halt() {
-    printf("halt");
+    // printf("halt");
     //while (1);
 }
 
 
 int32_t execute(const uint8_t* command) {
-    printf("execute");
     //check if string is an executable
-    
-    uint8_t name[999]; //this initialization might be kinda sus 
-    dentry_t temp_dentry; 
+    if (command[0] == 'r')
+        return -1; 
+    //uint8_t name[999]; //this initialization might be kinda sus 
+    dentry_t temp_dentry[1]; 
     int i = 0; 
     int fd; 
     int ret_val; 
@@ -29,13 +29,16 @@ int32_t execute(const uint8_t* command) {
     ////////////////////CHECK IF IS AN EXECUTABLE/////////////////////////////////////////////////////////////
     
     //create filename array for just first word in space separated string
-    while (command[i] != ' ' && command[i] != '\0'){
-        name[i] = command[i];
-         i ++; 
+    // while (command[i] != ' ' && command[i] != '\0'){
+    //     name[i] = command[i];
+    //      i ++; 
+    // }
+     
+    if (read_dentry_by_name(command, temp_dentry) == -1){
+        return -1; 
     }
-    read_dentry_by_name(name, &temp_dentry);//get inode num to find file descriptor
 
-    ret_val = read_data(temp_dentry.inode_num, 0, boofer, 4); //read first four bytes, check if its the magic numbers signifying an executable
+    ret_val = read_data(temp_dentry->inode_num, 0, boofer, 4); //read first four bytes, check if its the magic numbers signifying an executable
     if (ret_val < 4) 
         return -1; 
         //0: 0x7f; 1: 0x45; 2: 0x4c; 3: 0x46.
@@ -49,7 +52,7 @@ int32_t execute(const uint8_t* command) {
     
     create_pcb(send_pid);
     program_pages(send_pid); //create page 
-    read_data(temp_dentry.inode_num,0,0x8048000,0x8400000 - 0x8048000); //load page 
+    read_data(temp_dentry->inode_num,0,0x8048000,0x8400000 - 0x8048000); //load page 
     
         asm volatile (" \
     movl %%cr3, %%eax ; \
@@ -59,11 +62,11 @@ int32_t execute(const uint8_t* command) {
   : "eax", "memory", "cc");
      }
 
-uint8_t* buffy;
+uint8_t buffy[1];
 uint32_t start_adrr;
 uint32_t ret;
 
-read_data(temp_dentry.inode_num, 24,buffy, 4);
+read_data(temp_dentry->inode_num, 24,buffy, 4);
 start_adrr = *(uint32_t*)(buffy);
 
 tss.esp0 = 0x800000 - 4;
@@ -75,8 +78,6 @@ register uint32_t esp_value asm("esp");
 pcb_array[send_pid].prev_esp = esp_value;
 pcb_array[send_pid].prev_ebp = ebp_value;
 
-
-printf("aleenas armpits smell");
 asm volatile("pushl %0 \n" //push the data segment 
               "pushl %1 \n"  //push the pointer to the top of the user stack(esp)
               "pushfl   \n" //push the flags
@@ -89,7 +90,6 @@ asm volatile("pushl %0 \n" //push the data segment
               "r" (USER_CS), \
               "r" (start_adrr)
             : "memory");
-    printf("abhees poo poo hole smells");
     return -1; 
 }
 
@@ -103,45 +103,53 @@ asm volatile("pushl %0 \n" //push the data segment
 
 
 int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
-    pcb_array[send_pid].fd_array[fd]->jmp_table[0](fd, buf, nbytes);
+    if(fd_full == 1){
+        return -1; 
+    }
+    return pcb_array[send_pid].fd_array[fd]->jmp_table[0](fd, buf, nbytes);
     // printf("read syscall\n");
     //read(keyboard_buffer, 0); 
-    return 10; 
-    //  return; 
 }
 int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
-    pcb_array[send_pid].fd_array[fd]->jmp_table[1](fd, buf, nbytes);
+    if(fd_full == 1){
+        return -1; 
+    }
+    return pcb_array[send_pid].fd_array[fd]->jmp_table[1](fd, buf, nbytes);
     //printf("write syscall\n");
-    return 10;  
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 uint32_t open_syscall(uint8_t* filename){
     //step one find fd
-    int i = 0; 
-    // while (file_descriptor_array[i] !=NULL){
-    //     i ++; 
-    //     if (i == 8)
-    //         return -1; //open failed, no space in arrau
-    // }
-   // printf("i: %d\n", i);
+    int i = 0;
+    fd_full = 0;  
+    execute(filename);
+    while (pcb_array[send_pid].fd_array[i] !=NULL){
+        i ++; 
+        if (i == 8){
+            fd_full = 1; 
+            return -1; //open failed, no space in arrau
+        }
+    }
+    fd_index = i; 
+
+//    printf("i: %d\n", i);
 
     //step two figure out which open youre calling
     dentry_t temp_dentry; 
     read_dentry_by_name(filename, &temp_dentry); 
     int ret_val; 
     if (temp_dentry.filetype == 0){
-        printf("file type 0");
-        ret_val = rtc_open(); //this should take a filename but I think we set up the arg st it didn't we prib need to change this idrk tho 
+        //printf("file type 0");
+        ret_val = rtc_open(NULL); //this should take a filename but I think we set up the arg st it didn't we prib need to change this idrk tho 
     }
 
      if (temp_dentry.filetype == 1){
-        printf("file type 1");
+        //printf("file type 1");
         ret_val = open_dir(filename); 
     }
     if (temp_dentry.filetype == 2){
-        printf("open file called");
+        //printf("open file called");
         ret_val = open_file(filename); 
     }
     if (ret_val == -1)
@@ -149,7 +157,7 @@ uint32_t open_syscall(uint8_t* filename){
 
 
     //step 3 add the file to the fd array
-    printf("entering add function");
+    //printf("entering add function");
     add_file_descriptor_table_entry(i, filename, pcb_array[send_pid].fd_array);
 
     //printf("ret val: %d\n", ret_val);
@@ -157,6 +165,11 @@ uint32_t open_syscall(uint8_t* filename){
 
 
 }
+
+int32_t close_syscall(int32_t fd){
+
+}
+
 
 
  uint8_t get_new_pid(){

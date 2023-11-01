@@ -58,14 +58,11 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
         bounded_fname[i] = fname[i];
     }
     
-
-    int index = 0; 
     strcpy(dentry->filename, bounded_fname);
 
         for(i = 0; i < 64; i++){        ////WE NEED THE LENGTH AS A PARAMETER. 64: because 64 inodes 
-            if (strncmp(bounded_fname, my_boot_block->direntries[i].filename, length) == 0) {//if 0, means the strings are the same 
-                index = i; 
-                read_dentry_by_index(index, dentry);
+            if (strncmp(bounded_fname, my_boot_block->direntries[i].filename, 32) == 0) {//if 0, means the strings are the same 
+                read_dentry_by_index(i, dentry);
                 return 0; 
             }
             
@@ -190,9 +187,10 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
   * Return: The number of bytes successfully read, or -1 on failure
  */
 int32_t read_file(int32_t fd, void* buf, int32_t nbytes){
+    uint8_t* new_buf = (uint8_t*)buf;
     int temp_offset = global_offset;
     global_offset += nbytes;
-    return read_data(global_dentry->inode_num, temp_offset, buf, nbytes);
+    return read_data(global_dentry->inode_num, temp_offset, new_buf, nbytes);
 }
 
 /* Function to open a file
@@ -254,7 +252,7 @@ int32_t close_file(int32_t fd){
  * Return: 0 on success
  */
 int32_t open_dir(const uint8_t* filename){
-    index_offset = 0; // Reset the index offset for reading directory entries
+    //index_offset = 0; // Reset the index offset for reading directory entries
     read_dentry_by_name(filename, dir_dentry); // Find and store the directory entry for the given filename
     return 0; // Return success
 }
@@ -276,7 +274,7 @@ int32_t read_dir(int32_t fd, void* buf, int32_t nbytes){
     if (index_offset >= 17)
         return 0; // No more directory entries to read
     
-    dentry_t* temp_dentry;
+    dentry_t temp_dentry[1];
     // Read the directory entry at the current index
     read_dentry_by_name((const uint8_t*)my_boot_block->direntries[index_offset].filename, temp_dentry);
     printf("%d: ", index_offset + 1);

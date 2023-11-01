@@ -2,6 +2,8 @@
 #include "x86_desc.h"
 #include "lib.h"
 #include "file_system.h"
+#include "System_Calls.h"
+
 
 #define PASS 1
 #define FAIL 0
@@ -112,7 +114,8 @@ void launch_tests(){
     // strcpy((int8_t*)buf_name, ".");  // Copy "frame0.txt" into buf_name
     // open_syscall(buf_name);
     // read_syscall(0, boofer, 20000);
-    // //close_file(NULL);
+    // read_file(0, boofer, 20000);
+    // close_file(NULL);
 
     // while(boofer[i] != 0 || boofer[i] != '\0'){
     //     printf("%c");
@@ -139,14 +142,14 @@ void launch_tests(){
 
 
 
-        // Third test for file system w/ consecutive read
-    strcpy((int8_t*)buf_name, "frame1.txt");
-    open_file(buf_name);
-    int i;
-    for(i = 0; i < 100000000; i++){
-        read_file(NULL, boofer, 1);
-    }
-    close_file(NULL);
+    //     // Third test for file system w/ consecutive read
+    // strcpy((int8_t*)buf_name, "frame1.txt");
+    // open_file(buf_name);
+    // int i;
+    // for(i = 0; i < 100000000; i++){
+    //     read_file(NULL, boofer, 1);
+    // }
+    // close_file(NULL);
 
 
 
@@ -165,14 +168,31 @@ void launch_tests(){
 
 
 
+    pcb_array[0].pid = 0; 
+    
+    pcb_array[0].state = 1;
 
+    init_file_descriptor(pcb_array[0].fd_array);
+
+
+
+    strcpy((int8_t*)dir_name, ".");
+    uint8_t dir_boofer[999];
+    int i;
+    
+    for(i =0; i< 10;i++){
+        open_syscall(dir_name);
+        read_syscall(fd_index, dir_boofer, 1);
+    }
+    close_dir(NULL);
 
     // strcpy((int8_t*)dir_name, ".");
     // uint8_t dir_boofer[999];
     // int i;
     // open_dir(dir_name);
     // for(i =0; i< 1068;i++){
-    //     read_dir(NULL, dir_boofer, 0);
+        
+    //     read_dir(NULL, dir_boofer, 1);
     // }
     // close_dir(NULL);
 
