@@ -271,10 +271,6 @@ system_call_asm:
     pushl %edi
     pushfl
 
-
-  
-    
- 
     pushl %edx
     pushl %ecx
     pushl %ebx
@@ -288,8 +284,6 @@ system_call_asm:
     call *sys_call_table(, %eax, 4)
     addl $12, %esp
 
-    
-  
     popfl
     popl %edi
     popl %esi

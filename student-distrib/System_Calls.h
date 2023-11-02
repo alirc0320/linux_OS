@@ -12,6 +12,7 @@ typedef struct pcb {
     uint32_t pid;
     int state;
     uint8_t* sp;
+    int inode_num;
     uint8_t* prev_ebp;
     uint8_t* prev_esp;
     void* pc;
@@ -31,7 +32,8 @@ int fd_full;
 
 
 
-void halt(void); 
+int32_t halt(uint8_t status); 
+
 int32_t execute(const uint8_t* command);
 int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes);
 int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes);

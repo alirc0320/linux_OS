@@ -9,9 +9,86 @@
 #include "keyboard.h"
 
 
-void halt() {
-     printf("halt");
-    //while (1);
+
+int32_t halt(uint8_t status){
+    printf("entered halt");
+   // int my_eax = status;
+    int i;
+
+    /*
+    Restore parent data
+        What data?
+        Where to find them?
+    */
+
+   uint8_t* ESP = pcb_array[target_pid].prev_esp;
+   uint8_t* EBP = pcb_array[target_pid].prev_ebp;
+   uint32_t RETURN_VALUE;
+   
+
+    asm volatile (" \
+    movl %%cr3, %%eax ; \
+    movl %%eax, %%cr3 ; \
+    " : /* no outputs */ \
+    : /* no inputs */ \
+    : "eax", "cc");
+
+    /*
+    Restore parent paging (from ls back to shell)
+    */
+   program_pages(target_pid-1);
+   //read_data(pcb_array[target_pid-1].inode_num,0,0x8048000,0x8400000 - 0x8048000);
+
+    /*
+    Clear file descriptor array
+        What if you don’t…
+    */
+    for(i = 0; i < 8; i++){
+        if(pcb_array[target_pid].fd_array[i] == NULL){
+            break;
+        } 
+        pcb_array[target_pid].fd_array[i]->inode = 0;
+        pcb_array[target_pid].fd_array[i]->file_position = 0;
+        pcb_array[target_pid].fd_array[i]->flags = 0;
+        pcb_array[target_pid].fd_array[i]->jmp_table[0] = NULL;
+        pcb_array[target_pid].fd_array[i]->jmp_table[1] = NULL;
+        pcb_array[target_pid].fd_array[i]->jmp_table[2] = NULL;
+        pcb_array[target_pid].fd_array[i]->jmp_table[3] = NULL;
+    }
+    
+    //Write Parent process’ info back to TSS(esp0)
+    tss.esp0 =  0x800000 - (0x2000 * (target_pid - 1) )- 4;
+    tss.ss0 = KERNEL_DS;
+
+    my_pids[target_pid] = 0;
+    target_pid--; 
+
+    // if(status == 0){
+    //     RETURN_VALUE = 0;
+    // }
+    // else{
+    //     RETURN_VALUE = 256;
+    // }
+    RETURN_VALUE = 17;
+
+    /*
+    Jump to execute return (what does it even mean…)
+    L-> in line assembly
+    */
+   printf("leaving halt");
+
+    asm volatile("movl %0, %%esp \n"
+              "movl %1, %%ebp \n"
+              "movl %2, %%eax \n"
+              "leave \n" // Jump to the label
+              "ret \n" // Jump to the label
+            : /* no output */
+            : "r" (ESP), \
+              "r" (EBP), \
+              "r" (RETURN_VALUE)
+            : "memory");
+
+    return 0;
 }
 
 
@@ -29,7 +106,11 @@ int32_t execute(const uint8_t* command) {
 uint8_t buffy[1];
 uint32_t start_adrr;
 uint32_t ret;
-    
+  
+for (i = 0; i < 999; i++) {
+    name[i] = 0;
+}
+i = 0;
     ////////////////////CHECK IF IS AN EXECUTABLE/////////////////////////////////////////////////////////////
     
     //create filename array for just first word in space separated string
@@ -63,19 +144,19 @@ uint32_t ret;
      /* Get pcb structure */
     pcb = create_pcb(target_pid);
     pcb->pid = target_pid;
+    pcb->inode_num = temp_dentry->inode_num;
 
 //PCB//////////////////////////////////
 
 
-    program_pages(target_pid); //create page 
-      
-      asm volatile (" \
+    asm volatile (" \
     movl %%cr3, %%eax ; \
     movl %%eax, %%cr3 ; \
 " : /* no outputs */ \
   : /* no inputs */ \
   : "eax", "cc");
      
+    program_pages(target_pid); //create page 
     
     read_data(temp_dentry->inode_num,0,0x8048000,0x8400000 - 0x8048000); //load page 
     
@@ -96,8 +177,8 @@ pcb_array[target_pid].prev_ebp = ebp_value;
 asm volatile("pushl %0 \n" //push the data segment 
               "pushl %1 \n"  //push the pointer to the top of the user stack(esp)
               "pushfl   \n" //push the flags
-             " pushl %2 \n" //push the user CODE SEGMENT 
-              "pushl %3 \n" //push the start address of ur program i thin k bytes 24-27
+              "pushl %2 \n" //push the user CODE SEGMENT 
+              "pushl %3 \n" //push the start address of your program i think bytes 24-27
               "iret     \n"
             : /* no output */
             : "r" (USER_DS), \
@@ -105,7 +186,10 @@ asm volatile("pushl %0 \n" //push the data segment
               "r" (USER_CS), \
               "r" (start_adrr)
             : "memory");
-    return 0; 
+
+    // THIS IS SUPPOSED TO BE RETURN SOME SHIT
+
+    return 17; 
 }
 
 
@@ -123,41 +207,7 @@ int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
     if(fd_full == 1){
         return -1; 
     }
-    return pcb_array[target_pid].fd_array[fd]->jmp_table[0](fd, buf, nbytes);
-    //printf("read");
-    //return pcb_array[send_pid].fd_array[fd]->jmp_table[0](fd, buf, nbytes);
-     if (fd <= 1){
-        return read(fd, buf, nbytes);
-     }
-     int inode = pcb_array[target_pid].fd_array[fd]->inode; 
-     int i; 
-     dentry_t temp_dentry;
-     for (i = 0; i< my_boot_block->dir_count; i++){
-        if (my_boot_block->direntries[i].inode_num == inode){
-             temp_dentry = my_boot_block->direntries[i]; 
-            break;
-        }
-     }
-
-     if (temp_dentry.filetype == 0){
-        return rtc_read(fd, buf, nbytes);
-     }
-     if (temp_dentry.filetype == 1){
-        int i; 
-        for (i = 0; i< 100; i++){
-         read_dir(fd, buf, nbytes);
-        }
-        return 0; 
-     }
-
-    if (temp_dentry.filetype == 2){
-        return read_file(fd, buf, nbytes);
-     }
-
-    return -1; 
-    //printf("past read");
-    // printf("read syscall\n");
-    //read(keyboard_buffer, 0); 
+    return pcb_array[target_pid].fd_array[fd]->jmp_table[0](fd, buf, nbytes); 
 }
 int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
     if(fd_full == 1){
@@ -165,34 +215,6 @@ int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
     }
     fd = fd_index; 
     return pcb_array[target_pid].fd_array[fd]->jmp_table[1](fd, buf, nbytes);
-    //printf("write");
-    // pcb_array[send_pid].fd_array[fd]->jmp_table[1](fd, buf, nbytes);
-     if (fd <= 1){
-        return write(fd, buf, nbytes);
-     }
-    int inode =  pcb_array->fd_array[fd]->inode; 
-    int i; 
-    dentry_t temp_dentry; 
-    for (i = 0; i< my_boot_block->dir_count; i++){
-        if (my_boot_block->direntries[i].inode_num == inode){
-             temp_dentry = my_boot_block->direntries[i]; 
-            break;
-        }
-     }
-
-    //  if (temp_dentry.filetype == 0){
-    //     return rtc_write(fd, buf, nbytes);
-    //  }
-     if (temp_dentry.filetype == 1){
-        return write_dir(fd, buf, nbytes);
-     }
-
-    if (temp_dentry.filetype == 2){
-        return write_file(fd, buf, nbytes);
-     }
-
-    //printf("write syscall\n");
-    return -1; 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
