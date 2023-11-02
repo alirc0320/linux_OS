@@ -183,6 +183,7 @@ void launch_tests(){
     for(i =0; i< 10;i++){
         open_syscall(dir_name);
         read_syscall(fd_index, dir_boofer, 1);
+        write_syscall(fd_index, dir_boofer, 1);
     }
     close_dir(NULL);
 

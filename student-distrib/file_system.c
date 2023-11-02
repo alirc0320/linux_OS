@@ -58,7 +58,8 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
         bounded_fname[i] = fname[i];
     }
     
-    strcpy(dentry->filename, bounded_fname);
+    //strcpy(dentry->filename, bounded_fname);
+   memcpy(dentry->filename,bounded_fname, 32);
 
         for(i = 0; i < 64; i++){        ////WE NEED THE LENGTH AS A PARAMETER. 64: because 64 inodes 
             if (strncmp(bounded_fname, my_boot_block->direntries[i].filename, 32) == 0) {//if 0, means the strings are the same 
@@ -336,13 +337,13 @@ int32_t write_dir(int32_t fd, const void* buf, int32_t nbytes){
 
 
 
-void init_file_descriptor(file_descriptor_struct* file_descriptor_array[8]) {
+void init_file_descriptor(file_descriptor_struct_t* file_descriptor_array[8]) {
     
     int i;
     //for (i = 0; i < 10; i++) {fd->jmp_table[i] = sys_call_table[i];}
     //printf("entering init function");
-    file_descriptor_struct struct_0; 
-    file_descriptor_struct struct_1; 
+    file_descriptor_struct_t struct_0; 
+    file_descriptor_struct_t struct_1; 
     for(i = 2; i<8; i++){
         file_descriptor_array[i] = 0;
         //printf("i: %d\n", i );
@@ -377,13 +378,13 @@ file_descriptor_array[1] = &struct_1;
 
 
 
-void add_file_descriptor_table_entry(int fd, uint8_t* filename, file_descriptor_struct* file_descriptor_array[8]){
+void add_file_descriptor_table_entry(int fd, uint8_t* filename, file_descriptor_struct_t* file_descriptor_array[8]){
     //i think this will have to be called from open 
 
     //file types: 0 is RTC, 1 is directory, 2 is regular file
     int i=0;
     dentry_t temp_dentry; 
-    file_descriptor_struct temp_struct; 
+    file_descriptor_struct_t temp_struct; 
     temp_struct.inode = 0; //initialized to zero, only non zero if a file
     read_dentry_by_name(filename, &temp_dentry); 
     if (temp_dentry.filetype == 0){

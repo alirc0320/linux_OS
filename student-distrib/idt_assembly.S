@@ -262,44 +262,59 @@ keyboard_interrupt_asm:
 # System Call Handler
 #handler will call dispatcher which will index into jump table
 system_call_asm:
-    pushl %fs 
-    pushl %es 
-    pushl %ds 
-   // pushl %eax
-    //pushl %ebp
-    pushl %edi
-    pushl %esi
+    pushl %ecx
     pushl %edx
     pushl %ebx
-    pushl %ecx
+    pushl %esp
+    pushl %ebp
+    pushl %esi
+    pushl %edi
+    pushfl
+
+
   
-    cmpl $0, %eax
-    jb failure
-    cmpl $9, %eax 
-    ja failure
+    
  
     pushl %edx
     pushl %ecx
     pushl %ebx
+
+    cmpl $0, %eax
+    jb failure
+    cmpl $9, %eax 
+    ja failure
+
+
     call *sys_call_table(, %eax, 4)
     addl $12, %esp
+
+    
   
-    //popfl
-    popl %ecx
+    popfl
+    popl %edi
+    popl %esi
+    popl %ebp
+    popl %esp
     popl %ebx
     popl %edx
-    popl %esi
-    popl %edi
-    //popl %ebp
-    //addl $4, %esp #we domt wanna overwrite eax 
-    popl %ds 
-    popl %es
-    popl %fs
+    popl %ecx
     iret
 
 
+    //addl $4, %esp #we domt wanna overwrite eax 
+  
+
     failure: 
     movl $-1, %eax
+    addl $12, %esp  
+    popfl
+    popl %edi
+    popl %esi
+    popl %ebp
+    popl %esp
+    popl %ebx
+    popl %edx
+    popl %ecx
     iret
 
 

@@ -15,7 +15,7 @@ typedef struct pcb {
     uint8_t* prev_ebp;
     uint8_t* prev_esp;
     void* pc;
-    file_descriptor_struct* fd_array[8];
+    file_descriptor_struct_t* fd_array[8];
 } pcb_t;
 
 

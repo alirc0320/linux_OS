@@ -10,7 +10,7 @@
 
 
 void halt() {
-    // printf("halt");
+     printf("halt");
     //while (1);
 }
 
@@ -103,11 +103,16 @@ asm volatile("pushl %0 \n" //push the data segment
 
 
 int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
+    printf("in read");
     if(fd_full == 1){
         return -1; 
     }
     //printf("read");
     return pcb_array[send_pid].fd_array[fd]->jmp_table[0](fd, buf, nbytes);
+    //  if (fd <= 1){
+    //     return write(fd, buf, nbytes);
+    //  }
+    printf("past read");
     // printf("read syscall\n");
     //read(keyboard_buffer, 0); 
 }
@@ -116,8 +121,13 @@ int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
         return -1; 
     }
     //printf("write");
-    return pcb_array[send_pid].fd_array[fd]->jmp_table[1](fd, buf, nbytes);
+     pcb_array[send_pid].fd_array[fd]->jmp_table[1](fd, buf, nbytes);
+    //  if (fd <= 1){
+    //     return write(fd, buf, nbytes);
+    //  }
+    int inode =  pcb_array->fd_array[fd]->inode; 
     //printf("write syscall\n");
+    return 1; 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////

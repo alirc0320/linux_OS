@@ -1,3 +1,7 @@
+#ifndef _FILE_SYSTEM_H
+#define _FILE_SYSTEM_H
+
+
 #include "types.h"
 #include "multiboot.h"
 #include "rtc.h"
@@ -89,9 +93,9 @@ typedef struct file_descriptor_struct {
     int32_t inode;
     int32_t file_position;
     int32_t flags;
-} file_descriptor_struct;
+} file_descriptor_struct_t;
 
-void init_file_descriptor(file_descriptor_struct* file_descriptor_array[8]);
+void init_file_descriptor(file_descriptor_struct_t* file_descriptor_array[8]);
 
 int fd_index; 
 
@@ -100,7 +104,7 @@ int fd_index;
 
 
 void init_file_sys(uint32_t* myfileSystem);
-void add_file_descriptor_table_entry(int fd, uint8_t* filename, file_descriptor_struct* file_descriptor_array[8]);
+void add_file_descriptor_table_entry(int fd, uint8_t* filename, file_descriptor_struct_t* file_descriptor_array[8]);
 
 
-
+#endif /*_FILE_SYSTEM_H*/
