@@ -37,7 +37,7 @@ int32_t execute(const uint8_t* command) {
     if (read_dentry_by_name(name, temp_dentry) == -1){
         return -1; 
     }
-
+    read_data(temp_dentry->inode_num, 0, boofer, 4);
     // ret_val = read_data(temp_dentry->inode_num, 0, boofer, 4); //read first four bytes, check if its the magic numbers signifying an executable
     // if (ret_val < 4) 
     //     return -1; 
@@ -90,7 +90,7 @@ asm volatile("pushl %0 \n" //push the data segment
               "r" (USER_CS), \
               "r" (start_adrr)
             : "memory");
-    return -1; 
+    return 0; 
 }
 
 
@@ -104,6 +104,7 @@ asm volatile("pushl %0 \n" //push the data segment
 
 int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
     //printf("in read");
+    fd = fd_index; 
     if(fd_full == 1){
         return -1; 
     }
@@ -142,6 +143,7 @@ int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
     if(fd_full == 1){
         return -1; 
     }
+    fd = fd_index; 
     //printf("write");
     // pcb_array[send_pid].fd_array[fd]->jmp_table[1](fd, buf, nbytes);
      if (fd <= 1){
@@ -177,7 +179,7 @@ uint32_t open_syscall(uint8_t* filename){
     //step one find fd
     int i = 0;
     fd_full = 0;  
-    execute(filename);
+    //execute(filename);
     while (pcb_array[send_pid].fd_array[i] !=NULL){
         i ++; 
         if (i == 8){
