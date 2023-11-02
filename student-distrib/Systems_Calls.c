@@ -127,7 +127,11 @@ int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
         return rtc_read(fd, buf, nbytes);
      }
      if (temp_dentry.filetype == 1){
-        return read_dir(fd, buf, nbytes);
+        int i; 
+        for (i = 0; i< 100; i++){
+         read_dir(fd, buf, nbytes);
+        }
+        return 0; 
      }
 
     if (temp_dentry.filetype == 2){
@@ -202,7 +206,9 @@ uint32_t open_syscall(uint8_t* filename){
 
      if (temp_dentry.filetype == 1){
         //printf("file type 1");
+        
         ret_val = open_dir(filename); 
+        
     }
     if (temp_dentry.filetype == 2){
         //printf("open file called");
