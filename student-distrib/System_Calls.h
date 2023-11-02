@@ -9,7 +9,7 @@
 
 typedef struct pcb {
     // Process ID
-    int pid;
+    uint32_t pid;
     int state;
     uint8_t* sp;
     uint8_t* prev_ebp;
@@ -22,9 +22,9 @@ typedef struct pcb {
 
 pcb_t pcb_array[6];
 
-void create_pcb(int index);
+pcb_t* create_pcb(uint32_t pid);
 
-uint8_t send_pid;
+uint32_t target_pid;
 
 int fd_full; 
 

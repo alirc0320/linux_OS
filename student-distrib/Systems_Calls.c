@@ -16,8 +16,7 @@ void halt() {
 
 
 int32_t execute(const uint8_t* command) {
-    //check if string is an executable
-    if (command[0] == 'r')
+ if (command[0] == 'r')
         return -1; 
     uint8_t name[999]; //this initialization might be kinda sus 
     dentry_t temp_dentry[1]; 
@@ -25,6 +24,11 @@ int32_t execute(const uint8_t* command) {
     int fd; 
     int ret_val; 
     uint8_t boofer[999];
+    //uint32_t target_pid;
+    pcb_t* pcb; 
+uint8_t buffy[1];
+uint32_t start_adrr;
+uint32_t ret;
     
     ////////////////////CHECK IF IS AN EXECUTABLE/////////////////////////////////////////////////////////////
     
@@ -44,39 +48,50 @@ int32_t execute(const uint8_t* command) {
         //0: 0x7f; 1: 0x45; 2: 0x4c; 3: 0x46.
     if (boofer[0] != 0x7f || boofer[1] != 0x45 || boofer[2] != 0x4c || boofer[3] != 0x46)
         return -1; 
+//PCB//////////////////////////////////
+    for (i = 0; i < 6; i++) {   // get a pid
+        if (my_pids[i] == 0)
+            break;
+    }
 
-    send_pid = get_new_pid(); //tells us which pcb is available 
-    if(send_pid != -1){ //if its available 
-        my_pids[send_pid] = 1; 
-    
-    
-    create_pcb(send_pid);
-    program_pages(send_pid); //create page 
-    read_data(temp_dentry->inode_num,0,0x8048000,0x8400000 - 0x8048000); //load page 
-    
-        asm volatile (" \
+        if (i == 6)                 // no pid can be used
+        return -1;
+
+        my_pids[i] = 1;           // activate pid
+        target_pid = i;
+
+     /* Get pcb structure */
+    pcb = create_pcb(target_pid);
+    pcb->pid = target_pid;
+
+//PCB//////////////////////////////////
+
+
+    program_pages(target_pid); //create page 
+      
+      asm volatile (" \
     movl %%cr3, %%eax ; \
     movl %%eax, %%cr3 ; \
 " : /* no outputs */ \
   : /* no inputs */ \
-  : "eax", "memory", "cc");
-     }
-
-uint8_t buffy[1];
-uint32_t start_adrr;
-uint32_t ret;
+  : "eax", "cc");
+     
+    
+    read_data(temp_dentry->inode_num,0,0x8048000,0x8400000 - 0x8048000); //load page 
+    
+      
 
 read_data(temp_dentry->inode_num, 24,buffy, 4);
 start_adrr = *(uint32_t*)(buffy);
 
-tss.esp0 = 0x800000 - (0x2000 * (send_pid+1) )- 4;
+tss.esp0 = 0x800000 - (0x2000 * (target_pid+1) )- 4;
 tss.ss0 = KERNEL_DS;
 
 register uint32_t ebp_value asm("ebp");
 register uint32_t esp_value asm("esp");
 
-pcb_array[send_pid].prev_esp = esp_value;
-pcb_array[send_pid].prev_ebp = ebp_value;
+pcb_array[target_pid].prev_esp = esp_value;
+pcb_array[target_pid].prev_ebp = ebp_value;
 
 asm volatile("pushl %0 \n" //push the data segment 
               "pushl %1 \n"  //push the pointer to the top of the user stack(esp)
@@ -113,7 +128,7 @@ int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
      if (fd <= 1){
         return read(fd, buf, nbytes);
      }
-     int inode = pcb_array[send_pid].fd_array[fd]->inode; 
+     int inode = pcb_array[target_pid].fd_array[fd]->inode; 
      int i; 
      dentry_t temp_dentry;
      for (i = 0; i< my_boot_block->dir_count; i++){
@@ -184,7 +199,7 @@ uint32_t open_syscall(uint8_t* filename){
     int i = 0;
     fd_full = 0;  
     //execute(filename);
-    while (pcb_array[send_pid].fd_array[i] !=NULL){
+    while (pcb_array[target_pid].fd_array[i] !=NULL){
         i ++; 
         if (i == 8){
             fd_full = 1; 
@@ -220,7 +235,7 @@ uint32_t open_syscall(uint8_t* filename){
 
     //step 3 add the file to the fd array
     //printf("entering add function");
-    add_file_descriptor_table_entry(i, filename, pcb_array[send_pid].fd_array);
+    add_file_descriptor_table_entry(i, filename, pcb_array[target_pid].fd_array);
 
     //printf("ret val: %d\n", ret_val);
     return ret_val; 
@@ -245,14 +260,15 @@ int32_t close_syscall(int32_t fd){
  }
 
 
+ pcb_t* create_pcb(uint32_t pid) {
+    
+    pcb_array[pid].pid = pid; 
+    
+    pcb_array[pid].state = 1;
 
- void create_pcb(int index) {
-    
-    pcb_array[index].pid = index; 
-    
-    pcb_array[index].state = 1;
+    init_file_descriptor(pcb_array[pid].fd_array);
 
-    init_file_descriptor(pcb_array[index].fd_array);
-    
-    return;
+   return (pcb_t*)(0x800000 - (pid+1) * 0x2000);
+
+
 }

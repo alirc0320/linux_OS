@@ -68,7 +68,7 @@ page_table_t pt[1024] __attribute__((aligned(4096))); //1024 - number of PTEs an
 //linkage - this is for the assembly function so that we can enable paging and CR3 
 void init_paging(); 
 void loadPageDirectory_asm(page_dir_t *pd);
-void program_pages(uint8_t send_pid);
+void program_pages(uint8_t target_pid);
 // void enablePaging_asm();
 // void loadPSE(); 
 #endif /* ASM */
