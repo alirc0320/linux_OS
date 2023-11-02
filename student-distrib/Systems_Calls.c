@@ -123,6 +123,7 @@ int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
     if(fd_full == 1){
         return -1; 
     }
+    return pcb_array[target_pid].fd_array[fd]->jmp_table[0](fd, buf, nbytes);
     //printf("read");
     //return pcb_array[send_pid].fd_array[fd]->jmp_table[0](fd, buf, nbytes);
      if (fd <= 1){
@@ -163,6 +164,7 @@ int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
         return -1; 
     }
     fd = fd_index; 
+    return pcb_array[target_pid].fd_array[fd]->jmp_table[1](fd, buf, nbytes);
     //printf("write");
     // pcb_array[send_pid].fd_array[fd]->jmp_table[1](fd, buf, nbytes);
      if (fd <= 1){

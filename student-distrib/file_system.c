@@ -272,10 +272,13 @@ int32_t open_dir(const uint8_t* filename){
  */
 int32_t read_dir(int32_t fd, void* buf, int32_t nbytes){
     int j, k;
-    if (index_offset >= 17)
-        return 0; // No more directory entries to read
+    int l; 
+        dentry_t temp_dentry[1];
+
     
-    dentry_t temp_dentry[1];
+    for (l = 0; l< 17; l++){
+        if (index_offset >= 17)
+        return 0; // No more directory entries to read
     // Read the directory entry at the current index
     read_dentry_by_name((const uint8_t*)my_boot_block->direntries[index_offset].filename, temp_dentry);
     printf("%d: ", index_offset + 1);
@@ -298,8 +301,9 @@ int32_t read_dir(int32_t fd, void* buf, int32_t nbytes){
 
     printf("\n");
     index_offset++; // Move to the next directory entry
-
-    return inodeArr[temp_dentry->inode_num]->length; // Return the size of the directory entry
+    }
+    //return inodeArr[temp_dentry->inode_num]->length; // Return the size of the directory entry
+    return 0; 
 }
 
 
