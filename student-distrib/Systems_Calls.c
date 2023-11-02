@@ -19,7 +19,7 @@ int32_t execute(const uint8_t* command) {
     //check if string is an executable
     if (command[0] == 'r')
         return -1; 
-    //uint8_t name[999]; //this initialization might be kinda sus 
+    uint8_t name[999]; //this initialization might be kinda sus 
     dentry_t temp_dentry[1]; 
     int i = 0; 
     int fd; 
@@ -29,25 +29,25 @@ int32_t execute(const uint8_t* command) {
     ////////////////////CHECK IF IS AN EXECUTABLE/////////////////////////////////////////////////////////////
     
     //create filename array for just first word in space separated string
-    // while (command[i] != ' ' && command[i] != '\0'){
-    //     name[i] = command[i];
-    //      i ++; 
-    // }
+    while (command[i] != ' ' && command[i] != '\0'){
+        name[i] = command[i];
+         i ++; 
+    }
      
-    if (read_dentry_by_name(command, temp_dentry) == -1){
+    if (read_dentry_by_name(name, temp_dentry) == -1){
         return -1; 
     }
 
-    ret_val = read_data(temp_dentry->inode_num, 0, boofer, 4); //read first four bytes, check if its the magic numbers signifying an executable
-    if (ret_val < 4) 
-        return -1; 
+    // ret_val = read_data(temp_dentry->inode_num, 0, boofer, 4); //read first four bytes, check if its the magic numbers signifying an executable
+    // if (ret_val < 4) 
+    //     return -1; 
         //0: 0x7f; 1: 0x45; 2: 0x4c; 3: 0x46.
     if (boofer[0] != 0x7f || boofer[1] != 0x45 || boofer[2] != 0x4c || boofer[3] != 0x46)
         return -1; 
 
     send_pid = get_new_pid(); //tells us which pcb is available 
     if(send_pid != -1){ //if its available 
-        my_pids[send_pid] = 1;
+        my_pids[send_pid] = 1; 
     
     
     create_pcb(send_pid);
@@ -69,7 +69,7 @@ uint32_t ret;
 read_data(temp_dentry->inode_num, 24,buffy, 4);
 start_adrr = *(uint32_t*)(buffy);
 
-tss.esp0 = 0x800000 - 4;
+tss.esp0 = 0x800000 - (0x2000 * (send_pid+1) )- 4;
 tss.ss0 = KERNEL_DS;
 
 register uint32_t ebp_value asm("ebp");
@@ -103,16 +103,38 @@ asm volatile("pushl %0 \n" //push the data segment
 
 
 int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
-    printf("in read");
+    //printf("in read");
     if(fd_full == 1){
         return -1; 
     }
     //printf("read");
-    return pcb_array[send_pid].fd_array[fd]->jmp_table[0](fd, buf, nbytes);
-    //  if (fd <= 1){
-    //     return write(fd, buf, nbytes);
-    //  }
-    printf("past read");
+    //return pcb_array[send_pid].fd_array[fd]->jmp_table[0](fd, buf, nbytes);
+     if (fd <= 1){
+        return read(fd, buf, nbytes);
+     }
+     int inode = pcb_array[send_pid].fd_array[fd]->inode; 
+     int i; 
+     dentry_t temp_dentry;
+     for (i = 0; i< my_boot_block->dir_count; i++){
+        if (my_boot_block->direntries[i].inode_num == inode){
+             temp_dentry = my_boot_block->direntries[i]; 
+            break;
+        }
+     }
+
+     if (temp_dentry.filetype == 0){
+        return rtc_read(fd, buf, nbytes);
+     }
+     if (temp_dentry.filetype == 1){
+        return read_dir(fd, buf, nbytes);
+     }
+
+    if (temp_dentry.filetype == 2){
+        return read_file(fd, buf, nbytes);
+     }
+
+    return -1; 
+    //printf("past read");
     // printf("read syscall\n");
     //read(keyboard_buffer, 0); 
 }
@@ -121,13 +143,33 @@ int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
         return -1; 
     }
     //printf("write");
-     pcb_array[send_pid].fd_array[fd]->jmp_table[1](fd, buf, nbytes);
-    //  if (fd <= 1){
-    //     return write(fd, buf, nbytes);
-    //  }
+    // pcb_array[send_pid].fd_array[fd]->jmp_table[1](fd, buf, nbytes);
+     if (fd <= 1){
+        return write(fd, buf, nbytes);
+     }
     int inode =  pcb_array->fd_array[fd]->inode; 
+    int i; 
+    dentry_t temp_dentry; 
+    for (i = 0; i< my_boot_block->dir_count; i++){
+        if (my_boot_block->direntries[i].inode_num == inode){
+             temp_dentry = my_boot_block->direntries[i]; 
+            break;
+        }
+     }
+
+    //  if (temp_dentry.filetype == 0){
+    //     return rtc_write(fd, buf, nbytes);
+    //  }
+     if (temp_dentry.filetype == 1){
+        return write_dir(fd, buf, nbytes);
+     }
+
+    if (temp_dentry.filetype == 2){
+        return write_file(fd, buf, nbytes);
+     }
+
     //printf("write syscall\n");
-    return 1; 
+    return -1; 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////

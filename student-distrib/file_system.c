@@ -188,10 +188,10 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
   * Return: The number of bytes successfully read, or -1 on failure
  */
 int32_t read_file(int32_t fd, void* buf, int32_t nbytes){
-    uint8_t* new_buf = (uint8_t*)buf;
+    //uint8_t* new_buf = (uint8_t*)buf;
     int temp_offset = global_offset;
     global_offset += nbytes;
-    return read_data(global_dentry->inode_num, temp_offset, new_buf, nbytes);
+    return read_data(global_dentry->inode_num, temp_offset, buf, nbytes);
 }
 
 /* Function to open a file

@@ -176,16 +176,16 @@ void launch_tests(){
 
 
 
-    strcpy((int8_t*)dir_name, ".");
-    uint8_t dir_boofer[999];
+    strcpy((int8_t*)dir_name, "fish");
+    uint8_t dir_boofer[100000];
     int i;
-    
-    for(i =0; i< 10;i++){
-        open_syscall(dir_name);
-        read_syscall(fd_index, dir_boofer, 1);
-        write_syscall(fd_index, dir_boofer, 1);
+    open_file(dir_name);
+    for(i =0; i< 10000;i++){
+        
+        read_file(fd_index, dir_boofer, 1);
+        //write_syscall(fd_index, dir_boofer, 1);
     }
-    close_dir(NULL);
+    close_file(NULL);
 
     // strcpy((int8_t*)dir_name, ".");
     // uint8_t dir_boofer[999];
