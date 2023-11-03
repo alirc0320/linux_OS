@@ -55,8 +55,8 @@ int32_t halt(uint8_t status){
         if(pcb_array[target_pid]->fd_array[i] == NULL){
             break;
         } 
-        pcb_array[target_pid]->fd_array[i]->inode = 0;
-        pcb_array[target_pid]->fd_array[i]->file_position = 0;
+        pcb_array[target_pid]->fd_array[i]->inode = -1;
+        pcb_array[target_pid]->fd_array[i]->file_position = -1;
         pcb_array[target_pid]->fd_array[i]->flags = 0;
         pcb_array[target_pid]->fd_array[i]->jmp_table[0] = NULL;
         pcb_array[target_pid]->fd_array[i]->jmp_table[1] = NULL;
@@ -213,17 +213,15 @@ int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
     // if(fd_full == 1){
     //     return -1; 
     // }
-
-     if(fd_full == 1){
-        return -1; 
-    }
      if(fd < 0 || fd > 7){
         return -1;
     }
     
     return pcb_array[target_pid]->fd_array[fd]->jmp_table[0](fd, buf, nbytes); 
    
-   
+    if(fd_full == 1){
+        return -1; 
+    }
    
     //printf("read");
     //return pcb_array[send_pid].fd_array[fd]->jmp_table[0](fd, buf, nbytes);
@@ -265,9 +263,9 @@ int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
 
 
 int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
-    if(fd_full == 1){
-        return -1; 
-    }
+    // if(fd_full == 1){
+    //     return -1; 
+    // }
     if(fd < 0 || fd > 7 || buf == NULL || nbytes <0){
         return -1;
     }
@@ -325,6 +323,10 @@ int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 uint32_t open_syscall(uint8_t* filename){
+    if (filename == NULL || filename[0] == '\0'){
+        return -1; 
+    }
+        
     //step one find fd
     int i = 0;
     fd_full = 0;  
@@ -344,6 +346,9 @@ uint32_t open_syscall(uint8_t* filename){
     dentry_t temp_dentry; 
     read_dentry_by_name(filename, &temp_dentry); 
     int ret_val; 
+    if (temp_dentry.filetype < 0 || temp_dentry.filetype > 2){
+        return -1; 
+    }
     if (temp_dentry.filetype == 0){
         //printf("file type 0");
         ret_val = rtc_open(NULL); //this should take a filename but I think we set up the arg st it didn't we prib need to change this idrk tho 
@@ -376,18 +381,27 @@ uint32_t open_syscall(uint8_t* filename){
 int32_t close_syscall(int32_t fd){
     global_offset = 0;
     index_offset = 0;
-
-     if(fd < 0 || fd > 7){
+ 
+     if(fd < 2 || fd > 7){
+        return -1;
+    }
+    if (pcb_array[target_pid] == NULL){
+        return -1; 
+    }
+    if (pcb_array[target_pid]->fd_array[fd] == NULL){
+        return -1;
+    }
+     if (pcb_array[target_pid]->fd_array[fd]->flags == 0){
         return -1;
     }
 
-    // pcb_array[target_pid]->fd_array[fd]->inode = 0;
-    // pcb_array[target_pid]->fd_array[fd]->file_position = 0;
-    // pcb_array[target_pid]->fd_array[fd]->flags = 0;
-    // pcb_array[target_pid]->fd_array[fd]->jmp_table[0] = NULL;
-    // pcb_array[target_pid]->fd_array[fd]->jmp_table[1] = NULL;
-    // pcb_array[target_pid]->fd_array[fd]->jmp_table[2] = NULL;
-    // pcb_array[target_pid]->fd_array[fd]->jmp_table[3] = NULL;
+    pcb_array[target_pid]->fd_array[fd]->inode = -1;
+    pcb_array[target_pid]->fd_array[fd]->file_position = -1;
+    pcb_array[target_pid]->fd_array[fd]->flags = 0;
+    pcb_array[target_pid]->fd_array[fd]->jmp_table[0] = NULL;
+    pcb_array[target_pid]->fd_array[fd]->jmp_table[1] = NULL;
+    pcb_array[target_pid]->fd_array[fd]->jmp_table[2] = NULL;
+    pcb_array[target_pid]->fd_array[fd]->jmp_table[3] = NULL;
     return 0;
 }
 
@@ -445,11 +459,11 @@ int32_t vidmap(uint8_t** screen_start){
 }
 
 int32_t set_handler(int32_t signum, void* handler_address){
-
+    return -1;
 }
 
 int32_t sigreturn(void){
-    
+    return -1;
 }
 
 

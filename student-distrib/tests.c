@@ -156,7 +156,7 @@ void launch_tests(){
 
 
     // strcpy((int8_t*)buf_name, "verylargetextwithverylongname.txt");
-    // open_file(buf_name);
+    //open_syscall("helloo");
     // read_file(NULL,boofer,10);
     // read_file(NULL,boofer,10);
     // read_file(NULL,boofer,10);

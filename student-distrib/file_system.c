@@ -61,7 +61,7 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
     //strcpy(dentry->filename, bounded_fname);
    memcpy(dentry->filename,bounded_fname, 32);
 
-        for(i = 0; i < 64; i++){        ////WE NEED THE LENGTH AS A PARAMETER. 64: because 64 inodes 
+        for(i = 0; i < 63; i++){        ////WE NEED THE LENGTH AS A PARAMETER. 64: because 64 inodes 
             if (strncmp(bounded_fname, my_boot_block->direntries[i].filename, 32) == 0) {//if 0, means the strings are the same 
                 read_dentry_by_index(i, dentry);
                 return 0; 
@@ -205,9 +205,11 @@ int32_t read_file(int32_t fd, void* buf, int32_t nbytes){
  */
 int32_t open_file(const uint8_t* filename){
     // Find and store the directory entry for the given filename
-    read_dentry_by_name(filename, global_dentry);
+    int ret;
+    ret = 0;
+    ret = read_dentry_by_name(filename, global_dentry);
     global_offset = 0; // Reset the file offset to the beginning
-    return 0; // Return success
+    return ret; // Return success
 }
 
 
@@ -254,8 +256,10 @@ int32_t close_file(int32_t fd){
  */
 int32_t open_dir(const uint8_t* filename){
     //index_offset = 0; // Reset the index offset for reading directory entries
-    read_dentry_by_name(filename, dir_dentry); // Find and store the directory entry for the given filename
-    return 0; // Return success
+    int ret;
+    ret = 0;
+    ret = read_dentry_by_name(filename, dir_dentry); // Find and store the directory entry for the given filename
+    return ret; // Return success
 }
 
 
