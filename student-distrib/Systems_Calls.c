@@ -11,7 +11,7 @@
 
 
 int32_t halt(uint8_t status){
-    printf("entered halt");
+    //printf("entered halt");
    // int my_eax = status;
     int i;
 
@@ -81,7 +81,7 @@ int32_t halt(uint8_t status){
     Jump to execute return (what does it even mean…)
     L-> in line assembly
     */
-   printf("leaving halt");
+   //printf("leaving halt");
 
     asm volatile("movl %0, %%esp \n"
               "movl %1, %%ebp \n"
@@ -213,45 +213,47 @@ int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
     // if(fd_full == 1){
     //     return -1; 
     // }
+
+     if(fd_full == 1){
+        return -1; 
+    }
      if(fd < 0 || fd > 7){
         return -1;
     }
     
     return pcb_array[target_pid]->fd_array[fd]->jmp_table[0](fd, buf, nbytes); 
    
-    if(fd_full == 1){
-        return -1; 
-    }
+   
    
     //printf("read");
     //return pcb_array[send_pid].fd_array[fd]->jmp_table[0](fd, buf, nbytes);
-     if (fd <= 1){
-        return read(fd, buf, nbytes);
-     }
-     int inode = pcb_array[target_pid]->fd_array[fd]->inode; 
-     int i; 
-     dentry_t temp_dentry;
-     for (i = 0; i< my_boot_block->dir_count; i++){
-        if (my_boot_block->direntries[i].inode_num == inode){
-             temp_dentry = my_boot_block->direntries[i]; 
-            break;
-        }
-     }
+    //  if (fd <= 1){
+    //     return read(fd, buf, nbytes);
+    //  }
+    //  int inode = pcb_array[target_pid]->fd_array[fd]->inode; 
+    //  int i; 
+    //  dentry_t temp_dentry;
+    //  for (i = 0; i< my_boot_block->dir_count; i++){
+    //     if (my_boot_block->direntries[i].inode_num == inode){
+    //          temp_dentry = my_boot_block->direntries[i]; 
+    //         break;
+    //     }
+    //  }
 
-     if (temp_dentry.filetype == 0){
-        return rtc_read(fd, buf, nbytes);
-     }
-     if (temp_dentry.filetype == 1){
-        int i; 
-        for (i = 0; i< 100; i++){
-         read_dir(fd, buf, nbytes);
-        }
-        return 0; 
-     }
+    //  if (temp_dentry.filetype == 0){
+    //     return rtc_read(fd, buf, nbytes);
+    //  }
+    //  if (temp_dentry.filetype == 1){
+    //     int i; 
+    //     for (i = 0; i< 100; i++){
+    //      read_dir(fd, buf, nbytes);
+    //     }
+    //     return 0; 
+    //  }
 
-    if (temp_dentry.filetype == 2){
-        return read_file(fd, buf, nbytes);
-     }
+    // if (temp_dentry.filetype == 2){
+    //     return read_file(fd, buf, nbytes);
+    //  }
 
     return 0; 
     //printf("past read");
@@ -263,9 +265,9 @@ int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
 
 
 int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
-    // if(fd_full == 1){
-    //     return -1; 
-    // }
+    if(fd_full == 1){
+        return -1; 
+    }
     if(fd < 0 || fd > 7 || buf == NULL || nbytes <0){
         return -1;
     }
@@ -279,30 +281,30 @@ int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
    
     
     // printf("write");
-    // pcb_array[target_pid]->fd_array[fd]->jmp_table[1](fd, buf, nbytes);
-     if (fd <= 1){
-        return write(fd, buf, nbytes);
-     }
-    int inode =  pcb_array[target_pid]->fd_array[fd]->inode; 
-    int i; 
-    dentry_t temp_dentry; 
-    for (i = 0; i< my_boot_block->dir_count; i++){
-        if (my_boot_block->direntries[i].inode_num == inode){
-             temp_dentry = my_boot_block->direntries[i]; 
-            break;
-        }
-     }
-
-    //  if (temp_dentry.filetype == 0){
-    //     return rtc_write(fd, buf, nbytes);
+    // // pcb_array[target_pid]->fd_array[fd]->jmp_table[1](fd, buf, nbytes);
+    //  if (fd <= 1){
+    //     return write(fd, buf, nbytes);
     //  }
-     if (temp_dentry.filetype == 1){
-        return write_dir(fd, buf, nbytes);
-     }
+    // int inode =  pcb_array[target_pid]->fd_array[fd]->inode; 
+    // int i; 
+    // dentry_t temp_dentry; 
+    // for (i = 0; i< my_boot_block->dir_count; i++){
+    //     if (my_boot_block->direntries[i].inode_num == inode){
+    //          temp_dentry = my_boot_block->direntries[i]; 
+    //         break;
+    //     }
+    //  }
 
-    if (temp_dentry.filetype == 2){
-        return write_file(fd, buf, nbytes);
-     }
+    // //  if (temp_dentry.filetype == 0){
+    // //     return rtc_write(fd, buf, nbytes);
+    // //  }
+    //  if (temp_dentry.filetype == 1){
+    //     return write_dir(fd, buf, nbytes);
+    //  }
+
+    // if (temp_dentry.filetype == 2){
+    //     return write_file(fd, buf, nbytes);
+    //  }
 
     // printf("write syscall\n");
     return 0; 
@@ -440,6 +442,14 @@ int32_t getargs(void* buf, void* nbytes){
 
 int32_t vidmap(uint8_t** screen_start){
     return -1;
+}
+
+int32_t set_handler(int32_t signum, void* handler_address){
+
+}
+
+int32_t sigreturn(void){
+    
 }
 
 

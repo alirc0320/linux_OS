@@ -328,3 +328,5 @@ sys_call_table:
 .long close_syscall
 .long getargs
 .long vidmap
+.long set_handler
+.long sigreturn

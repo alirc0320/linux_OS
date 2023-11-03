@@ -49,6 +49,11 @@ int32_t getargs(void* buf, void* nbytes);
 int32_t vidmap(uint8_t** screen_start);
 
 
+int32_t set_handler(int32_t signum, void* handler_address);
+
+int32_t sigreturn(void);
+
+
 #endif /* _SYSTEM_CALLS_H */
 
 
