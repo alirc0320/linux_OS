@@ -129,7 +129,8 @@ void general_protection_fault_handler() {
  * Function: Handle the Page Fault Exception and display an error message. */
 void page_fault_handler() {
     printf("Page Fault Exception Caught!\n");
-    while (1);
+    halt(255);
+    //while (1);
 }
 
 /* Signal handler function for x87 Floating-Point Exception

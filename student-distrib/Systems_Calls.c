@@ -94,6 +94,10 @@ int32_t halt(uint8_t status){
               "r" (RETURN_VALUE)
             : "memory");
 
+     if(status == 255){
+        return 256;
+    }
+    
     return 0;
 }
 
