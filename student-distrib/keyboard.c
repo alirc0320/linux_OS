@@ -247,6 +247,9 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
  * Outputs: None (void)
  */
  int32_t write (int32_t fd, const void* buf, int32_t nbytes){//need to add fd as a function once file system worknig
+   if(nbytes < 0){
+    return -1;
+   }
    int i; 
    //printf("nbytes in write: %d\n", nbytes);
    const char* new_buf = (const char*)buf;
@@ -352,7 +355,7 @@ void init_buffer(){
  * Inputs: None
  * Outputs: Returns 0 to indicate success
  */
-int32_t terminal_open(){
+int32_t terminal_open(uint8_t* filename){
     return 0;
 }
 
@@ -365,6 +368,6 @@ int32_t terminal_open(){
  * Inputs: None
  * Outputs: Returns 0 to indicate success
  */
-int32_t terminal_close(){
+int32_t terminal_close(int32_t fd){
     return 0;
 }

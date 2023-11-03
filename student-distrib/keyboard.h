@@ -12,8 +12,8 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes) ;
 int32_t write(int32_t fd, const void* buf, int32_t nbytes);
 int keyboard_interrupt(void);
 void init_buffer();
-int32_t terminal_open();
-int32_t terminal_close();
+int32_t terminal_open(uint8_t* filename);
+int32_t terminal_close(int32_t fd);
 
 
 int ctrl_flag; 

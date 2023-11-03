@@ -96,9 +96,9 @@ void launch_tests(){
 
 	//MAKE FLAG = 1 FOR RTC OR 0 FOR KEYBOARD INTERRUPT 
 	flag = 0;
-    uint8_t buf_name[32];
-    uint8_t dir_name[32];
-    uint8_t boofer[37000];
+    // uint8_t buf_name[32];
+    // uint8_t dir_name[32];
+    // uint8_t boofer[37000];
 
 
     //;

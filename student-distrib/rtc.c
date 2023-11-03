@@ -126,7 +126,7 @@ int rtc_open(uint8_t* filename){
  * Inputs: None
  * Outputs: Always returns 0 in this implementation
  */
-int rtc_read() {
+int rtc_read(int32_t fd, void* buf, int32_t nbytes) {
     return 0;
 }
 //return 0
@@ -140,7 +140,7 @@ int rtc_read() {
  * Inputs: None
  * Outputs: Always returns 0 in this implementation
  */
-int rtc_close(){
+int rtc_close(int32_t fd){
     return 0;
 }
 

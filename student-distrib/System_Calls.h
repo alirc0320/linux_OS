@@ -43,6 +43,12 @@ uint8_t my_pids[6];
 uint8_t get_new_pid();
 
 
+int32_t getargs(void* buf, void* nbytes);
+
+
+int32_t vidmap(uint8_t** screen_start);
+
+
 #endif /* _SYSTEM_CALLS_H */
 
 

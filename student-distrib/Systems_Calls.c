@@ -21,10 +21,18 @@ int32_t halt(uint8_t status){
         Where to find them?
     */
 
-   uint8_t* ESP = pcb_array[target_pid]->prev_esp;
-   uint8_t* EBP = pcb_array[target_pid]->prev_ebp;
+  
    uint32_t RETURN_VALUE;
+
+   RETURN_VALUE = (uint32_t)status;
    
+   
+    if(status == 255){
+        RETURN_VALUE = 256;
+    }
+
+     uint8_t* ESP = pcb_array[target_pid]->prev_esp;
+   uint8_t* EBP = pcb_array[target_pid]->prev_ebp;
 
     asm volatile (" \
     movl %%cr3, %%eax ; \
@@ -58,7 +66,7 @@ int32_t halt(uint8_t status){
     close_syscall(i-1);
     
     //Write Parent process’ info back to TSS(esp0)
-    tss.esp0 =  0x800000 - (0x2000 * (target_pid - 1) )- 4;
+    tss.esp0 = 0x800000 -4; //0x800000 - (0x2000 * (target_pid - 1) )- 4;
     tss.ss0 = KERNEL_DS;
 
     my_pids[target_pid] = 0;
@@ -67,10 +75,7 @@ int32_t halt(uint8_t status){
     // if(status == 0){
     //     RETURN_VALUE = 0;
     // }
-    // else{
-    //     RETURN_VALUE = 256;
-    // }
-    RETURN_VALUE = 17;
+    // RETURN_VALUE = 17;
 
     /*
     Jump to execute return (what does it even mean…)
@@ -94,8 +99,8 @@ int32_t halt(uint8_t status){
 
 
 int32_t execute(const uint8_t* command) {
- if (command[0] == 'r')
-        return -1; 
+//  if (command[0] == 'r')
+//         return -1; 
     uint8_t name[32]; //this initialization might be kinda sus 
     dentry_t temp_dentry[1]; 
     int i = 0; 
@@ -169,6 +174,7 @@ start_adrr = *(uint32_t*)(buffy);
 tss.esp0 = 0x800000 - (0x2000 * (target_pid+1) )- 4;
 tss.ss0 = KERNEL_DS;
 
+
 register uint32_t ebp_value asm("ebp");
 register uint32_t esp_value asm("esp");
 
@@ -204,12 +210,15 @@ asm volatile("pushl %0 \n" //push the data segment
 
 int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
     
-    if(fd_full == 1){
-        return -1; 
+    // if(fd_full == 1){
+    //     return -1; 
+    // }
+     if(fd < 0 || fd > 7){
+        return -1;
     }
-    return pcb_array[target_pid]->fd_array[fd]->jmp_table[0](fd, buf, nbytes); 
-
     
+    return pcb_array[target_pid]->fd_array[fd]->jmp_table[0](fd, buf, nbytes); 
+   
     if(fd_full == 1){
         return -1; 
     }
@@ -254,44 +263,48 @@ int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
 
 
 int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
-    if(fd_full == 1){
-        return -1; 
+    // if(fd_full == 1){
+    //     return -1; 
+    // }
+    if(fd < 0 || fd > 7 || buf == NULL || nbytes <0){
+        return -1;
     }
-
     return pcb_array[target_pid]->fd_array[fd]->jmp_table[1](fd, buf, nbytes);
+
+     
 
     // if(fd_full == 1){
     //     return -1; 
     // }
    
     
-    //printf("write");
-    // pcb_array[send_pid].fd_array[fd]->jmp_table[1](fd, buf, nbytes);
-    //  if (fd <= 1){
-    //     return write(fd, buf, nbytes);
-    //  }
-    // int inode =  pcb_array->fd_array[fd]->inode; 
-    // int i; 
-    // dentry_t temp_dentry; 
-    // for (i = 0; i< my_boot_block->dir_count; i++){
-    //     if (my_boot_block->direntries[i].inode_num == inode){
-    //          temp_dentry = my_boot_block->direntries[i]; 
-    //         break;
-    //     }
-    //  }
+    // printf("write");
+    // pcb_array[target_pid]->fd_array[fd]->jmp_table[1](fd, buf, nbytes);
+     if (fd <= 1){
+        return write(fd, buf, nbytes);
+     }
+    int inode =  pcb_array[target_pid]->fd_array[fd]->inode; 
+    int i; 
+    dentry_t temp_dentry; 
+    for (i = 0; i< my_boot_block->dir_count; i++){
+        if (my_boot_block->direntries[i].inode_num == inode){
+             temp_dentry = my_boot_block->direntries[i]; 
+            break;
+        }
+     }
 
     //  if (temp_dentry.filetype == 0){
     //     return rtc_write(fd, buf, nbytes);
     //  }
-    //  if (temp_dentry.filetype == 1){
-    //     return write_dir(fd, buf, nbytes);
-    //  }
+     if (temp_dentry.filetype == 1){
+        return write_dir(fd, buf, nbytes);
+     }
 
-    // if (temp_dentry.filetype == 2){
-    //     return write_file(fd, buf, nbytes);
-    //  }
+    if (temp_dentry.filetype == 2){
+        return write_file(fd, buf, nbytes);
+     }
 
-    //printf("write syscall\n");
+    // printf("write syscall\n");
     return 0; 
 
 
@@ -361,6 +374,19 @@ uint32_t open_syscall(uint8_t* filename){
 int32_t close_syscall(int32_t fd){
     global_offset = 0;
     index_offset = 0;
+
+     if(fd < 0 || fd > 7){
+        return -1;
+    }
+
+    // pcb_array[target_pid]->fd_array[fd]->inode = 0;
+    // pcb_array[target_pid]->fd_array[fd]->file_position = 0;
+    // pcb_array[target_pid]->fd_array[fd]->flags = 0;
+    // pcb_array[target_pid]->fd_array[fd]->jmp_table[0] = NULL;
+    // pcb_array[target_pid]->fd_array[fd]->jmp_table[1] = NULL;
+    // pcb_array[target_pid]->fd_array[fd]->jmp_table[2] = NULL;
+    // pcb_array[target_pid]->fd_array[fd]->jmp_table[3] = NULL;
+    return 0;
 }
 
 
@@ -406,3 +432,14 @@ int32_t close_syscall(int32_t fd){
 
 
 }
+
+int32_t getargs(void* buf, void* nbytes){
+    return -1;
+}
+
+
+int32_t vidmap(uint8_t** screen_start){
+    return -1;
+}
+
+
