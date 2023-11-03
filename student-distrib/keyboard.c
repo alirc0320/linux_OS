@@ -285,7 +285,12 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
     //         enter_flag = 0; 
     //     } 
     // if (enter_flag == 1)
+    
+    
     int i; 
+    // for (i = 0; i< 128; i++){
+    //     buf[i] = '\0';
+    // }
    // printf("nbytes: %d\n", nbytes);
     if (nbytes > 128){
         nbytes = 128; 

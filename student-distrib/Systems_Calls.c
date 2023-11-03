@@ -55,16 +55,16 @@ int32_t halt(uint8_t status){
         if(pcb_array[target_pid]->fd_array[i] == NULL){
             break;
         } 
-        pcb_array[target_pid]->fd_array[i]->inode = -1;
-        pcb_array[target_pid]->fd_array[i]->file_position = -1;
-        pcb_array[target_pid]->fd_array[i]->flags = 0;
-        pcb_array[target_pid]->fd_array[i]->jmp_table[0] = NULL;
-        pcb_array[target_pid]->fd_array[i]->jmp_table[1] = NULL;
-        pcb_array[target_pid]->fd_array[i]->jmp_table[2] = NULL;
-        pcb_array[target_pid]->fd_array[i]->jmp_table[3] = NULL;
+    //     pcb_array[target_pid]->fd_array[i]->inode = -1;
+    //     pcb_array[target_pid]->fd_array[i]->file_position = -1;
+    //     pcb_array[target_pid]->fd_array[i]->flags = 0;
+    //     pcb_array[target_pid]->fd_array[i]->jmp_table[0] = NULL;
+    //     pcb_array[target_pid]->fd_array[i]->jmp_table[1] = NULL;
+    //     pcb_array[target_pid]->fd_array[i]->jmp_table[2] = NULL;
+    //     pcb_array[target_pid]->fd_array[i]->jmp_table[3] = NULL;
+    // }
+    close_syscall(i);
     }
-    close_syscall(i-1);
-    
     //Write Parent process’ info back to TSS(esp0)
     tss.esp0 = 0x800000 -4; //0x800000 - (0x2000 * (target_pid - 1) )- 4;
     tss.ss0 = KERNEL_DS;
@@ -216,7 +216,20 @@ int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
      if(fd < 0 || fd > 7){
         return -1;
     }
+
+        if (pcb_array[target_pid] == NULL){
+        return -1; 
+    }
+    if (pcb_array[target_pid]->fd_array[fd] == NULL){
+        return -1;
+    }
+    //  if (pcb_array[target_pid]->fd_array[fd]->flags == 0){
+    //     return -1;
+    // }
     
+      if (pcb_array[target_pid]->fd_array[fd]->inode == -1){
+        return -1;
+    }
     return pcb_array[target_pid]->fd_array[fd]->jmp_table[0](fd, buf, nbytes); 
    
     if(fd_full == 1){
@@ -266,9 +279,23 @@ int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
     // if(fd_full == 1){
     //     return -1; 
     // }
-    if(fd < 0 || fd > 7 || buf == NULL || nbytes <0){
+      if(fd < 0 || fd > 7 || buf == NULL || nbytes <0){
         return -1;
     }
+
+      if (pcb_array[target_pid] == NULL){
+        return -1; 
+    }
+    if (pcb_array[target_pid]->fd_array[fd] == NULL){
+        return -1;
+    }
+
+      if (pcb_array[target_pid]->fd_array[fd]->inode == -1){
+        return -1;
+    }
+    //  if (pcb_array[target_pid]->fd_array[fd]->flags == 0){
+    //     return -1;
+    // }
     return pcb_array[target_pid]->fd_array[fd]->jmp_table[1](fd, buf, nbytes);
 
      
@@ -391,7 +418,7 @@ int32_t close_syscall(int32_t fd){
     if (pcb_array[target_pid]->fd_array[fd] == NULL){
         return -1;
     }
-     if (pcb_array[target_pid]->fd_array[fd]->flags == 0){
+     if (pcb_array[target_pid]->fd_array[fd]->inode == -1){
         return -1;
     }
 
