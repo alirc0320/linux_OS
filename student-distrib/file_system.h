@@ -34,18 +34,6 @@ typedef struct data_block {
 
 
 
-// int i;
-// for (i = 0; i < 10; i++) {
-//     fd.sys_call_table[i] = sys_call_table[i]; // Assign the addresses of system call functions
-// }
-
-
-//jump tables used on struict- will depend on devices
-
-
-
-
-
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry);
 int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
 int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length);
@@ -76,14 +64,6 @@ int32_t write_dir(int32_t fd, const void* buf, int32_t nbytes);
 int32_t open_dir(const uint8_t* filename);
 int32_t close_dir(int32_t fd);
 
-
-// static int32_t (*file_jump_table[4]) () = {read_file, write_file, open_file, close_file};
-
-// static int32_t (*dir_jump_table[4]) () = {read_dir, write_dir, open_dir, close_dir};
-
-// static int32_t (*rtc_jump_table[4]) () = {rtc_read, rtc_write, rtc_open, rtc_close};
-
-// static int32_t (*terminal_jump_table[4]) () = {read, write, terminal_open, terminal_close};
 
 extern int32_t (*file_jump_table[4])();
 extern int32_t (*dir_jump_table[4])();

@@ -169,10 +169,6 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
         length = 0;
     }
 
-    // for(i = 0; i < ret_length; i++){
-    //         printf("%c", buf[i]);
-    // }
-
     return ret_length; 
 }
 
@@ -344,7 +340,13 @@ int32_t write_dir(int32_t fd, const void* buf, int32_t nbytes){
 
 
 
-
+/* Function to initialize a file descriptor array
+ * Initializes the file descriptor array with null values for file descriptors 2 to 7, and sets up file descriptors 0 and 1 with the correct jump tables.
+ * Inputs:
+ *   file_descriptor_array - Array of file descriptors
+ * Outputs: Initializes the file descriptor array
+ * Return: None
+ */
 void init_file_descriptor(file_descriptor_struct_t* file_descriptor_array[8]) {
     
     int i;
@@ -361,7 +363,7 @@ void init_file_descriptor(file_descriptor_struct_t* file_descriptor_array[8]) {
 
     //initializing 0 and 1 with correct jump table
     //idk if this syntax is right but the idea is map functions into array of jump table one by one
-    for (i = 0; i< 4; i++){
+    for (i = 0; i< 4; i++){ // iterate over all 4: open,close,read,wrirte
         struct_0.jmp_table[i] = terminal_jump_table[i];
         struct_1.jmp_table[i] =  terminal_jump_table[i];
         //printf("i: %d\n", i );
@@ -387,7 +389,15 @@ file_descriptor_array[1] = &struct_1;
 }
 
 
-
+/* Function to add a file descriptor table entry
+ * Adds a file descriptor table entry for the specified file descriptor (fd) with the given filename. Determines the file type, sets up the appropriate jump table, and initializes other fields.
+ * Inputs:
+ *   fd - File descriptor index
+ *   filename - Name of the file
+ *   file_descriptor_array - Array of file descriptors
+ * Outputs: Initializes the file descriptor entry in the file descriptor array
+ * Return: None
+ */
 void add_file_descriptor_table_entry(int fd, uint8_t* filename, file_descriptor_struct_t* file_descriptor_array[8]){
     //i think this will have to be called from open 
 
@@ -399,7 +409,7 @@ void add_file_descriptor_table_entry(int fd, uint8_t* filename, file_descriptor_
     read_dentry_by_name(filename, &temp_dentry); 
     if (temp_dentry.filetype == 0){
         
-        for (i = 0; i< 4; i++){
+        for (i = 0; i< 4; i++){ //iterate over each value in the jump table: 1 for open,close,read,write
             temp_struct.jmp_table[i] = rtc_jump_table[i];
         }
     }
@@ -426,12 +436,6 @@ void add_file_descriptor_table_entry(int fd, uint8_t* filename, file_descriptor_
 
 }
 
-//this is incomplete its just there to show linkage btwn add file descriptor table entru and our main open
-
-
-// open(filename){
-    
-// }
 
 int32_t (*file_jump_table[4]) () = {read_file, write_file, open_file, close_file};
 
