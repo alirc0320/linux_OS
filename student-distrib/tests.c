@@ -168,23 +168,23 @@ void launch_tests(){
 
 
 
-    pcb_array[0].pid = 0; 
+    // pcb_array[0].pid = 0; 
     
-    pcb_array[0].state = 1;
+    // pcb_array[0].state = 1;
 
-    init_file_descriptor(pcb_array[0].fd_array);
+    // init_file_descriptor(pcb_array[0].fd_array);
 
 
 
-    strcpy((int8_t*)dir_name, ".");
-    uint8_t dir_boofer[100000];
-    int i;
-    open_syscall(dir_name);
-    for(i =0; i< 10000;i++){
+    // strcpy((int8_t*)dir_name, ".");
+    // uint8_t dir_boofer[100000];
+    // int i;
+    // open_syscall(dir_name);
+    // for(i =0; i< 10000;i++){
         
-        read_syscall(fd_index, dir_boofer, 1);
-        //write_syscall(fd_index, dir_boofer, 1);
-    }
+    //     read_syscall(fd_index, dir_boofer, 1);
+    //     //write_syscall(fd_index, dir_boofer, 1);
+    // }
    // close_dir(NULL);
 
     // strcpy((int8_t*)dir_name, ".");

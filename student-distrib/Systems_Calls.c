@@ -21,8 +21,8 @@ int32_t halt(uint8_t status){
         Where to find them?
     */
 
-   uint8_t* ESP = pcb_array[target_pid].prev_esp;
-   uint8_t* EBP = pcb_array[target_pid].prev_ebp;
+   uint8_t* ESP = pcb_array[target_pid]->prev_esp;
+   uint8_t* EBP = pcb_array[target_pid]->prev_ebp;
    uint32_t RETURN_VALUE;
    
 
@@ -44,17 +44,18 @@ int32_t halt(uint8_t status){
         What if you don’t…
     */
     for(i = 0; i < 8; i++){
-        if(pcb_array[target_pid].fd_array[i] == NULL){
+        if(pcb_array[target_pid]->fd_array[i] == NULL){
             break;
         } 
-        pcb_array[target_pid].fd_array[i]->inode = 0;
-        pcb_array[target_pid].fd_array[i]->file_position = 0;
-        pcb_array[target_pid].fd_array[i]->flags = 0;
-        pcb_array[target_pid].fd_array[i]->jmp_table[0] = NULL;
-        pcb_array[target_pid].fd_array[i]->jmp_table[1] = NULL;
-        pcb_array[target_pid].fd_array[i]->jmp_table[2] = NULL;
-        pcb_array[target_pid].fd_array[i]->jmp_table[3] = NULL;
+        pcb_array[target_pid]->fd_array[i]->inode = 0;
+        pcb_array[target_pid]->fd_array[i]->file_position = 0;
+        pcb_array[target_pid]->fd_array[i]->flags = 0;
+        pcb_array[target_pid]->fd_array[i]->jmp_table[0] = NULL;
+        pcb_array[target_pid]->fd_array[i]->jmp_table[1] = NULL;
+        pcb_array[target_pid]->fd_array[i]->jmp_table[2] = NULL;
+        pcb_array[target_pid]->fd_array[i]->jmp_table[3] = NULL;
     }
+    close_syscall(i-1);
     
     //Write Parent process’ info back to TSS(esp0)
     tss.esp0 =  0x800000 - (0x2000 * (target_pid - 1) )- 4;
@@ -95,19 +96,19 @@ int32_t halt(uint8_t status){
 int32_t execute(const uint8_t* command) {
  if (command[0] == 'r')
         return -1; 
-    uint8_t name[999]; //this initialization might be kinda sus 
+    uint8_t name[32]; //this initialization might be kinda sus 
     dentry_t temp_dentry[1]; 
     int i = 0; 
     int fd; 
     int ret_val; 
-    uint8_t boofer[999];
+    uint8_t boofer[32];
     //uint32_t target_pid;
     pcb_t* pcb; 
 uint8_t buffy[1];
 uint32_t start_adrr;
 uint32_t ret;
   
-for (i = 0; i < 999; i++) {
+for (i = 0; i < 32; i++) {
     name[i] = 0;
 }
 i = 0;
@@ -171,8 +172,8 @@ tss.ss0 = KERNEL_DS;
 register uint32_t ebp_value asm("ebp");
 register uint32_t esp_value asm("esp");
 
-pcb_array[target_pid].prev_esp = esp_value;
-pcb_array[target_pid].prev_ebp = ebp_value;
+pcb_array[target_pid]->prev_esp = esp_value;
+pcb_array[target_pid]->prev_ebp = ebp_value;
 
 asm volatile("pushl %0 \n" //push the data segment 
               "pushl %1 \n"  //push the pointer to the top of the user stack(esp)
@@ -202,20 +203,110 @@ asm volatile("pushl %0 \n" //push the data segment
 
 
 int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
-    //printf("in read");
-    fd = fd_index; 
+    
     if(fd_full == 1){
         return -1; 
     }
-    return pcb_array[target_pid].fd_array[fd]->jmp_table[0](fd, buf, nbytes); 
+    return pcb_array[target_pid]->fd_array[fd]->jmp_table[0](fd, buf, nbytes); 
+
+    
+    if(fd_full == 1){
+        return -1; 
+    }
+   
+    //printf("read");
+    //return pcb_array[send_pid].fd_array[fd]->jmp_table[0](fd, buf, nbytes);
+     if (fd <= 1){
+        return read(fd, buf, nbytes);
+     }
+     int inode = pcb_array[target_pid]->fd_array[fd]->inode; 
+     int i; 
+     dentry_t temp_dentry;
+     for (i = 0; i< my_boot_block->dir_count; i++){
+        if (my_boot_block->direntries[i].inode_num == inode){
+             temp_dentry = my_boot_block->direntries[i]; 
+            break;
+        }
+     }
+
+     if (temp_dentry.filetype == 0){
+        return rtc_read(fd, buf, nbytes);
+     }
+     if (temp_dentry.filetype == 1){
+        int i; 
+        for (i = 0; i< 100; i++){
+         read_dir(fd, buf, nbytes);
+        }
+        return 0; 
+     }
+
+    if (temp_dentry.filetype == 2){
+        return read_file(fd, buf, nbytes);
+     }
+
+    return 0; 
+    //printf("past read");
+    // printf("read syscall\n");
+    //read(keyboard_buffer, 0); 
 }
+
+
+
+
 int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
     if(fd_full == 1){
         return -1; 
     }
-    fd = fd_index; 
-    return pcb_array[target_pid].fd_array[fd]->jmp_table[1](fd, buf, nbytes);
+
+    return pcb_array[target_pid]->fd_array[fd]->jmp_table[1](fd, buf, nbytes);
+
+    // if(fd_full == 1){
+    //     return -1; 
+    // }
+   
+    
+    //printf("write");
+    // pcb_array[send_pid].fd_array[fd]->jmp_table[1](fd, buf, nbytes);
+    //  if (fd <= 1){
+    //     return write(fd, buf, nbytes);
+    //  }
+    // int inode =  pcb_array->fd_array[fd]->inode; 
+    // int i; 
+    // dentry_t temp_dentry; 
+    // for (i = 0; i< my_boot_block->dir_count; i++){
+    //     if (my_boot_block->direntries[i].inode_num == inode){
+    //          temp_dentry = my_boot_block->direntries[i]; 
+    //         break;
+    //     }
+    //  }
+
+    //  if (temp_dentry.filetype == 0){
+    //     return rtc_write(fd, buf, nbytes);
+    //  }
+    //  if (temp_dentry.filetype == 1){
+    //     return write_dir(fd, buf, nbytes);
+    //  }
+
+    // if (temp_dentry.filetype == 2){
+    //     return write_file(fd, buf, nbytes);
+    //  }
+
+    //printf("write syscall\n");
+    return 0; 
+
+
+
+
+
+
+
+
 }
+
+
+
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 uint32_t open_syscall(uint8_t* filename){
@@ -223,7 +314,7 @@ uint32_t open_syscall(uint8_t* filename){
     int i = 0;
     fd_full = 0;  
     //execute(filename);
-    while (pcb_array[target_pid].fd_array[i] !=NULL){
+    while (pcb_array[target_pid]->fd_array[i] !=NULL){
         i ++; 
         if (i == 8){
             fd_full = 1; 
@@ -259,16 +350,17 @@ uint32_t open_syscall(uint8_t* filename){
 
     //step 3 add the file to the fd array
     //printf("entering add function");
-    add_file_descriptor_table_entry(i, filename, pcb_array[target_pid].fd_array);
+    add_file_descriptor_table_entry(i, filename, pcb_array[target_pid]->fd_array);
 
     //printf("ret val: %d\n", ret_val);
-    return ret_val; 
+    return fd_index; 
 
 
 }
 
 int32_t close_syscall(int32_t fd){
-
+    global_offset = 0;
+    index_offset = 0;
 }
 
 
@@ -285,14 +377,32 @@ int32_t close_syscall(int32_t fd){
 
 
  pcb_t* create_pcb(uint32_t pid) {
-    
-    pcb_array[pid].pid = pid; 
-    
-    pcb_array[pid].state = 1;
+    pcb_t* temp_pcb = (pcb_t*)(0x800000 - (pid+1) * 0x2000);
+    temp_pcb->pid = pid; 
+    temp_pcb->state = 1; 
 
-    init_file_descriptor(pcb_array[pid].fd_array);
+    pcb_array[pid] = temp_pcb; 
 
-   return (pcb_t*)(0x800000 - (pid+1) * 0x2000);
+
+    init_file_descriptor(pcb_array[pid]->fd_array);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    return pcb_array[pid]; 
+    
+    // pcb_array[pid].pid = pid; 
+    
+    // pcb_array[pid].state = 1;
+
+    
+
+//    return (pcb_t*)(0x800000 - (pid+1) * 0x2000);
 
 
 }

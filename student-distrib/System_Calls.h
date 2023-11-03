@@ -21,7 +21,7 @@ typedef struct pcb {
 
 
 
-pcb_t pcb_array[6];
+pcb_t* pcb_array[6];
 
 pcb_t* create_pcb(uint32_t pid);
 

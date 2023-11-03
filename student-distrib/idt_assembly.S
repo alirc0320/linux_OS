@@ -280,7 +280,6 @@ system_call_asm:
     cmpl $9, %eax 
     ja failure
 
-
     call *sys_call_table(, %eax, 4)
     addl $12, %esp
 
