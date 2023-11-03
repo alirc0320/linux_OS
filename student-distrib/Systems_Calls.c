@@ -230,6 +230,10 @@ int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes){
       if (pcb_array[target_pid]->fd_array[fd]->inode == -1){
         return -1;
     }
+
+    if (pcb_array[target_pid]->fd_array[fd]->jmp_table[0] == NULL){
+        return -1; 
+    }
     return pcb_array[target_pid]->fd_array[fd]->jmp_table[0](fd, buf, nbytes); 
    
     if(fd_full == 1){
@@ -292,6 +296,10 @@ int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes){
 
       if (pcb_array[target_pid]->fd_array[fd]->inode == -1){
         return -1;
+    }
+
+     if (pcb_array[target_pid]->fd_array[fd]->jmp_table[1] == NULL){
+        return -1; 
     }
     //  if (pcb_array[target_pid]->fd_array[fd]->flags == 0){
     //     return -1;

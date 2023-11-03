@@ -366,6 +366,8 @@ void init_file_descriptor(file_descriptor_struct_t* file_descriptor_array[8]) {
         struct_1.jmp_table[i] =  terminal_jump_table[i];
         //printf("i: %d\n", i );
     }
+    // struct_0.jmp_table[0] = terminal_jump_table[0]; 
+    // struct_1.jmp_table[1] = terminal_jump_table[1]; 
 
     //printf("finished second for loop");
     struct_0.inode = 0;

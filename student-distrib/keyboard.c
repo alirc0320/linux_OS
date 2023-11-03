@@ -3,6 +3,8 @@
 #include "lib.h"
 #include "idt_handlers.h"
 #include "cursor.h"
+#include "file_system.h"
+#include "System_Calls.h"
  
 int ctrl_flag = 0; 
 int shift_flag = 0; 
@@ -247,9 +249,14 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
  * Outputs: None (void)
  */
  int32_t write (int32_t fd, const void* buf, int32_t nbytes){//need to add fd as a function once file system worknig
+   if (fd != 1){
+    return -1; 
+   }
+   
    if(nbytes < 0){
     return -1;
    }
+   
    int i; 
    //printf("nbytes in write: %d\n", nbytes);
    const char* new_buf = (const char*)buf;
@@ -292,6 +299,9 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
     //     buf[i] = '\0';
     // }
    // printf("nbytes: %d\n", nbytes);
+   if (fd != 0){
+    return -1; 
+   }
     if (nbytes > 128){
         nbytes = 128; 
     }
