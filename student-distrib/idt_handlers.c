@@ -4,6 +4,7 @@
 #include "cursor.h"
 #include "file_system.h"
 #include "paging_asm.h"
+#include "System_Calls.h"
 
 
 /* Signal handler function for Division Error Exception

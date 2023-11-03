@@ -83,7 +83,7 @@ unsigned char keyScanCodeArray_for_shift_and_capslock[0x59] = {'\0','\0','!', '@
 int keyboard_interrupt() {
     // keyboard_buffer_index = 0; 
     // keyboard_buffer = ''; 
-    char* temp_buf; //this is what well write with 
+    // char* temp_buf; //this is what well write with 
     scan_code = inb(0x60);  // Read the scan code from the keyboard controller. x60 is the keyboard data port 
     // write(keyboard_buffer, 0);  //call write to write to the buffer
     // read(keyboard_buffer, 0); //prints buffer to screen on enter 
@@ -294,7 +294,7 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
     // if (enter_flag == 1)
     
     
-    int i; 
+    // int i; 
     // for (i = 0; i< 128; i++){
     //     buf[i] = '\0';
     // }
@@ -386,3 +386,5 @@ int32_t terminal_open(uint8_t* filename){
 int32_t terminal_close(int32_t fd){
     return 0;
 }
+
+int32_t (*terminal_jump_table[4]) () = {read, write, terminal_open, terminal_close};

@@ -433,3 +433,6 @@ void add_file_descriptor_table_entry(int fd, uint8_t* filename, file_descriptor_
     
 // }
 
+int32_t (*file_jump_table[4]) () = {read_file, write_file, open_file, close_file};
+
+int32_t (*dir_jump_table[4]) () = {read_dir, write_dir, open_dir, close_dir};

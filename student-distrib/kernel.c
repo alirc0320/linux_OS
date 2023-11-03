@@ -16,6 +16,7 @@
 #include "cursor.h"
 #include "file_system.h"
 #include "idt_handlers.h"
+#include "System_Calls.h"
 
 #define RUN_TESTS
 
@@ -208,7 +209,7 @@ void entry(unsigned long magic, unsigned long addr) {
    launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
-     execute("shell");
+     execute((const uint8_t*)"shell");
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
 }

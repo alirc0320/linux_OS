@@ -3,6 +3,7 @@
 #include "lib.h"
 #include "idt_handlers.h"
 #include "cursor.h"
+#include "file_system.h"
 
 // Commands
 #define RESET               0xFF            // Command to reset
@@ -144,3 +145,4 @@ int rtc_close(int32_t fd){
     return 0;
 }
 
+int32_t (*rtc_jump_table[4]) () = {rtc_read, rtc_write, rtc_open, rtc_close};

@@ -108,14 +108,14 @@ int32_t execute(const uint8_t* command) {
     uint8_t name[32]; //this initialization might be kinda sus 
     dentry_t temp_dentry[1]; 
     int i = 0; 
-    int fd; 
-    int ret_val; 
+    // int fd; 
+    // int ret_val; 
     uint8_t boofer[32];
     //uint32_t target_pid;
     pcb_t* pcb; 
 uint8_t buffy[1];
 uint32_t start_adrr;
-uint32_t ret;
+// uint32_t ret;
   
 for (i = 0; i < 32; i++) {
     name[i] = 0;
@@ -167,8 +167,8 @@ i = 0;
   : "eax", "cc");
      
     program_pages(target_pid); //create page 
-    
-    read_data(temp_dentry->inode_num,0,0x8048000,0x8400000 - 0x8048000); //load page 
+    uint8_t* pointer = (uint8_t*)0x8048000;
+    read_data(temp_dentry->inode_num,0,pointer,0x8400000 - 0x8048000); //load page 
     
       
 
@@ -182,8 +182,8 @@ tss.ss0 = KERNEL_DS;
 register uint32_t ebp_value asm("ebp");
 register uint32_t esp_value asm("esp");
 
-pcb_array[target_pid]->prev_esp = esp_value;
-pcb_array[target_pid]->prev_ebp = ebp_value;
+pcb_array[target_pid]->prev_esp = (uint8_t*)esp_value;
+pcb_array[target_pid]->prev_ebp = (uint8_t*)ebp_value;
 
 asm volatile("pushl %0 \n" //push the data segment 
               "pushl %1 \n"  //push the pointer to the top of the user stack(esp)

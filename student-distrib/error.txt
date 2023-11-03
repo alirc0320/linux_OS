@@ -1,30 +1,4 @@
 Makefile:39: Makefile.dep: No such file or directory
-make: Warning: File `file_system.c' has modification time 4.5e+02 s in the future
-make: Warning: File `Makefile.dep' has modification time 5.4e+02 s in the future
-In file included from file_system.c:1:
-file_system.h:102:34: warning: no newline at end of file
-file_system.c:341: warning: ‘init_file_descriptor’ defined but not used
-idt_handlers.c:244:2: warning: no newline at end of file
-In file included from kernel.c:17:
-file_system.h:102:34: warning: no newline at end of file
-kernel.c: In function ‘entry’:
-kernel.c:191: warning: pointer targets in passing argument 1 of ‘open’ differ in signedness
-kernel.c: At top level:
-file_system.h:94: warning: ‘init_file_descriptor’ used but never defined
-file_system.h:76: warning: ‘file_jump_table’ defined but not used
-file_system.h:78: warning: ‘dir_jump_table’ defined but not used
-file_system.h:80: warning: ‘rtc_jump_table’ defined but not used
-file_system.h:82: warning: ‘terminal_jump_table’ defined but not used
-file_system.h:96: warning: ‘file_descriptor_array’ defined but not used
-In file included from tests.c:4:
-file_system.h:102:34: warning: no newline at end of file
-file_system.h:76: warning: ‘file_jump_table’ defined but not used
-file_system.h:78: warning: ‘dir_jump_table’ defined but not used
-file_system.h:80: warning: ‘rtc_jump_table’ defined but not used
-file_system.h:82: warning: ‘terminal_jump_table’ defined but not used
-file_system.h:94: warning: ‘init_file_descriptor’ declared ‘static’ but never defined
-file_system.h:96: warning: ‘file_descriptor_array’ defined but not used
-kernel.o: In function `entry':
-/workdir/mp3/student-distrib/kernel.c:190: undefined reference to `init_file_descriptor'
-collect2: ld returned 1 exit status
-make: *** [bootimg] Error 1
+make: Warning: File `rtc.c' has modification time 1.9 s in the future
+make: Warning: File `Makefile.dep' has modification time 7.6 s in the future
+make: warning:  Clock skew detected.  Your build may be incomplete.

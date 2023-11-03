@@ -77,15 +77,18 @@ int32_t open_dir(const uint8_t* filename);
 int32_t close_dir(int32_t fd);
 
 
-static int32_t (*file_jump_table[4]) () = {read_file, write_file, open_file, close_file};
+// static int32_t (*file_jump_table[4]) () = {read_file, write_file, open_file, close_file};
 
-static int32_t (*dir_jump_table[4]) () = {read_dir, write_dir, open_dir, close_dir};
+// static int32_t (*dir_jump_table[4]) () = {read_dir, write_dir, open_dir, close_dir};
 
-static int32_t (*rtc_jump_table[4]) () = {rtc_read, rtc_write, rtc_open, rtc_close};
+// static int32_t (*rtc_jump_table[4]) () = {rtc_read, rtc_write, rtc_open, rtc_close};
 
-static int32_t (*terminal_jump_table[4]) () = {read, write, terminal_open, terminal_close};
+// static int32_t (*terminal_jump_table[4]) () = {read, write, terminal_open, terminal_close};
 
-
+extern int32_t (*file_jump_table[4])();
+extern int32_t (*dir_jump_table[4])();
+extern int32_t (*rtc_jump_table[4])();
+extern int32_t (*terminal_jump_table[4])();
 
 typedef struct file_descriptor_struct {
     //check syntax for all tjhe ump table stuff
