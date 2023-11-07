@@ -86,10 +86,12 @@ int32_t execute(const uint8_t* command) {
     uint8_t name[32];
     dentry_t temp_dentry[1];
     int i = 0;
+    int u = 0;
     uint8_t boofer[32];
     pcb_t* pcb;
     uint8_t buffy[1];
     uint32_t start_adrr;
+    uint8_t args[128]; // Add an array to store command-line arguments
 
     // Check if the given command is an executable
     for (i = 0; i < 32; i++) { // 32 because this is each character in the array that we are clearing
@@ -102,6 +104,10 @@ int32_t execute(const uint8_t* command) {
         name[i] = command[i];
         i++;
     }
+    u = i; 
+
+
+
 
     // If the file doesn't exist, return an error
     if (read_dentry_by_name(name, temp_dentry) == -1){
@@ -129,6 +135,26 @@ int32_t execute(const uint8_t* command) {
     pcb = create_pcb(target_pid);
     pcb->pid = target_pid;
     pcb->inode_num = temp_dentry->inode_num;
+
+
+
+///////////////////////////////////////////GETARGS///////////////////////////////////////////////////////////////////////////////////////////
+    // Extract and store command-line arguments in the args buffer
+    if (command[u] == ' ') {
+        u++; // Move past the space
+
+        // Copy the arguments into the args buffer
+        int arg_idx = 0;
+        while (command[u] != '\0') {
+            args[arg_idx] = command[u];
+            u++;
+            arg_idx++;
+        }
+    }
+
+    strncpy((int8_t*)pcb_array[target_pid]->args, (const int8_t*)args, 128);
+///////////////////////////////////////////GETARGS///////////////////////////////////////////////////////////////////////////////////////////
+
 
     // Reload the page directory and load the program into memory
     asm volatile (" \
@@ -195,6 +221,7 @@ int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes) {
         return -1;
 
     return pcb_array[target_pid]->fd_array[fd]->jmp_table[0](fd, buf, nbytes);
+
 }
 
 /* Function to write to a file descriptor (system call)
@@ -368,8 +395,20 @@ pcb_t* create_pcb(uint32_t pid) {
  *         nbytes - The number of bytes to read
  * Return: -1 (Not implemented)
  */
-int32_t getargs(void* buf, void* nbytes) {
-    return -1;
+int32_t getargs(uint8_t* buf,  int32_t nbytes){
+    if (buf == NULL || nbytes <= 0) {
+        return -1; 
+    }
+    
+    int32_t arg_length = strlen((const int8_t*)pcb_array[target_pid]->args) + 1;
+    
+     if (nbytes < arg_length) {
+        return -1; 
+    }
+
+    memcpy(buf, pcb_array[target_pid]->args, arg_length);
+    
+    return 0;
 }
 
 /* Function to map video memory (system call)

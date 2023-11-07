@@ -116,10 +116,15 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 
     inode_t* tempInode = inodeArr[inode]; //create a temporary inode that holds just the current inode that we're getting data from 
 
-
-    if(length <0 || offset > tempInode->length) {
-        return -1 ;
+//check this line
+    if(length <0) {
+        return -1;
     }
+
+    if(offset > tempInode->length){
+        return 0;
+    }
+//check this line
 
     if(tempInode->length - offset < length){ //if length (what we want to read) is greater than remaining bytes - if offset + length is greater than file length
         length = tempInode->length - offset; //make the length the max bytes that can be read with the given offset 
@@ -168,6 +173,11 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
         }
         length = 0;
     }
+
+    // if(tempInode->length == ret_length){
+    //     return 0;
+    // }
+
 
     return ret_length; 
 }

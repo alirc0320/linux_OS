@@ -17,6 +17,7 @@ typedef struct pcb {
     uint8_t* prev_esp;
     void* pc;
     file_descriptor_struct_t* fd_array[8];
+    uint8_t args[128]; // Add an array to store command-line arguments
 } pcb_t;
 
 // Array of PCBs to store process information
@@ -41,7 +42,7 @@ uint32_t open_syscall(uint8_t* filename);
 int32_t close_syscall(int32_t fd);
 uint8_t my_pids[6];
 uint8_t get_new_pid();
-int32_t getargs(void* buf, void* nbytes);
+int32_t getargs(uint8_t* buf, int32_t nbytes);
 int32_t vidmap(uint8_t** screen_start);
 int32_t set_handler(int32_t signum, void* handler_address);
 int32_t sigreturn();
