@@ -56,6 +56,10 @@ int32_t halt(uint8_t status){
    my_pids[target_pid] = 0;
    target_pid--;
 
+    if(pcb_array[target_pid]->pid == 0){ 
+        execute((const uint8_t*)"shell"); 
+        }
+
    // Jump to execute return (Switch back to the parent process)
    asm volatile("movl %0, %%esp \n"
               "movl %1, %%ebp \n"
