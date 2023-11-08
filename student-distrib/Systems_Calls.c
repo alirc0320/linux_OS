@@ -54,11 +54,13 @@ int32_t halt(uint8_t status){
    tss.esp0 = 0x800000 - 4; // THIS IS 8MB - 4 which is the pointer to the start of the shell program
    tss.ss0 = KERNEL_DS;
    my_pids[target_pid] = 0;
-   target_pid--;
-
+   
     if(pcb_array[target_pid]->pid == 0){ 
         execute((const uint8_t*)"shell"); 
         }
+
+    target_pid--;
+
 
    // Jump to execute return (Switch back to the parent process)
    asm volatile("movl %0, %%esp \n"
