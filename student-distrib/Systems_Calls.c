@@ -424,7 +424,12 @@ int32_t getargs(uint8_t* buf,  int32_t nbytes){
  * Return: -1 (Not implemented)
  */
 int32_t vidmap(uint8_t** screen_start) {
-    return -1;
+
+
+
+    
+    create_new_pte_for_video_memory(screen_start);
+    return 0;
 }
 
 /* Function to set a signal handler (system call)

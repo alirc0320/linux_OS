@@ -63,6 +63,7 @@ typedef union page_dir_t{
 //these lines are used to align the page directory and the page table on the 4kB boundaries 
 page_dir_0_t pd[1024] __attribute__((aligned(4096))); //1024 - number of PDEs and 4096 is the number of bytes for a page 
 page_table_t pt[1024] __attribute__((aligned(4096))); //1024 - number of PTEs and 4096 is the number of bytes for a page 
+page_table_t vid_mem[1024] __attribute__((aligned(4096))); //1024 - number of PTEs and 4096 is the number of bytes for a page 
 
 
 //linkage - this is for the assembly function so that we can enable paging and CR3 

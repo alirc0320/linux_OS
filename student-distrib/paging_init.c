@@ -98,3 +98,45 @@ void program_pages(uint8_t target_pid){  //, uint8_t my_boofer){
 
 }
 
+
+
+void create_new_pte_for_video_memory(uint8_t** screen_start) {
+    int i;
+   // PDE for the 4KB page at 132MB
+        pd[33].P = 1; //set present bit 1 - meaning that the this entry exists 
+        pd[33].RW = 1;
+        pd[33].US = 0;
+        pd[33].PWT = 0;
+        pd[33].PCD = 0;
+        pd[33].A =  0;
+        pd[33].AVL1 = 0;
+        pd[33].PS = 0;
+        pd[33].AVL4 = 0;
+        pd[33].bits_31_12 = ((unsigned int)vid_mem>>12);//this is to a put the address of the the page table into the PDE 
+     
+
+        // This is for each video mem (PTE)
+    for(i = 0; i < 1024; i++){ // each PTE - this is to create an entire 
+        vid_mem[i].P = 0;
+        vid_mem[i].RW = 1;
+        vid_mem[i].US = 0;
+        vid_mem[i].PWT = 0;
+        vid_mem[i].PCD = 0;
+        vid_mem[i].A = 0;
+        vid_mem[i].D = 0;
+        vid_mem[i].PAT = 0;
+        vid_mem[i].G = 0;
+        vid_mem[i].AVL = 0;
+        vid_mem[i].bits_31_12 = i; // POST SHIFTING (i * 4096 >> 12)
+
+            if(i==0){ //we only want the entry at the video memory to be present - 
+                 vid_mem[i].bits_31_12 = i; // this is the addr for the page in video mem. this is right shift by 12
+                vid_mem[i].P = 1; //making it so that only this entry is present for the PTE 
+            }
+    }
+
+
+    *screen_start = 0x8400000;
+    return;
+
+}
