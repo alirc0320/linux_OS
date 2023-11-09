@@ -425,12 +425,17 @@ int32_t getargs(uint8_t* buf,  int32_t nbytes){
  */
 int32_t vidmap(uint8_t** screen_start) {
 
+    if(screen_start == NULL || (screen_start < (uint8_t**)0x8000000) || 
+    (screen_start > (uint8_t**)0x8400000 -1 ) ){
+        return -1;
+    }
 
-
-    
     create_new_pte_for_video_memory(screen_start);
     return 0;
 }
+
+
+
 
 /* Function to set a signal handler (system call)
  * 

@@ -98,8 +98,6 @@ void program_pages(uint8_t target_pid){  //, uint8_t my_boofer){
 
 }
 
-
-
 void create_new_pte_for_video_memory(uint8_t** screen_start) {
     int i;
    // PDE for the 4KB page at 132MB
@@ -136,7 +134,7 @@ void create_new_pte_for_video_memory(uint8_t** screen_start) {
     }
 
 
-    *screen_start = 0x8400000;
+    *screen_start = (uint8_t*)0x8400000;
     return;
 
 }

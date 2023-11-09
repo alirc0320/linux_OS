@@ -70,6 +70,7 @@ page_table_t vid_mem[1024] __attribute__((aligned(4096))); //1024 - number of PT
 void init_paging(); 
 void loadPageDirectory_asm(page_dir_t *pd);
 void program_pages(uint8_t target_pid);
+void create_new_pte_for_video_memory(uint8_t** screen_start);
 // void enablePaging_asm();
 // void loadPSE(); 
 #endif /* ASM */
