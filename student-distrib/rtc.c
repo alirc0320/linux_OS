@@ -73,7 +73,9 @@ void rtc_interrupt() {
  *     frequency is not a power of 2 between 2 and 1024 Hz.
  */
 
- int rtc_write(int32_t freq){
+ int rtc_write(int32_t fd, void* buf, int32_t nbytes){
+        uint32_t* int_buf = (uint32_t*) buf; 
+        int freq = *int_buf;
         if ((freq & (freq - 1)) != 0 || freq > 1024){ //chekcing that freqeuncy is non negative and that it is not over the max 1024 Hz
             return -1;                                  //if so then retunr -1 for failiure
         }
@@ -114,7 +116,31 @@ void rtc_interrupt() {
  * Outputs: 0 if the RTC is successfully opened
  */
 int rtc_open(uint8_t* filename){
-    rtc_write(2); //change frequency to 2 Hz
+    //rtc_write(2); //change frequency to 2 Hz
+    int freq = 2; 
+    int rate = 0;                                         //initialize rate to 0 
+    int temp = 32768/freq;                                  //base frequency of the RTC's oscillator in Hertz
+    //printf("temp: %d", temp);
+    //log base 2
+     while (temp >= 1) {      // This loop continues as long as the 'temp' value remains greater than or equal to 1.                               
+        temp /= 2;             // Within the loop, the 'temp' value is halved (divided by 2) in each iteration.
+        rate += 1;              // The 'rate' variable is incremented by 1 in each iteration of the loop, effectively counting the number of times 'temp' is halved.
+        // printf("temp: %d", temp);
+        // printf("rate: %d", rate);
+    }
+
+    //rate++; 
+    //printf("rate: %d", rate);
+    //Select Register A and disable the NMI
+    outb(0x8A, 0x70); //index at port 70
+    // Get the initial value of Register A
+    char prev = inb(0x71);      //data port 71 reading from there
+    // Reset the index to Register A
+    outb(0x8A, 0x70); //index at port 70
+    // Write the new rate to Register A
+    outb((prev & 0xF0) | rate, 0x71);  //F0 masks getting anded with prev then set at data port 71
+
+    //return 4;   
     return 0; 
 }
 

@@ -296,7 +296,7 @@ uint32_t open_syscall(uint8_t* filename) {
     }
     if (temp_dentry.filetype == 0){
         // If the file type is 0, it's a real-time clock (RTC) file
-        ret_val = rtc_open(NULL); 
+        ret_val = rtc_open(filename); 
     }
     if (temp_dentry.filetype == 1){
         // If the file type is 1, it's a directory

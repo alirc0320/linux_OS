@@ -164,8 +164,9 @@ void entry(unsigned long magic, unsigned long addr) {
     init_paging(); 
 // initialize rtc
     init_RTC(); 
-    //rtc_open(); //to set frequenct at 2 Hz
-    // rtc_write(8);      //to change frequency at will, in this vcase to 8      
+    //rtc_open("rtc"); //to set frequenct at 2 Hz
+    //int balls = 8; 
+     //rtc_write(0, &balls, 4);      //to change frequency at will, in this vcase to 8      
     
     
 //intialize keyboard 
@@ -205,10 +206,10 @@ void entry(unsigned long magic, unsigned long addr) {
 
 #ifdef RUN_TESTS
     /* Run tests */
-   launch_tests();
+   //launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
-     execute((const uint8_t*)"shell");
+     execute((const uint8_t*)"fish");
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
 }
