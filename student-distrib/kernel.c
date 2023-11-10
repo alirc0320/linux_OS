@@ -172,8 +172,7 @@ void entry(unsigned long magic, unsigned long addr) {
     init_keyboard(); 
     
     init_cursor();
-    
-    
+
   
     //disable_cursor(); 
     //open_syscall("shell");

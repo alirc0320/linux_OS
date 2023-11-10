@@ -93,7 +93,9 @@ int invalidVidMemTest(){
 
 /* Checkpoint 2 tests */
 void launch_tests(){
-
+    //     uint8_t pointerr[0x8400000 - 0x8048000]; 
+    //  read_data(55, 0, pointerr, 0x8400000 - 0x8048000);
+    
 	//MAKE FLAG = 1 FOR RTC OR 0 FOR KEYBOARD INTERRUPT 
 	flag = 0;
     // uint8_t buf_name[32];

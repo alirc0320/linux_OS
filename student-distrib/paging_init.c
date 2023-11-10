@@ -28,7 +28,7 @@ void init_paging(){
         pd[0].PS = 0;
         pd[0].AVL4 = 0;
         pd[0].bits_31_12 = ((unsigned int)pt>>12);//this is to a put the address of the the page table into the PDE 
-     
+    //  (page_table_t*)[0] = 0xB8000; 
 
 
 //this is to create an entry of the PD at index 1 for the kernel space 
@@ -46,7 +46,7 @@ void init_paging(){
     // This is for each video mem (PTE)
     for(i = 0; i < 1024; i++){ // each PTE - this is to create an entire 
         pt[i].P = 0;
-        pt[i].RW = 1;
+        pt[i].RW = 0;
         pt[i].US = 0;
         pt[i].PWT = 0;
         pt[i].PCD = 0;
@@ -55,17 +55,16 @@ void init_paging(){
         pt[i].PAT = 0;
         pt[i].G = 0;
         pt[i].AVL = 0;
-        pt[i].bits_31_12 = i; // POST SHIFTING (i * 4096 >> 12)
+        pt[i].bits_31_12 = 0; // POST SHIFTING (i * 4096 >> 12)
 
             if(i==184){ //we only want the entry at the video memory to be present - 
                  pt[i].bits_31_12 = i; // this is the addr for the page in video mem. this is right shift by 12
                 pt[i].P = 1; //making it so that only this entry is present for the PTE 
+                pt[i].RW = 1;
             }
+
+            
     }
-
-
-
-// 
 
 //call for assembly linkage for setting up paging
     loadPageDirectory_asm((page_dir_t*)pd);//we need to pass by pointer I think thissl automaticalyl take mem address
@@ -87,15 +86,8 @@ void program_pages(uint8_t target_pid){  //, uint8_t my_boofer){
     pd[32].PS = 1; //set that the size should be 4MB 
     pd[32].AVL4 = 0; //???????since we're using the same 32 bits as when ps 0, we need to set the LSB of AVL4 to be 1, this sets the G bit high for flushing CR3 
     pd[32].bits_31_12 = 2048+target_pid*1024;//points to the pages in the kernel - we "skip" the PTE step 
-
-
-    /*
-    read_data(5,0,0x08048000,nbytes);
-    */
-
-
+    
     return;
-
 }
 
 void create_new_pte_for_video_memory(uint8_t** screen_start) {
@@ -103,7 +95,7 @@ void create_new_pte_for_video_memory(uint8_t** screen_start) {
    // PDE for the 4KB page at 132MB
         pd[33].P = 1; //set present bit 1 - meaning that the this entry exists 
         pd[33].RW = 1;
-        pd[33].US = 0;
+        pd[33].US = 1;
         pd[33].PWT = 0;
         pd[33].PCD = 0;
         pd[33].A =  0;
@@ -116,7 +108,7 @@ void create_new_pte_for_video_memory(uint8_t** screen_start) {
         // This is for each video mem (PTE)
     for(i = 0; i < 1024; i++){ // each PTE - this is to create an entire 
         vid_mem[i].P = 0;
-        vid_mem[i].RW = 1;
+        vid_mem[i].RW = 0;
         vid_mem[i].US = 0;
         vid_mem[i].PWT = 0;
         vid_mem[i].PCD = 0;
@@ -125,11 +117,13 @@ void create_new_pte_for_video_memory(uint8_t** screen_start) {
         vid_mem[i].PAT = 0;
         vid_mem[i].G = 0;
         vid_mem[i].AVL = 0;
-        vid_mem[i].bits_31_12 = i; // POST SHIFTING (i * 4096 >> 12)
+        vid_mem[i].bits_31_12 = 0; // POST SHIFTING (i * 4096 >> 12)
 
-            if(i==0){ //we only want the entry at the video memory to be present - 
-                 vid_mem[i].bits_31_12 = i; // this is the addr for the page in video mem. this is right shift by 12
-                vid_mem[i].P = 1; //making it so that only this entry is present for the PTE 
+            if(i == 184){ //we only want the entry at the video memory to be present - 
+                vid_mem[i].bits_31_12 = 0xB8000>>12; // this is the addr for the page in video mem. this is right shift by 12
+                vid_mem[i].P = 1; //making it so that only this entry is present for the PTE
+                vid_mem[i].US = 1;
+                vid_mem[i].RW = 1; 
             }
     }
 
