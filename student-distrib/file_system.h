@@ -7,6 +7,7 @@
 #include "rtc.h"
 #include "keyboard.h"
 
+
 typedef struct dentry {
     int8_t filename[32]; //each char is 1 byte - 32 characters 
     int32_t filetype;
@@ -78,7 +79,7 @@ typedef struct file_descriptor_struct {
     int32_t flags;
 } file_descriptor_struct_t;
 
-void init_file_descriptor(file_descriptor_struct_t* file_descriptor_array[8]);
+void init_file_descriptor(file_descriptor_struct_t file_descriptor_array[8]);
 
 int fd_index; 
 
@@ -87,7 +88,7 @@ int fd_index;
 
 
 void init_file_sys(uint32_t* myfileSystem);
-void add_file_descriptor_table_entry(int fd, uint8_t* filename, file_descriptor_struct_t* file_descriptor_array[8]);
+void add_file_descriptor_table_entry(int fd, uint8_t* filename, file_descriptor_struct_t file_descriptor_array[8]);
 
 
 #endif /*_FILE_SYSTEM_H*/

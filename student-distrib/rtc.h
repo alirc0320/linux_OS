@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-
+static volatile int read_flag = 0;
 void init_RTC(); // initialize RTC 
 
 void rtc_interrupt(void);

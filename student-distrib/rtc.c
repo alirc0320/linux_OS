@@ -38,6 +38,7 @@ void init_RTC() {
     prev=inb(0x71);	// get initial value of register A. 71 is used to read or write to and form 
     outb(0x8A, 0x70);		// reset index to A. Index is 70 and 8A is regsiter  
     enable_irq(8);  //8th Interrupt 
+
     // //sti();
 }
 
@@ -55,7 +56,7 @@ void rtc_interrupt() {
     }
     outb(0x0C, 0x70);  // Select register C of the RTC. x70 is the index
     inb(0x71);         // Read register C to clear the interrupt. this is the read or write port is 0x71
-    
+    read_flag = 1; 
     send_eoi(8);        // Send an End-of-Interrupt signal to acknowledge the interrupt. interrupt numbr 8 is the rtc
 }
 
@@ -154,6 +155,9 @@ int rtc_open(uint8_t* filename){
  * Outputs: Always returns 0 in this implementation
  */
 int rtc_read(int32_t fd, void* buf, int32_t nbytes) {
+
+    read_flag = 0; 
+    while (!read_flag); 
     return 0;
 }
 //return 0
@@ -167,6 +171,7 @@ int rtc_read(int32_t fd, void* buf, int32_t nbytes) {
  * Inputs: None
  * Outputs: Always returns 0 in this implementation
  */
+
 int rtc_close(int32_t fd){
     return 0;
 }

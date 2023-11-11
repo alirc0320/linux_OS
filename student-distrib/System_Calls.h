@@ -16,7 +16,7 @@ typedef struct pcb {
     uint8_t* prev_ebp;
     uint8_t* prev_esp;
     void* pc;
-    file_descriptor_struct_t* fd_array[8];
+    file_descriptor_struct_t fd_array[8];
     uint8_t args[128]; // Add an array to store command-line arguments
 } pcb_t;
 
