@@ -1,6 +1,7 @@
 #include "file_system.h"
 #include "lib.h"
 #include "idt_assembly.h"
+#include "System_Calls.h"
 
 
 /* Init File System - Initialize the file system
@@ -43,7 +44,11 @@ void init_file_sys(uint32_t * myfileSystem){
 int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
     int i; 
 
-    int8_t bounded_fname[32];  // 32 characters plus null-terminator
+    // int8_t bounded_fname[32];  // 32 characters plus null-terminator
+
+    // for ( i = 0; i < 32; i++) {
+    //     bounded_fname[i] = 0;
+    // }
     int length = 0;
 
     if (fname == NULL)
@@ -54,15 +59,15 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
     }
 
 
-    for ( i = 0; i < 32; i++) {
-        bounded_fname[i] = fname[i];
-    }
+    // for ( i = 0; i < 32; i++) {
+    //     bounded_fname[i] = fname[i];
+    // }
     
-    //strcpy(dentry->filename, bounded_fname);
-   memcpy(dentry->filename,bounded_fname, 32);
+   // strcpy(dentry->filename, fname);
+  // memcpy(dentry->filename,fname, length);
 
         for(i = 0; i < 63; i++){        ////WE NEED THE LENGTH AS A PARAMETER. 64: because 64 inodes 
-            if (strncmp(bounded_fname, my_boot_block->direntries[i].filename, 32) == 0) {//if 0, means the strings are the same 
+            if (strncmp(fname, my_boot_block->direntries[i].filename, length) == 0) {//if 0, means the strings are the same 
                 read_dentry_by_index(i, dentry);
                 return 0; 
             }
@@ -82,9 +87,10 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
   * Return: 0 if the entry is valid and retrieved, -1 if the index is out of bounds
  */
 int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry){
-    if (index < 0 || index >= 63){ // 63 will go over the bound limit for the index
+    if (index < 0 || index > 63){ // 63 will go over the bound limit for the index
         return -1; 
     }
+    strncpy((int8_t*)dentry->filename, (int8_t*)my_boot_block->direntries[index].filename,32);
     dentry->filetype = my_boot_block->direntries[index].filetype; // update the filetype 
     dentry->inode_num = my_boot_block->direntries[index].inode_num; // update the inode num
     return 0; 
@@ -121,9 +127,11 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
         return -1;
     }
 
-    if(offset >= tempInode->length){
-        return 0;
+    if(offset < 0 ){
+        return -1;
     }
+
+   
 //check this line
 
     if(tempInode->length - offset < length){ //if length (what we want to read) is greater than remaining bytes - if offset + length is greater than file length
@@ -178,6 +186,10 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
     //     return 0;
     // }
 
+     if(offset >= tempInode->length){
+        return 0;
+    }
+
 
     return ret_length; 
 }
@@ -195,9 +207,10 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
  */
 int32_t read_file(int32_t fd, void* buf, int32_t nbytes){
     //uint8_t* new_buf = (uint8_t*)buf;
-    int temp_offset = global_offset;
-    global_offset += nbytes;
-    return read_data(global_dentry->inode_num, temp_offset, buf, nbytes);
+    int temp_offset = pcb_array[target_pid]->fd_array[fd].file_position;
+    pcb_array[target_pid]->fd_array[fd].file_position += nbytes;
+     
+    return read_data(pcb_array[target_pid]->fd_array[fd].inode, temp_offset, (uint8_t*)buf, nbytes);
 }
 
 /* Function to open a file
@@ -281,39 +294,21 @@ int32_t open_dir(const uint8_t* filename){
  * Return: The size of the directory entry read, or 0 if no more entries are available
  */
 int32_t read_dir(int32_t fd, void* buf, int32_t nbytes){
-    int j, k;
+    int i, k;
     int l; 
-        dentry_t temp_dentry[1];
-
+    dentry_t temp_dentry[1];
+    uint32_t return_length = 0;
+    int j = 43;
+    uint8_t* buffy = (uint8_t*)buf;
+    for(i = 0; i<17; i++){
+    read_dentry_by_name((const uint8_t*)my_boot_block->direntries[i].filename, temp_dentry);
+    memcpy(buffy, temp_dentry->filename, 32);
+    return_length += strlen((int8_t*)temp_dentry->filename);
+    buffy += return_length;
+    }
     
-    for (l = 0; l< 17; l++){
-        if (index_offset >= 17)
-        return 0; // No more directory entries to read
-    // Read the directory entry at the current index
-    read_dentry_by_name((const uint8_t*)my_boot_block->direntries[index_offset].filename, temp_dentry);
-    printf("%d: ", index_offset + 1);
 
-    // Print the filename
-    for (j = 0; j < 32; j++){ // 32 is the number of max characters per file name
-        if (temp_dentry->filename[j] == ' ' || temp_dentry->filename[j] == '\0')
-            break;
-        printf("%c", temp_dentry->filename[j]);
-    }
-
-    // Print spaces for formatting
-    for (k = j; k < 35; k++){ // the max number of spaces we want to align the file type and size 
-        printf(" ");
-    }
-
-    // Print file type and file size
-    printf("file type: %d ", temp_dentry->filetype);
-    printf("file size: %d ", inodeArr[temp_dentry->inode_num]->length);
-
-    printf("\n");
-    index_offset++; // Move to the next directory entry
-    }
-    //return inodeArr[temp_dentry->inode_num]->length; // Return the size of the directory entry
-    return 0; 
+    return return_length; 
 }
 
 
@@ -328,7 +323,7 @@ int32_t read_dir(int32_t fd, void* buf, int32_t nbytes){
  * Return: 0 on success
  */
 int32_t close_dir(int32_t fd){
-    index_offset = 0; // Reset the index offset for directory entries
+   
     return 0; // Return success
 }
 
@@ -357,7 +352,7 @@ int32_t write_dir(int32_t fd, const void* buf, int32_t nbytes){
  * Outputs: Initializes the file descriptor array
  * Return: None
  */
-void init_file_descriptor(file_descriptor_struct_t* file_descriptor_array[8]) {
+void init_file_descriptor(file_descriptor_struct_t file_descriptor_array[8]) {
     
     int i;
     //for (i = 0; i < 10; i++) {fd->jmp_table[i] = sys_call_table[i];}
@@ -365,7 +360,7 @@ void init_file_descriptor(file_descriptor_struct_t* file_descriptor_array[8]) {
     file_descriptor_struct_t struct_0; 
     file_descriptor_struct_t struct_1; 
     for(i = 2; i<8; i++){
-        file_descriptor_array[i] = 0;
+        file_descriptor_array[i].flags = 0;
         //printf("i: %d\n", i );
     }
     //printf("finished for loop setting nulls \n");
@@ -393,8 +388,8 @@ void init_file_descriptor(file_descriptor_struct_t* file_descriptor_array[8]) {
     struct_1.flags = 1; 
 //printf("finished temp structs");
 
-file_descriptor_array[0] = &struct_0; 
-file_descriptor_array[1] = &struct_1; 
+file_descriptor_array[0] = struct_0; 
+file_descriptor_array[1] = struct_1; 
 //printf("finished init");
 }
 
@@ -408,7 +403,7 @@ file_descriptor_array[1] = &struct_1;
  * Outputs: Initializes the file descriptor entry in the file descriptor array
  * Return: None
  */
-void add_file_descriptor_table_entry(int fd, uint8_t* filename, file_descriptor_struct_t* file_descriptor_array[8]){
+void add_file_descriptor_table_entry(int fd, uint8_t* filename, file_descriptor_struct_t file_descriptor_array[8]){
     //i think this will have to be called from open 
 
     //file types: 0 is RTC, 1 is directory, 2 is regular file
@@ -441,7 +436,7 @@ void add_file_descriptor_table_entry(int fd, uint8_t* filename, file_descriptor_
     temp_struct.flags = 1; //always at 1? idrk 
     temp_struct.file_position = 0; //init to zero, each read will change its value
     
-    file_descriptor_array[fd] = &temp_struct; 
+    file_descriptor_array[fd] = temp_struct; 
    return;
 
 }

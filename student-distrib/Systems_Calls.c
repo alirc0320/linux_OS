@@ -44,7 +44,7 @@ int32_t halt(uint8_t status){
 
    // Clear file descriptor array (Resetting the file descriptor entries for the current process)
    for(i = 0; i < 8; i++){ // 8 because we are iterating over all 8 indeces of the fd array 
-       if(pcb_array[target_pid]->fd_array[i] == NULL){
+       if(pcb_array[target_pid]->fd_array[i].flags == 0){
            break;
        }
        close_syscall(i); // Close the file descriptors for the current process
@@ -145,6 +145,15 @@ int32_t execute(const uint8_t* command) {
 
 
 ///////////////////////////////////////////GETARGS///////////////////////////////////////////////////////////////////////////////////////////
+    
+     for (i = 0; i < 128; i++) {
+    pcb_array[target_pid]->args[i] = NULL;  // or nullptr if using C++
+}
+
+
+ for (i = 0; i < 128; i++) {
+    args[i] = NULL;  // or nullptr if using C++
+}
     // Extract and store command-line arguments in the args buffer
     if (command[u] == ' ') {
         u++; // Move past the space
@@ -227,16 +236,16 @@ int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes) {
         return -1;
 
     // Check if the current process and file descriptor are valid
-    if (pcb_array[target_pid] == NULL || pcb_array[target_pid]->fd_array[fd] == NULL )
+    if (pcb_array[target_pid] == NULL || pcb_array[target_pid]->fd_array[fd].flags == 0 )
         return -1;                 
-    if (pcb_array[target_pid]->fd_array[fd]->inode == -1){
+    if (pcb_array[target_pid]->fd_array[fd].inode == -1){
         return -1;     // bb                             n ojj 11/10/2023 7:14 PM
     }
     // Check if the read function for the file descriptor exists, and if so, call it
-    if (pcb_array[target_pid]->fd_array[fd]->jmp_table[0] == NULL)
+    if (pcb_array[target_pid]->fd_array[fd].jmp_table[0] == NULL)
         return -1;
 
-    return pcb_array[target_pid]->fd_array[fd]->jmp_table[0](fd, buf, nbytes);
+    return pcb_array[target_pid]->fd_array[fd].jmp_table[0](fd, buf, nbytes);
 
 }
 
@@ -255,14 +264,14 @@ int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes) {
         return -1;
 
     // Check if the current process and file descriptor are valid
-    if (pcb_array[target_pid] == NULL || pcb_array[target_pid]->fd_array[fd] == NULL || pcb_array[target_pid]->fd_array[fd]->inode == -1)
+    if (pcb_array[target_pid] == NULL || pcb_array[target_pid]->fd_array[fd].flags == 0 || pcb_array[target_pid]->fd_array[fd].inode == -1)
         return -1;
 
     // Check if the write function for the file descriptor exists, and if so, call it
-    if (pcb_array[target_pid]->fd_array[fd]->jmp_table[1] == NULL)
+    if (pcb_array[target_pid]->fd_array[fd].jmp_table[1] == NULL)
         return -1;
 
-    return pcb_array[target_pid]->fd_array[fd]->jmp_table[1](fd, buf, nbytes);
+    return pcb_array[target_pid]->fd_array[fd].jmp_table[1](fd, buf, nbytes);
 }
 
 
@@ -287,7 +296,7 @@ uint32_t open_syscall(uint8_t* filename) {
     int i = 0;
     fd_full = 0;  
     // Find an available file descriptor
-    while (pcb_array[target_pid]->fd_array[i] != NULL){
+    while (pcb_array[target_pid]->fd_array[i].flags != 0){
         i++;
         if (i == 8){ // 8 is the maximum number of 
             fd_full = 1;
@@ -296,23 +305,23 @@ uint32_t open_syscall(uint8_t* filename) {
     }
     fd_index = i;
 
-    dentry_t temp_dentry; 
+    dentry_t temp_dentry[1]; 
     // Determine the file type by reading the directory entry
-    read_dentry_by_name(filename, &temp_dentry); 
+    read_dentry_by_name(filename, temp_dentry); 
     int ret_val; 
     // Check the file type and call the appropriate open function
-    if (temp_dentry.filetype < 0 || temp_dentry.filetype > 2){
+    if (temp_dentry->filetype < 0 || temp_dentry->filetype > 2){
         return -1; 
     }
-    if (temp_dentry.filetype == 0){
+    if (temp_dentry->filetype == 0){
         // If the file type is 0, it's a real-time clock (RTC) file
         ret_val = rtc_open(filename); 
     }
-    if (temp_dentry.filetype == 1){
+    if (temp_dentry->filetype == 1){
         // If the file type is 1, it's a directory
         ret_val = open_dir(filename); 
     }
-    if (temp_dentry.filetype == 2){
+    if (temp_dentry->filetype == 2){
         // If the file type is 2, it's a regular file
         ret_val = open_file(filename); 
     }
@@ -322,6 +331,8 @@ uint32_t open_syscall(uint8_t* filename) {
     // Add the file to the file descriptor array
     add_file_descriptor_table_entry(i, filename, pcb_array[target_pid]->fd_array);
 
+    pcb_array[target_pid]->fd_array[fd_index].flags = 1; 
+    pcb_array[target_pid]->fd_array[fd_index].file_position = 0;
     return fd_index; 
 }
 
@@ -336,7 +347,7 @@ uint32_t open_syscall(uint8_t* filename) {
  */
 int32_t close_syscall(int32_t fd) {
     global_offset = 0;
-    index_offset = 0;
+   
 
     // Check the validity of the file descriptor
     if (fd < 2 || fd > 7){ // we want to return negative 1 if we close an fd out of bounds 
@@ -345,21 +356,21 @@ int32_t close_syscall(int32_t fd) {
     if (pcb_array[target_pid] == NULL){
         return -1; 
     }
-    if (pcb_array[target_pid]->fd_array[fd] == NULL){
+    if (pcb_array[target_pid]->fd_array[fd].flags == 0){
         return -1;
     }
-    if (pcb_array[target_pid]->fd_array[fd]->inode == -1){
+    if (pcb_array[target_pid]->fd_array[fd].inode == -1){
         return -1;
     }
 
    // Clear the file descriptor and associated data
-    pcb_array[target_pid]->fd_array[fd]->inode = -1;
-    pcb_array[target_pid]->fd_array[fd]->file_position = -1;
-    pcb_array[target_pid]->fd_array[fd]->flags = 0;
-    pcb_array[target_pid]->fd_array[fd]->jmp_table[0] = NULL;
-    pcb_array[target_pid]->fd_array[fd]->jmp_table[1] = NULL;
-    pcb_array[target_pid]->fd_array[fd]->jmp_table[2] = NULL;
-    pcb_array[target_pid]->fd_array[fd]->jmp_table[3] = NULL;
+    pcb_array[target_pid]->fd_array[fd].inode = -1;
+    pcb_array[target_pid]->fd_array[fd].file_position = 0;
+    pcb_array[target_pid]->fd_array[fd].flags = 0;
+    pcb_array[target_pid]->fd_array[fd].jmp_table[0] = NULL;
+    pcb_array[target_pid]->fd_array[fd].jmp_table[1] = NULL;
+    pcb_array[target_pid]->fd_array[fd].jmp_table[2] = NULL;
+    pcb_array[target_pid]->fd_array[fd].jmp_table[3] = NULL;
     return 0;
 }
 
@@ -412,6 +423,7 @@ pcb_t* create_pcb(uint32_t pid) {
  * Return: -1 (Not implemented)
  */
 int32_t getargs(uint8_t* buf,  int32_t nbytes){
+    int i;
     if (buf == NULL || nbytes <= 0) {
         return -1; 
     }
@@ -423,7 +435,10 @@ int32_t getargs(uint8_t* buf,  int32_t nbytes){
     }
 
     memcpy(buf, pcb_array[target_pid]->args, arg_length);
-    
+
+    for (i = 0; i < 128; i++) {
+    pcb_array[target_pid]->args[i] = NULL;  // or nullptr if using C++
+}
     return 0;
 }
 
