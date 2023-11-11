@@ -121,7 +121,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
         return -1;
     }
 
-    if(offset > tempInode->length){
+    if(offset >= tempInode->length){
         return 0;
     }
 //check this line
@@ -157,7 +157,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
         int curr_block_num = tempInode->data_block_num[iNode_block_idx]; //get data block located in the inode - nemory addr 
        
         for(i=0; i<4096; i++){
-            buf[i + temp_start_len] = data_block_arr[curr_block_num]->data_value[i];
+            buf[i + temp_start_len + (4096*count)] = data_block_arr[curr_block_num]->data_value[i];
         }
 
         length -= 4096; // decrement the size of bytes for 1 block each iteration

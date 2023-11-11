@@ -48,6 +48,7 @@ int32_t halt(uint8_t status){
            break;
        }
        close_syscall(i); // Close the file descriptors for the current process
+        global_offset = 0; //I mved this up here idrk 
    }
 
    // Write Parent process’ info back to TSS(esp0)
@@ -172,10 +173,17 @@ int32_t execute(const uint8_t* command) {
 
     program_pages(target_pid);
     uint8_t* pointer = (uint8_t*)0x8048000; // This is the address to the start of the program image
-    read_data(temp_dentry->inode_num, 0, pointer, 0x8400000 - 0x8048000); // the size is 132MB - start of our prog img
+    read_data(temp_dentry->inode_num, 0, pointer,0x8400000 - 0x8048000); // the size is 132MB - start of our prog img
+    // uint8_t* ptr2 = 0x8049000;
+    // uint8_t* ptr3 = 0x804900b;
 
+    // *ptr2 = "frame0.txt";
+    // *ptr3 = "frame1.txt"; 
     read_data(temp_dentry->inode_num, 24, buffy, 4);
     start_adrr = *(uint32_t*)(buffy);
+
+
+    
 
     // Set ESP0 and SS0 for the TSS
     tss.esp0 = 0x800000 - (0x2000 * (target_pid + 1)) - 4; // 8MB - (8KB * current_pid) - 4 bytes
@@ -215,13 +223,16 @@ int32_t execute(const uint8_t* command) {
  */
 int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes) {
     // Check if the file descriptor is valid and the associated functions exist
+    
     if (fd < 0 || fd > 7 || buf == NULL || nbytes < 0) // 0 is a test for negative and 7 is the max number of fds
         return -1;
 
     // Check if the current process and file descriptor are valid
-    if (pcb_array[target_pid] == NULL || pcb_array[target_pid]->fd_array[fd] == NULL || pcb_array[target_pid]->fd_array[fd]->inode == -1)
-        return -1;
-
+    if (pcb_array[target_pid] == NULL || pcb_array[target_pid]->fd_array[fd] == NULL )
+        return -1;                 
+    if (pcb_array[target_pid]->fd_array[fd]->inode == -1){
+        return -1;     // bb                             n ojj 11/10/2023 7:14 PM
+    }
     // Check if the read function for the file descriptor exists, and if so, call it
     if (pcb_array[target_pid]->fd_array[fd]->jmp_table[0] == NULL)
         return -1;
@@ -325,7 +336,7 @@ uint32_t open_syscall(uint8_t* filename) {
  * Return: 0 on success, or -1 on failure
  */
 int32_t close_syscall(int32_t fd) {
-    global_offset = 0;
+//     global_offset = 0;
     index_offset = 0;
 
     // Check the validity of the file descriptor
@@ -342,7 +353,7 @@ int32_t close_syscall(int32_t fd) {
         return -1;
     }
 
-    // Clear the file descriptor and associated data
+   // Clear the file descriptor and associated data
     pcb_array[target_pid]->fd_array[fd]->inode = -1;
     pcb_array[target_pid]->fd_array[fd]->file_position = -1;
     pcb_array[target_pid]->fd_array[fd]->flags = 0;
@@ -431,6 +442,13 @@ int32_t vidmap(uint8_t** screen_start) {
     }
 
     create_new_pte_for_video_memory(screen_start);
+     asm volatile (" \
+   movl %%cr3, %%eax ; \
+   movl %%eax, %%cr3 ; \
+   " : /* no outputs */ \
+   : /* no inputs */ \
+   : "eax", "cc");       
+    *screen_start = (uint8_t*)0x8400000;
     return 0;
 }
 

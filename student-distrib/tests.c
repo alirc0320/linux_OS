@@ -94,13 +94,14 @@ int invalidVidMemTest(){
 /* Checkpoint 2 tests */
 void launch_tests(){
     //     uint8_t pointerr[0x8400000 - 0x8048000]; 
-    //  read_data(55, 0, pointerr, 0x8400000 - 0x8048000);
+    // uint8_t buf[25]; 
+    //   read_data(55, 4096, buf, 25);
     
 	//MAKE FLAG = 1 FOR RTC OR 0 FOR KEYBOARD INTERRUPT 
 	flag = 0;
     // uint8_t buf_name[32];
     // uint8_t dir_name[32];
-    // uint8_t boofer[37000];
+    // uint8_t boofer[3000];
 
 
     //;
@@ -170,24 +171,24 @@ void launch_tests(){
 
 
 
-    // pcb_array[0].pid = 0; 
+//     pcb_array[0]->pid = 0; 
     
-    // pcb_array[0].state = 1;
+//     pcb_array[0]->state = 1;
 
-    // init_file_descriptor(pcb_array[0].fd_array);
+//     init_file_descriptor(pcb_array[0]->fd_array);
 
 
 
-    // strcpy((int8_t*)dir_name, ".");
-    // uint8_t dir_boofer[100000];
-    // int i;
-    // open_syscall(dir_name);
-    // for(i =0; i< 10000;i++){
+//     strcpy((int8_t*)dir_name, ".");
+//     uint8_t dir_boofer[100000];
+//     int i;
+//     open_syscall(dir_name);
+//     for(i =0; i< 10000;i++){
         
-    //     read_syscall(fd_index, dir_boofer, 1);
-    //     //write_syscall(fd_index, dir_boofer, 1);
-    // }
-   // close_dir(NULL);
+//         read_syscall(fd_index, dir_boofer, 1);
+//         write_syscall(fd_index, dir_boofer, 1);
+//     }
+//    close_syscall(NULL);
 
     // strcpy((int8_t*)dir_name, ".");
     // uint8_t dir_boofer[999];

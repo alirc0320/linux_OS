@@ -97,7 +97,7 @@ void create_new_pte_for_video_memory(uint8_t** screen_start) {
         pd[33].RW = 1;
         pd[33].US = 1;
         pd[33].PWT = 0;
-        pd[33].PCD = 0;
+        pd[33].PCD = 1;
         pd[33].A =  0;
         pd[33].AVL1 = 0;
         pd[33].PS = 0;
@@ -111,7 +111,7 @@ void create_new_pte_for_video_memory(uint8_t** screen_start) {
         vid_mem[i].RW = 0;
         vid_mem[i].US = 0;
         vid_mem[i].PWT = 0;
-        vid_mem[i].PCD = 0;
+        vid_mem[i].PCD = 1;
         vid_mem[i].A = 0;
         vid_mem[i].D = 0;
         vid_mem[i].PAT = 0;
@@ -119,16 +119,23 @@ void create_new_pte_for_video_memory(uint8_t** screen_start) {
         vid_mem[i].AVL = 0;
         vid_mem[i].bits_31_12 = 0; // POST SHIFTING (i * 4096 >> 12)
 
-            if(i == 184){ //we only want the entry at the video memory to be present - 
-                vid_mem[i].bits_31_12 = 0xB8000>>12; // this is the addr for the page in video mem. this is right shift by 12
-                vid_mem[i].P = 1; //making it so that only this entry is present for the PTE
-                vid_mem[i].US = 1;
-                vid_mem[i].RW = 1; 
-            }
+
+    if(i == 0){
+    vid_mem[i].bits_31_12 = 0xB8000>>12; // this is the addr for the page in video mem. this is right shift by 12
+    vid_mem[i].P = 1; //making it so that only this entry is present for the PTE
+    vid_mem[i].US = 1;
+    vid_mem[i].RW = 1; 
     }
+    
+    
+    asm volatile (" \
+   movl %%cr3, %%eax ; \
+   movl %%eax, %%cr3 ; \
+   " : /* no outputs */ \
+   : /* no inputs */ \
+   : "eax", "cc");       
 
-
-    *screen_start = (uint8_t*)0x8400000;
+    }
     return;
 
 }
