@@ -48,7 +48,6 @@ int32_t halt(uint8_t status){
            break;
        }
        close_syscall(i); // Close the file descriptors for the current process
-        global_offset = 0; //I mved this up here idrk 
    }
 
    // Write Parent process’ info back to TSS(esp0)
@@ -336,7 +335,7 @@ uint32_t open_syscall(uint8_t* filename) {
  * Return: 0 on success, or -1 on failure
  */
 int32_t close_syscall(int32_t fd) {
-//     global_offset = 0;
+    global_offset = 0;
     index_offset = 0;
 
     // Check the validity of the file descriptor
