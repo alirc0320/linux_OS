@@ -266,7 +266,7 @@ int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes) {
     // Check if the current process and file descriptor are valid
     if (pcb_array[target_pid] == NULL || pcb_array[target_pid]->fd_array[fd].flags == 0 || pcb_array[target_pid]->fd_array[fd].inode == -1)
         return -1;
-
+ 
     // Check if the write function for the file descriptor exists, and if so, call it
     if (pcb_array[target_pid]->fd_array[fd].jmp_table[1] == NULL)
         return -1;
