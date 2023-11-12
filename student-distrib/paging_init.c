@@ -139,3 +139,4 @@ void create_new_pte_for_video_memory(uint8_t** screen_start) {
     return;
 
 }
+
