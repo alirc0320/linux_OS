@@ -428,11 +428,16 @@ int32_t getargs(uint8_t* buf,  int32_t nbytes){
         return -1; 
     }
     
+    
     int32_t arg_length = strlen((const int8_t*)pcb_array[target_pid]->args) + 1;
     
      if (nbytes < arg_length) {
         return -1; 
     }
+
+    if (pcb_array[target_pid]->args[0] == '\0') {
+    return -1;
+}
 
     memcpy(buf, pcb_array[target_pid]->args, arg_length);
 

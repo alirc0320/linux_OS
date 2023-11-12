@@ -3,7 +3,7 @@
 #include "idt_assembly.h"
 #include "System_Calls.h"
 
-
+static int dir_entry = 0; 
 /* Init File System - Initialize the file system
  * 
  * Initializes the file system, including the boot block, inodes, and data blocks.
@@ -298,17 +298,35 @@ int32_t read_dir(int32_t fd, void* buf, int32_t nbytes){
     int l; 
     dentry_t temp_dentry[1];
     uint32_t return_length = 0;
-    int j = 43;
+   // int j = 43;
     uint8_t* buffy = (uint8_t*)buf;
-    for(i = 0; i<17; i++){
-    read_dentry_by_name((const uint8_t*)my_boot_block->direntries[i].filename, temp_dentry);
-    memcpy(buffy, temp_dentry->filename, 32);
-    return_length += strlen((int8_t*)temp_dentry->filename);
-    buffy += return_length;
+
+    uint8_t file_name[32];
+
+    //for(i = 0; i<17; i++){
+    //read_dentry_by_name((const uint8_t*)my_boot_block->direntries[dir_entry].filename, temp_dentry);
+    strncpy((int8_t*)file_name, (int8_t*)my_boot_block->direntries[dir_entry].filename, 32);
+
+
+    for(i = 0; i < strlen((int8_t*)file_name); i++){
+        buffy[i] = file_name[i];
     }
+    file_name[i] = '\n';
+    dir_entry+=1;
+
+    if(dir_entry <= 17){
+        return i;
+    }
+    else{
+        dir_entry = 0; 
+        return 0;
+    }
+//     return_length += strlen((int8_t*)temp_dentry->filename);
+//     buffy += return_length;
+//    //}
     
 
-    return return_length; 
+   // return return_length; 
 }
 
 
