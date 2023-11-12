@@ -120,3 +120,33 @@ Resolution: The issue was traced back to missing error handling in file read and
 Difficulty: Low, 2 lines
 Amount of Time Spent: Less than an hour was spent. 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+CHECKPOINT 3.4
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Fish drawing a bunch of zeros at the end
+Description: When we ran fish it would draw a fish but would not terminate and instead write zeros afterwards
+Resolution: After using gdb, we saw that our fd array (which was an array of pointers) gave all entires the same memory address. So, when one file closed, all of them would close. This meant that it would continuously return -1 rather than 0 when your reached the end of the other file, causing it to continuously print zeros. We fixed this by making all of our fd entries be structs rather than pointers. 
+Difficulty: Had to change all pointers to structs in a number of places to allow for an array of static structs rather than pointers
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Fish only printing one frame
+Description: When we ran fish, the only thing that would change would be the I and M but not the actual frames
+Resolution: We created and populated a global dentry in read file, so we would always be reading the most recent file even when we wanted to read data from a different file. We instead used the fd variable passed in and used that to know which file we wanted, so that it could switch between open files and blink properly
+Difficulty: We had to fix one line of code
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Syserr failure-”Shel”
+Description: Our open file would open “Shel” ,reading it as shell
+Resolution: In our compare string function, we would only compare the number of chars that were in the passed in parameter. This meant it would compare “Shel” with “Shel”, rather than “Shell”. We fixed this by instead having it compare 32 characters, so it would compare nulls with each other and see that shel followed by many nulls is different than shell followed by nulls
+Difficulty: We had to fix one value in the string compare. 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+

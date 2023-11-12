@@ -67,7 +67,7 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
   // memcpy(dentry->filename,fname, length);
 
         for(i = 0; i < 63; i++){        ////WE NEED THE LENGTH AS A PARAMETER. 64: because 64 inodes 
-            if (strncmp(fname, my_boot_block->direntries[i].filename, 32) == 0) {//if 0, means the strings are the same 
+            if (strncmp((const int8_t *)fname, (const int8_t *)my_boot_block->direntries[i].filename,(uint32_t)32) == 0) {//if 0, means the strings are the same 
                 read_dentry_by_index(i, dentry);
                 return 0; 
             }
@@ -224,9 +224,10 @@ int32_t read_file(int32_t fd, void* buf, int32_t nbytes){
  */
 int32_t open_file(const uint8_t* filename){
     // Find and store the directory entry for the given filename
+    dentry_t file_dentry[1];
     int ret;
     ret = 0;
-    ret = read_dentry_by_name(filename, global_dentry);
+    ret = read_dentry_by_name(filename, file_dentry);
     global_offset = 0; // Reset the file offset to the beginning
     return ret; // Return success
 }
@@ -295,10 +296,11 @@ int32_t open_dir(const uint8_t* filename){
  */
 int32_t read_dir(int32_t fd, void* buf, int32_t nbytes){
     int i, k;
-    int l; 
+    int l;
     dentry_t new_dentry[1];
-    uint32_t return_length = 0;
-   // int j = 43;
+    if(new_dentry->inode_num != 819289273){
+       l = 1;
+    }
     uint8_t* buffy = (uint8_t*)buf;
 
     uint8_t file_name[32];
