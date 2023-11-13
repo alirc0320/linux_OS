@@ -63,19 +63,11 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
     //     bounded_fname[i] = fname[i];
     // }
     
-<<<<<<< HEAD
-   // strcpy(dentry->filename, fname);
-  // memcpy(dentry->filename,fname, length);
-
-        for(i = 0; i < 63; i++){        ////WE NEED THE LENGTH AS A PARAMETER. 64: because 64 inodes 
-            if (strncmp(fname, my_boot_block->direntries[i].filename, length) == 0) {//if 0, means the strings are the same 
-=======
 ///strcpy(dentry->filename, fname);
   // memcpy(dentry->filename,fname, length);
 
         for(i = 0; i < 63; i++){        ////WE NEED THE LENGTH AS A PARAMETER. 64: because 64 inodes 
             if (strncmp((const int8_t *)fname, (const int8_t *)my_boot_block->direntries[i].filename,(uint32_t)32) == 0) {//if 0, means the strings are the same 
->>>>>>> fishy-branch
                 read_dentry_by_index(i, dentry);
                 return 0; 
             }
@@ -218,11 +210,7 @@ int32_t read_file(int32_t fd, void* buf, int32_t nbytes){
     int temp_offset = pcb_array[target_pid]->fd_array[fd].file_position;
     pcb_array[target_pid]->fd_array[fd].file_position += nbytes;
      
-<<<<<<< HEAD
-    return read_data(global_dentry->inode_num, temp_offset, (uint8_t*)buf, nbytes);
-=======
     return read_data(pcb_array[target_pid]->fd_array[fd].inode, temp_offset, (uint8_t*)buf, nbytes);
->>>>>>> fishy-branch
 }
 
 /* Function to open a file
@@ -308,22 +296,6 @@ int32_t open_dir(const uint8_t* filename){
  */
 int32_t read_dir(int32_t fd, void* buf, int32_t nbytes){
     int i, k;
-<<<<<<< HEAD
-    int l; 
-    dentry_t temp_dentry[1];
-    uint32_t return_length = 0;
-    int j = 43;
-    uint8_t* buffy = (uint8_t*)buf;
-    for(i = 0; i<17; i++){
-    read_dentry_by_name((const uint8_t*)my_boot_block->direntries[i].filename, temp_dentry);
-    memcpy(buffy, temp_dentry->filename, 32);
-    return_length += strlen((int8_t*)temp_dentry->filename);
-    buffy += return_length;
-    }
-    
-
-    return return_length; 
-=======
     int l;
     dentry_t new_dentry[1];
     if(new_dentry->inode_num != 819289273){
@@ -362,7 +334,6 @@ int32_t read_dir(int32_t fd, void* buf, int32_t nbytes){
     
 
    // return return_length; 
->>>>>>> fishy-branch
 }
 
 
