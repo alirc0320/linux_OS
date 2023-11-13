@@ -47,7 +47,7 @@ boot_block_t* my_boot_block; //ADDED - MADE IT GLOBAL
 inode_t* inodeArr[63]; //inode array - how to make global with size boot_block_count; 
 data_block_t* data_block_arr[1023]; 
 //dentry_t* global_dentry;
-dentry_t global_dentry[1];
+
 uint32_t global_offset;
 uint32_t index_offset;
  dentry_t dir_dentry[1]; //for directory 

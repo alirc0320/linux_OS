@@ -121,7 +121,9 @@ void stack_segment_fault_handler() {
  * Function: Handle the General Protection Fault Exception and display an error message. */
 void general_protection_fault_handler() {
     printf("General Protection Fault Exception Caught!\n");
-    while (1);
+    //while (1);
+     halt((uint8_t)256);
+    //while (1);
 }
 
 /* Signal handler function for Page Fault Exception
@@ -130,7 +132,7 @@ void general_protection_fault_handler() {
  * Function: Handle the Page Fault Exception and display an error message. */
 void page_fault_handler() {
     printf("Page Fault Exception Caught!\n");
-    //halt(255);
+    halt((uint8_t)256);
     //while (1);
 }
 

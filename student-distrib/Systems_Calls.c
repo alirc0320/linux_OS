@@ -237,7 +237,12 @@ int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes) {
 
     // Check if the current process and file descriptor are valid
     if (pcb_array[target_pid] == NULL || pcb_array[target_pid]->fd_array[fd].flags == 0 )
+<<<<<<< HEAD
         return -1;                 
+=======
+        return -1;
+
+>>>>>>> fishy-branch
     if (pcb_array[target_pid]->fd_array[fd].inode == -1){
         return -1;     // bb                             n ojj 11/10/2023 7:14 PM
     }
@@ -266,7 +271,7 @@ int32_t write_syscall(int32_t fd, const void* buf, int32_t nbytes) {
     // Check if the current process and file descriptor are valid
     if (pcb_array[target_pid] == NULL || pcb_array[target_pid]->fd_array[fd].flags == 0 || pcb_array[target_pid]->fd_array[fd].inode == -1)
         return -1;
-
+ 
     // Check if the write function for the file descriptor exists, and if so, call it
     if (pcb_array[target_pid]->fd_array[fd].jmp_table[1] == NULL)
         return -1;
@@ -428,11 +433,16 @@ int32_t getargs(uint8_t* buf,  int32_t nbytes){
         return -1; 
     }
     
+    
     int32_t arg_length = strlen((const int8_t*)pcb_array[target_pid]->args) + 1;
     
      if (nbytes < arg_length) {
         return -1; 
     }
+
+    if (pcb_array[target_pid]->args[0] == '\0') {
+    return -1;
+}
 
     memcpy(buf, pcb_array[target_pid]->args, arg_length);
 

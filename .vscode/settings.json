@@ -1,18 +1,5 @@
 {
-  "files.associations": {
-    "types.h": "c",
-    "lib.h": "c",
-    "tests.h": "c",
-    "x86_desc.h": "c",
-    "paging_asm.h": "c",
-    "idt_handlers.h": "c",
-    "limits.h": "c",
-    "file_system.h": "c",
-    "multiboot.h": "c",
-    "i8259.h": "c",
-    "rtc.h": "c",
-    "cursor.h": "c",
-    "idt_init.h": "c",
-    "keyboard.h": "c"
-  }
+    "files.associations": {
+        "system_calls.h": "c"
+    }
 }
