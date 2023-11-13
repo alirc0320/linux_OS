@@ -146,14 +146,15 @@ int32_t execute(const uint8_t* command) {
 
 ///////////////////////////////////////////GETARGS///////////////////////////////////////////////////////////////////////////////////////////
     
-     for (i = 0; i < 128; i++) {
-    pcb_array[target_pid]->args[i] = NULL;  // or nullptr if using C++
-}
+    for (i = 0; i < 128; i++) { // 128 is to ensure the full args get cleared as intended
+        pcb_array[target_pid]->args[i] = NULL;  // clear the arguments 
+    }
 
 
- for (i = 0; i < 128; i++) {
-    args[i] = NULL;  // or nullptr if using C++
-}
+    for (i = 0; i < 128; i++) { // 128 is to ensure the full args get cleared as intended
+        args[i] = NULL;   // clear the arguments 
+    }
+
     // Extract and store command-line arguments in the args buffer
     if (command[u] == ' ') {
         u++; // Move past the space
@@ -167,11 +168,11 @@ int32_t execute(const uint8_t* command) {
         }
     }
 
-    strncpy((int8_t*)pcb_array[target_pid]->args, (const int8_t*)args, 128);
+    strncpy((int8_t*)pcb_array[target_pid]->args, (const int8_t*)args, 128); // copy over the 128 characters into our array's args
 ///////////////////////////////////////////GETARGS///////////////////////////////////////////////////////////////////////////////////////////
 
 
-    // Reload the page directory and load the program into memory
+    // Reload the page directory and load the program into memory (Flush TLB)
     asm volatile (" \
     movl %%cr3, %%eax ; \
     movl %%eax, %%cr3 ; \
@@ -416,61 +417,93 @@ pcb_t* create_pcb(uint32_t pid) {
 }
 
 
-/* Function to get arguments for a process (system call)
+/* Function to retrieve command-line arguments for a process
  * 
- * Retrieves arguments for the current process.
- * Inputs: buf - A buffer to store the arguments
- *         nbytes - The number of bytes to read
- * Return: -1 (Not implemented)
+ * This function copies the command-line arguments of the current process
+ * (identified by target_pid) into the provided buffer up to the specified
+ * number of bytes. The function ensures that the buffer is not null, nbytes
+ * is positive, and has sufficient space for the arguments.
+ * Inputs:
+ * - buf: Pointer to the buffer where command-line arguments will be copied
+ * - nbytes: Maximum number of bytes to copy into the buffer
+ * Outputs:
+ * - The buf is populated with the command-line arguments of the process
+ * Return:
+ * - 0 on success, -1 on error
  */
-int32_t getargs(uint8_t* buf,  int32_t nbytes){
+int32_t getargs(uint8_t* buf, int32_t nbytes) {
     int i;
+
+    // Check if the buffer is NULL or the number of bytes is invalid
     if (buf == NULL || nbytes <= 0) {
         return -1; 
     }
-    
-    
+
+    // Calculate the length of the command-line arguments
     int32_t arg_length = strlen((const int8_t*)pcb_array[target_pid]->args) + 1;
-    
-     if (nbytes < arg_length) {
+
+    // Check if the provided buffer has enough space for the arguments
+    if (nbytes < arg_length) {
         return -1; 
     }
 
+    // Check if there are no command-line arguments for the process
     if (pcb_array[target_pid]->args[0] == '\0') {
-    return -1;
-}
-
-    memcpy(buf, pcb_array[target_pid]->args, arg_length);
-
-    for (i = 0; i < 128; i++) {
-    pcb_array[target_pid]->args[i] = NULL;  // or nullptr if using C++
-}
-    return 0;
-}
-
-/* Function to map video memory (system call)
- * 
- * Maps video memory to a user-level virtual address.
- * Inputs: screen_start - A pointer to the screen start address
- * Return: -1 (Not implemented)
- */
-int32_t vidmap(uint8_t** screen_start) {
-
-    if(screen_start == NULL || (screen_start < (uint8_t**)0x8000000) || 
-    (screen_start > (uint8_t**)0x8400000 -1 ) ){
         return -1;
     }
 
-    create_new_pte_for_video_memory(screen_start);
-     asm volatile (" \
-   movl %%cr3, %%eax ; \
-   movl %%eax, %%cr3 ; \
-   " : /* no outputs */ \
-   : /* no inputs */ \
-   : "eax", "cc");       
-    *screen_start = (uint8_t*)0x8400000;
-    return 0;
+    // Copy the command-line arguments into the buffer
+    memcpy(buf, pcb_array[target_pid]->args, arg_length);
+
+    // Clear the command-line arguments in the PCB for security reasons
+    for (i = 0; i < 128; i++) { // 128 is an arbitrarily large value to ensure the entirity of the args get cleared
+        pcb_array[target_pid]->args[i] = '\0';  // assuming args is a character array
+    }
+
+    return 0; // Return 0 to indicate success
 }
+
+
+/* Function to map video memory for a process
+ * 
+ * This function maps video memory for a process at the specified screen_start pointer.
+ * It creates a new page table entry for video memory, flushes the TLB, and updates
+ * the screen_start pointer to the end of video memory.
+ * 
+ * Inputs:
+ * - screen_start: Pointer to the location where video memory should be mapped
+ * 
+ * Outputs:
+ * - Video memory is mapped for the process, and the screen_start pointer is updated
+ * 
+ * Return:
+ * - 0 on success, -1 on error
+ */
+int32_t vidmap(uint8_t** screen_start) {
+
+    // Check if the pointer is NULL or outside the valid range of video memory
+    if(screen_start == NULL || (screen_start < (uint8_t**)0x8000000) ||  // 0x8000000 is the start addr of the vid mem bounds
+       (screen_start > (uint8_t**)0x8400000 - 1)) { // 0x8400000 is the end addr of the vid mem bounds 
+        return -1; // Return -1 to indicate an error
+    }
+
+    // Call a function to create a new page table entry for video memory
+    create_new_pte_for_video_memory(screen_start);
+
+    // Flush the TLB by reloading the CR3 register
+    asm volatile (" \
+        movl %%cr3, %%eax ; \
+        movl %%eax, %%cr3 ; \
+    " : /* no outputs */ \
+    : /* no inputs */ \
+    : "eax", "cc");
+
+    // Set the screen_start pointer to the end of video memory at 0x8400000
+    *screen_start = (uint8_t*)0x8400000;
+
+    return 0; // Return 0 to indicate success
+}
+
 
 
 

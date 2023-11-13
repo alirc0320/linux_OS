@@ -294,46 +294,50 @@ int32_t open_dir(const uint8_t* filename){
  * Coverage: Directory entry reading
  * Return: The size of the directory entry read, or 0 if no more entries are available
  */
-int32_t read_dir(int32_t fd, void* buf, int32_t nbytes){
+int32_t read_dir(int32_t fd, void* buf, int32_t nbytes) {
     int i, k;
     int l;
     dentry_t new_dentry[1];
-    if(new_dentry->inode_num != 819289273){
-       l = 1;
+
+    // A check to include an unused variable in the code and avoid warnings
+    if (new_dentry->inode_num != 819289273) {
+        l = 1;
     }
+
+    // Cast the buffer to uint8_t for byte-wise manipulation
     uint8_t* buffy = (uint8_t*)buf;
 
+    // Temporary buffer to store file names
     uint8_t file_name[32];
 
-    for(k=0; k<32; k++){
+    // Initialize the file name buffer
+    for (k = 0; k < 32; k++) {
         file_name[k] = 0;
     }
 
-    //for(i = 0; i<17; i++){
-    //read_dentry_by_name((const uint8_t*)my_boot_block->direntries[dir_entry].filename, temp_dentry);
+    // Copy the file name from the directory entry to the temporary buffer
     strncpy((int8_t*)file_name, (int8_t*)my_boot_block->direntries[dir_entry].filename, 32);
 
-
-    for(i = 0; i < 32; i++){
+    // Copy the file name from the temporary buffer to the output buffer
+    for (i = 0; i < 32; i++) {
         buffy[i] = file_name[i];
     }
+
+    // Add a newline character after the file name
     file_name[i] = '\n';
-     dir_entry+=1;
 
-    if(dir_entry <= 17){
-       
-        return i;
-    }
-    else{
-        dir_entry = 0; 
-        return 0;
-    }
-//     return_length += strlen((int8_t*)temp_dentry->filename);
-//     buffy += return_length;
-//    //}
-    
+    // Increment the directory entry index
+    dir_entry += 1;
 
-   // return return_length; 
+    // Check if there are more directory entries to read
+    if (dir_entry <= 17) {
+        return i; // Return the number of bytes copied into the buffer
+    } 
+    else {
+        // Reset the directory entry index and signal the end of entries
+        dir_entry = 0;
+        return 0; // Return 0 to indicate the end of directory entries
+    }
 }
 
 
