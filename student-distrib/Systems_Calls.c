@@ -237,12 +237,8 @@ int32_t read_syscall(int32_t fd, void* buf, int32_t nbytes) {
 
     // Check if the current process and file descriptor are valid
     if (pcb_array[target_pid] == NULL || pcb_array[target_pid]->fd_array[fd].flags == 0 )
-<<<<<<< HEAD
-        return -1;                 
-=======
         return -1;
 
->>>>>>> fishy-branch
     if (pcb_array[target_pid]->fd_array[fd].inode == -1){
         return -1;     // bb                             n ojj 11/10/2023 7:14 PM
     }
