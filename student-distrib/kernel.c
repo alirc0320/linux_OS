@@ -17,6 +17,7 @@
 #include "file_system.h"
 #include "idt_handlers.h"
 #include "System_Calls.h"
+#include "terminal.h"
 
 #define RUN_TESTS
 
@@ -201,7 +202,7 @@ void entry(unsigned long magic, unsigned long addr) {
     
     sti();
 
-
+//terminal_init();
  
 
 #ifdef RUN_TESTS
@@ -210,7 +211,9 @@ void entry(unsigned long magic, unsigned long addr) {
 #endif
     /* Execute the first program ("shell") ... */
     clear();
-     execute((const uint8_t*)"shell");
+     //execute((const uint8_t*)"shell");
+      //execute("shell");
+      terminal_init(); 
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
 }

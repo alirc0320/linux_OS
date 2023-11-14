@@ -18,6 +18,7 @@ typedef struct pcb {
     void* pc;
     file_descriptor_struct_t fd_array[8];
     uint8_t args[128]; // Add an array to store command-line arguments
+    int parent_pid; 
 } pcb_t;
 
 // Array of PCBs to store process information

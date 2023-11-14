@@ -1,5 +1,6 @@
 #include "x86_desc.h"
 #include "paging_asm.h"
+#include "terminal.h"
 
 
 
@@ -57,7 +58,7 @@ void init_paging(){
         pt[i].AVL = 0;
         pt[i].bits_31_12 = 0; // POST SHIFTING (i * 4096 >> 12)
 
-            if(i==184){ //we only want the entry at the video memory to be present - 
+            if(i==184 || i == 185 || i == 186 || i == 187){ //we only want the entry at the video memory to be present - 
                  pt[i].bits_31_12 = i; // this is the addr for the page in video mem. this is right shift by 12
                 pt[i].P = 1; //making it so that only this entry is present for the PTE 
                 pt[i].RW = 1;
@@ -139,4 +140,9 @@ void create_new_pte_for_video_memory(uint8_t** screen_start) {
     return;
 
 }
+
+
+// void switch_terminal_page(){
+    
+// }
 

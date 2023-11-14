@@ -5,6 +5,7 @@
 #include "cursor.h"
 #include "file_system.h"
 #include "System_Calls.h"
+#include "terminal.h"
  
 int ctrl_flag = 0; 
 int shift_flag = 0; 
@@ -87,6 +88,23 @@ int keyboard_interrupt() {
     scan_code = inb(0x60);  // Read the scan code from the keyboard controller. x60 is the keyboard data port 
     // write(keyboard_buffer, 0);  //call write to write to the buffer
     // read(keyboard_buffer, 0); //prints buffer to screen on enter 
+    if (alt_flag == 1){
+        if (scan_code == 0xBB){
+            terminal_switch(0);
+            send_eoi(1); 
+            return;
+        }
+         if (scan_code == 0xBC){
+            terminal_switch(1);
+            send_eoi(1); 
+            return;
+        }
+        if (scan_code == 0xBD){
+            terminal_switch(2);
+            send_eoi(1); 
+            return;
+        }
+    }
     
      if (scan_code == 0x3A){//Caps lock key code 
         capslock_flag += 1; // Increment the capslock_flag by 1.

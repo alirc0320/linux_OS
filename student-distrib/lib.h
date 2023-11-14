@@ -4,7 +4,8 @@
 
 #ifndef _LIB_H
 #define _LIB_H
-
+static int screen_x;
+static int screen_y;
 #include "types.h"
 
 int32_t printf(int8_t *format, ...);
