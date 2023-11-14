@@ -92,6 +92,7 @@ int keyboard_interrupt() {
         if (scan_code == 0xBB){
             terminal_switch(0);
             send_eoi(1); 
+            // /execute("shell");
             return;
         }
          if (scan_code == 0xBC){

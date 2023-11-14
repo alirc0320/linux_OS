@@ -21,9 +21,9 @@ void terminal_init(){
         terminal_array[i].terminal_id = i;
         //current_terminal_id = i; 
         
-        terminal_switch(i);
+        //terminal_switch(i);
          
-        execute("shell");//boots up all 3
+        //execute("shell");//boots up all 3
         //printf("cur terminal:%d\n",  i);
 
         
@@ -31,7 +31,7 @@ void terminal_init(){
 
         
     }
-    //current_terminal_id = 0;
+    current_terminal_id = 0;
     terminal_switch(0);
 
     return; 
@@ -55,6 +55,9 @@ current_terminal_id = terminal_id; //determine terminal id if its +1%3 or -1%3 i
 int addr = (185 + terminal_id) << 12; 
 memcpy((uint8_t*)old_addr, (uint8_t*)0xB8000, 4096);
 memcpy((uint8_t*)0xB8000, (uint8_t*)addr, 4096);
+//well need a flag at some point
+send_eoi(1);
+execute((const uint8_t*)"shell");
 //enable_cursor(terminal_array[terminal_id].curr_x,terminal_array[terminal_id].curr_y);   
 
 //save old cursor
@@ -72,7 +75,7 @@ memcpy((uint8_t*)0xB8000, (uint8_t*)addr, 4096);
 //paging?
 
 //ret
-
+return; 
 
 
 
