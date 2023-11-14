@@ -22,7 +22,7 @@ void terminal_init(){
         //current_terminal_id = i; 
         
         terminal_switch(i);
-        
+         
         execute("shell");//boots up all 3
         //printf("cur terminal:%d\n",  i);
 
