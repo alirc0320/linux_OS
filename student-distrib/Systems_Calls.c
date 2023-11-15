@@ -57,7 +57,7 @@ int32_t halt(uint8_t status){
    tss.ss0 = KERNEL_DS;
    my_pids[target_pid] = 0;
    
-    if(pcb_array[target_pid]->pid <= 2){ //changed this from == 0 to <= 2 bc the first 3 things in the array are the parent ppids
+    if(pcb_array[target_pid]->pid == pcb_array[target_pid]->parent_pid){ //changed this from == 0 to <= 2 bc the first 3 things in the array are the parent ppids
         execute((const uint8_t*)"shell"); 
         }
 
@@ -415,8 +415,8 @@ pcb_t* create_pcb(uint32_t pid) {
 
     // Initialize the PCB's file descriptor array
     init_file_descriptor(pcb_array[pid]->fd_array);
-    pcb_array[target_pid]->parent_pid = current_terminal_id; //since the three terminals are the first three things opened, the index is just the current terminal id and also the index into the pcb array 
-
+    //pcb_array[target_pid]->parent_pid = current_terminal_id; //since the three terminals are the first three things opened, the index is just the current terminal id and also the index into the pcb array 
+    pcb_array[target_pid]->parent_pid = terminal_array[current_terminal_id].pid;
     return pcb_array[pid]; 
 }
 

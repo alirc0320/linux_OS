@@ -19,13 +19,14 @@ void terminal_init(){
         terminal_array[i].curr_y = 0;
         terminal_array[i].buffer_character_count = 0;
         terminal_array[i].terminal_id = i;
+        terminal_array[i].pid = -1;
         //current_terminal_id = i; 
         
         //terminal_switch(i);
          
         //execute("shell");//boots up all 3
         //printf("cur terminal:%d\n",  i);
-
+        terminal_array[i].turned_on = 0;
         
          
 
@@ -44,6 +45,8 @@ void terminal_switch (uint32_t terminal_id){ //pass in the terminal --this value
 //which t4erminal to switch to
 int old_addr = (185 + current_terminal_id) <<12; 
 
+
+
 //save old cursor
 terminal_array[current_terminal_id].curr_x = screen_x; 
 terminal_array[current_terminal_id].curr_y = screen_y; 
@@ -53,11 +56,33 @@ current_terminal_id = terminal_id; //determine terminal id if its +1%3 or -1%3 i
 
 
 int addr = (185 + terminal_id) << 12; 
+//cli(); 
+send_eoi(1);
 memcpy((uint8_t*)old_addr, (uint8_t*)0xB8000, 4096);
 memcpy((uint8_t*)0xB8000, (uint8_t*)addr, 4096);
 //well need a flag at some point
-send_eoi(1);
-execute((const uint8_t*)"shell");
+sti();
+if (terminal_array[terminal_id].turned_on == 0){
+    terminal_array[terminal_id].turned_on = 1; 
+    int i; 
+    int space; 
+    space = -1; 
+    for (i = 0; i < 8; i++){
+        if (pcb_array[i] == NULL){
+            space = i; 
+        terminal_array[terminal_id].pid = space; 
+        break; 
+        }
+        
+    }
+    if (space == -1){
+        printf("no room"); 
+        return -1; 
+    }
+    execute("shell");
+    
+}
+
 //enable_cursor(terminal_array[terminal_id].curr_x,terminal_array[terminal_id].curr_y);   
 
 //save old cursor
