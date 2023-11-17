@@ -1,3 +1,6 @@
+
+
+
 #include "keyboard.h"
 #include "i8259.h"
 #include "lib.h"
@@ -89,18 +92,18 @@ int keyboard_interrupt() {
     // write(keyboard_buffer, 0);  //call write to write to the buffer
     // read(keyboard_buffer, 0); //prints buffer to screen on enter 
     if (alt_flag == 1){
-        if (scan_code == 0xBB){
+        if (scan_code == 0xBB && current_terminal_id !=0){
             terminal_switch(0);
             send_eoi(1); 
             // /execute("shell");
             return;
         }
-         if (scan_code == 0xBC){
+         if (scan_code == 0xBC && current_terminal_id !=1){
             terminal_switch(1);
             send_eoi(1); 
             return;
         }
-        if (scan_code == 0xBD){
+        if (scan_code == 0xBD && current_terminal_id !=2 ){
             terminal_switch(2);
             send_eoi(1); 
             return;
@@ -407,3 +410,4 @@ int32_t terminal_close(int32_t fd){
 }
 
 int32_t (*terminal_jump_table[4]) () = {read, write, terminal_open, terminal_close};
+

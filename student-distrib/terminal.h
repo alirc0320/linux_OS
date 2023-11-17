@@ -1,3 +1,6 @@
+
+
+
 #ifndef _TERMINAL_H
 #define _TERMINAL_H
 
@@ -11,7 +14,8 @@ typedef struct terminal {
   uint32_t buffer_character_count;   //the buffers current count 128 max
   char keyboard_buffer[128];          //buffers current state 
   uint32_t terminal_id;
-  int active_flag; //if its the current terminal (not rlly necesary)
+   int buffer_index;
+   int active_flag; //if its the current terminal (not rlly necesary)
   int turned_on; 
   int pid; //pid of parent shell for given terminal
   int cur_pid; //pid of current process upon terminal switch 
@@ -32,3 +36,4 @@ void terminal_switch (uint32_t terminal_id); //pass in the terminal
 
 
 #endif /* _TERMINAL_H */
+
