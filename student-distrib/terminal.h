@@ -18,8 +18,8 @@ typedef struct terminal {
    int active_flag; //if its the current terminal (not rlly necesary)
   int turned_on; 
   int pid; //pid of parent shell for given terminal
-  int cur_pid; //pid of current process upon terminal switch 
   pcb_t* pcb_array[6]; //have onen pcb array per terminal, make active when active
+
 } terminal_t;
 
 

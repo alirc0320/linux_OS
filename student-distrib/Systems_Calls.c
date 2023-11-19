@@ -50,18 +50,21 @@ int32_t halt(uint8_t status){
            break;
        }
        close_syscall(i); // Close the file descriptors for the current process
-   }
+   } 
+
+   pcb_array[target_pid] = NULL; 
 
    // Write Parent process’ info back to TSS(esp0)
    tss.esp0 = 0x800000 - 4; // THIS IS 8MB - 4 which is the pointer to the start of the shell program
    tss.ss0 = KERNEL_DS;
-   my_pids[target_pid] = 0;
+   my_pids[global_pcb_counter] = 0;
    
-    if(pcb_array[target_pid]== 0){ //changed this from == 0 to <= 2 bc the first 3 things in the array are the parent ppids
+    if(target_pid == 0){ //changed this from == 0 to <= 2 bc the first 3 things in the array are the parent ppids
         execute((const uint8_t*)"shell"); 
         }
 
     target_pid--;
+    global_pcb_counter --; 
     //target_pid = pcb_array[target_pid]->parent_pid; 
 
 
@@ -92,6 +95,9 @@ int32_t halt(uint8_t status){
  * Return: Returns a value if the program execution is successful, or -1 on failure
  */
 int32_t execute(const uint8_t* command) {
+    // if (global_pcb_counter >= 6){
+    //     return 1; //no space
+    // }
     uint8_t name[32];
     dentry_t temp_dentry[1];
     int i = 0;
@@ -128,20 +134,38 @@ int32_t execute(const uint8_t* command) {
     if (boofer[0] != 0x7f || boofer[1] != 0x45 || boofer[2] != 0x4c || boofer[3] != 0x46)
         return -1;
 
+
+ 
+
+    
     // Create a PCB and set the target PID
+    int flag = 0; 
     for (i = 0; i < 6; i++) { // 6 because there are a maximum of 6 programs we can run in our system
-        if (my_pids[i] == 0)
+        if (my_pids[i] == 0){
+            flag = 1; 
             break;
+        }        
     }
 
-    if (i == 6) // if we are the max number of programs return -1
+    if (flag == 0) // if we are the max number of programs return -1
         return -1;
 
     my_pids[i] = 1;
-    target_pid = i;
+    global_pcb_counter = i;
+
+
+
+       //set target pid
+    for (i = 0; i< 6; i++){
+        if (pcb_array[i] == NULL){
+            target_pid = i; 
+            break; 
+        }
+    }
 
     // Get a PCB structure and set its properties
     pcb = create_pcb(target_pid);
+    //global_pcb_counter ++; //where do we increment this?!?!??!
     pcb->pid = target_pid;
     pcb->inode_num = temp_dentry->inode_num;
 
@@ -219,6 +243,7 @@ int32_t execute(const uint8_t* command) {
                 : "r" (USER_DS), "r" (START_OF_USER_STACK - sizeof(uint32_t)), "r" (USER_CS), "r" (start_adrr)
                 : "memory");
 
+   
     return 0;
 }
 
@@ -407,7 +432,7 @@ uint8_t get_new_pid() {
  */
 pcb_t* create_pcb(uint32_t pid) {
     // Calculate the PCB's memory location based on the PID
-    pcb_t* temp_pcb = (pcb_t*)(0x800000 - (pid + 1) * 0x2000); // 8MC - current_pid * 8 KB
+    pcb_t* temp_pcb = (pcb_t*)(0x800000 - (global_pcb_counter + 1) * 0x2000); // 8MB - current_pid * 8 KB
     temp_pcb->pid = pid; 
     temp_pcb->state = 1; 
 

@@ -14,7 +14,7 @@
 
 void terminal_init(){
     //terminal_switch(0);
-    
+    global_pcb_counter = 0; 
     int i; 
     for (i = 0; i< 6; i++){
         pcb_array[i] = 0; 
@@ -53,6 +53,9 @@ void terminal_switch (uint32_t terminal_id){ //pass in the terminal --this value
         pcb_array[i] = terminal_array[terminal_id].pcb_array[i]; //store pcb array with what y9ou are going to
     }
 
+    terminal_array[current_terminal_id].pid = target_pid; 
+    target_pid = terminal_array[terminal_id].pid; 
+
  strncpy(terminal_array[current_terminal_id].keyboard_buffer, keyboard_buffer, 128);
  terminal_array[current_terminal_id].buffer_index = keyboard_buffer_index;
 
@@ -84,12 +87,12 @@ strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
 
 
 
-    for (i = 0; i< 6; i++){
-    if (pcb_array[i] == NULL){
-        target_pid = i; 
-        break; 
-    }    
-}
+//     for (i = 0; i< 6; i++){
+//     if (pcb_array[i] == NULL){
+//         target_pid = i; 
+//         break; 
+//     }    
+// }
 
     if (terminal_array[terminal_id].turned_on == 0){
     terminal_array[terminal_id].turned_on = 1; 

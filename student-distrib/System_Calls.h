@@ -34,6 +34,8 @@ uint32_t target_pid;
 // Flag to indicate if file descriptors are full
 int fd_full;
 
+int global_pcb_counter; 
+
 // System call functions
 
 int32_t halt(uint8_t status); 
