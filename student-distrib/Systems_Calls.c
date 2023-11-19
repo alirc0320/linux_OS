@@ -41,8 +41,8 @@ int32_t halt(uint8_t status){
    : "eax", "cc");
 
    // Restore parent paging (from ls back to shell)
-   //program_pages(target_pid-1);
-   program_pages(pcb_array[target_pid]->parent_pid);
+   program_pages(target_pid-1);
+   //program_pages(pcb_array[target_pid]->parent_pid);
 
    // Clear file descriptor array (Resetting the file descriptor entries for the current process)
    for(i = 0; i < 8; i++){ // 8 because we are iterating over all 8 indeces of the fd array 
@@ -57,12 +57,12 @@ int32_t halt(uint8_t status){
    tss.ss0 = KERNEL_DS;
    my_pids[target_pid] = 0;
    
-    if(pcb_array[target_pid]->pid == pcb_array[target_pid]->parent_pid){ //changed this from == 0 to <= 2 bc the first 3 things in the array are the parent ppids
+    if(pcb_array[target_pid]== 0){ //changed this from == 0 to <= 2 bc the first 3 things in the array are the parent ppids
         execute((const uint8_t*)"shell"); 
         }
 
-    //target_pid--;
-    target_pid = pcb_array[target_pid]->parent_pid; 
+    target_pid--;
+    //target_pid = pcb_array[target_pid]->parent_pid; 
 
 
    // Jump to execute return (Switch back to the parent process)
@@ -417,6 +417,7 @@ pcb_t* create_pcb(uint32_t pid) {
     init_file_descriptor(pcb_array[pid]->fd_array);
     //pcb_array[target_pid]->parent_pid = current_terminal_id; //since the three terminals are the first three things opened, the index is just the current terminal id and also the index into the pcb array 
     pcb_array[target_pid]->parent_pid = terminal_array[current_terminal_id].pid;
+    
     return pcb_array[pid]; 
 }
 

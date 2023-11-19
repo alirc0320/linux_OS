@@ -2,6 +2,7 @@
 #define _SYSTEM_CALLS_H
 
 #include "tests.h"
+#include "file_system.h"
 
 // Define the start of the user stack
 #define START_OF_USER_STACK 0x8400000

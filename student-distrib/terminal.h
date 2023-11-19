@@ -6,7 +6,7 @@
 
 #include "types.h"
 #include "tests.h"
-
+#include "System_Calls.h"
 
 typedef struct terminal {
   uint32_t curr_x;          //x current cursor position 
@@ -19,7 +19,9 @@ typedef struct terminal {
   int turned_on; 
   int pid; //pid of parent shell for given terminal
   int cur_pid; //pid of current process upon terminal switch 
+  pcb_t* pcb_array[6]; //have onen pcb array per terminal, make active when active
 } terminal_t;
+
 
 uint32_t current_terminal_id; //global current terminal running (like target_pid)
 

@@ -5,7 +5,7 @@
 #include "idt_handlers.h"
 #include "cursor.h"
 #include "file_system.h"
-#include "System_Calls.h"
+
 #include "terminal.h"
 #include "paging_asm.h"
 #include "cursor.h"
@@ -14,7 +14,14 @@
 
 void terminal_init(){
     //terminal_switch(0);
+    
     int i; 
+    for (i = 0; i< 6; i++){
+        pcb_array[i] = 0; 
+        terminal_array[0].pcb_array[i] = 0; 
+        terminal_array[1].pcb_array[i] = 0; 
+        terminal_array[2].pcb_array[i] = 0; 
+    }
     for(i = 0; i<3; i++){
         terminal_array[i].curr_x = 0;
         terminal_array[i].curr_y = 0;
@@ -39,6 +46,11 @@ void terminal_switch (uint32_t terminal_id){ //pass in the terminal --this value
 
     if(terminal_id > 2 || terminal_id < 0){
         return;
+    }
+    int i = 0; 
+    for (i = 0; i< 6; i++){
+        terminal_array[current_terminal_id].pcb_array[i] = pcb_array[i]; //store cb array of what you are about to change from
+        pcb_array[i] = terminal_array[terminal_id].pcb_array[i]; //store pcb array with what y9ou are going to
     }
 
  strncpy(terminal_array[current_terminal_id].keyboard_buffer, keyboard_buffer, 128);
@@ -68,27 +80,44 @@ strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
 
 
     sti();
-    // execute("shell");   
+    // execute("shell");  
+
+
+
+    for (i = 0; i< 6; i++){
+    if (pcb_array[i] == NULL){
+        target_pid = i; 
+        break; 
+    }    
+}
+
     if (terminal_array[terminal_id].turned_on == 0){
     terminal_array[terminal_id].turned_on = 1; 
     int i; 
-    int space; 
-    space = -1; 
-    for (i = 0; i < 8; i++){
-        if (pcb_array[i] == NULL){
-            space = i; 
-        terminal_array[terminal_id].pid = space; 
-        break; 
-        }
+    // int space; 
+    // space = -1; 
+    // for (i = 0; i < 8; i++){
+    //     if (pcb_array[i] == NULL){
+    //         space = i; 
+    //     terminal_array[terminal_id].pid = space; 
+    //     break; 
+    //     }
         
-    }
-    if (space == -1){
-        printf("no room"); 
-        return -1; 
-    }
+    // }
+    // if (space == -1){
+    //     printf("no room"); 
+    //     return -1; 
+    // }
     execute("shell");
     
 }
+
+
+
+
+// if (pcb_array[0] == NULL){
+//     execute("shell");
+// }
 
 //calling execute eveyrtime we switch to a new shell IS THIS RIGHT IAN???
 
