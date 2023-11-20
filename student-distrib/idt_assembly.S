@@ -34,6 +34,9 @@
 .globl system_call_dispatcher #new for cp 3.3
 .globl sys_call_table         #new for cp 3.3
 
+
+.globl pit_handler_asm
+
    # Division Error Handler
 division_error_handler_asm:
     pushal                              # Push all general-purpose registers (EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI)
@@ -258,6 +261,17 @@ keyboard_interrupt_asm:
     popfl                               # Pop the EFLAGS register
     popal                               # Pop all the general-purpose registers
     iret                                # Return from the interrupt
+
+pit_handler_asm:
+    pushal                               # Push all general-purpose registers
+    pushfl                               # Push the EFLAGS register
+    call pit_interrupt                # Call the 'pit_interrupt' function
+    popfl                               # Pop the EFLAGS register
+    popal                               # Pop all the general-purpose registers
+    iret  
+
+
+
 
 # System Call Handler
 #handler will call dispatcher which will index into jump table

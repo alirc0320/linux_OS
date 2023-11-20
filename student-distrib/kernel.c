@@ -18,6 +18,7 @@
 #include "idt_handlers.h"
 #include "System_Calls.h"
 #include "terminal.h"
+#include "pit.h"
 
 #define RUN_TESTS
 
@@ -175,6 +176,7 @@ void entry(unsigned long magic, unsigned long addr) {
     
     init_cursor();
 
+    init_pit(); 
   
     //disable_cursor(); 
     //open_syscall("shell");

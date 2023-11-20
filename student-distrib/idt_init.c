@@ -65,6 +65,7 @@ int i;
     SET_IDT_ENTRY(idt[30], security_exception_handler_asm);
     ////////////////////////////////////////////////////////////////
 
+    SET_IDT_ENTRY(idt[32], pit_handler_asm); //pit
     SET_IDT_ENTRY(idt[40], rtc_interrupt_asm); //rtc
     SET_IDT_ENTRY(idt[33], keyboard_interrupt_asm); //keyboard
      SET_IDT_ENTRY(idt[128], system_call_asm); //system call 

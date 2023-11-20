@@ -55,7 +55,8 @@ int32_t halt(uint8_t status){
    pcb_array[target_pid] = NULL; 
 
    // Write Parent process’ info back to TSS(esp0)
-   tss.esp0 = 0x800000 - 4; // THIS IS 8MB - 4 which is the pointer to the start of the shell program
+   tss.esp0 = 0x800000 - (0x2000 * (global_pcb_counter)) - 4;
+   //tss.esp0 = 0x800000 - 4; // THIS IS 8MB - 4 which is the pointer to the start of the shell program
    tss.ss0 = KERNEL_DS;
    my_pids[global_pcb_counter] = 0;
    
@@ -222,7 +223,7 @@ int32_t execute(const uint8_t* command) {
     
 
     // Set ESP0 and SS0 for the TSS
-    tss.esp0 = 0x800000 - (0x2000 * (target_pid + 1)) - 4; // 8MB - (8KB * current_pid) - 4 bytes
+    tss.esp0 = 0x800000 - (0x2000 * (global_pcb_counter + 1)) - 4; // 8MB - (8KB * current_pid) - 4 bytes
     tss.ss0 = KERNEL_DS;
 
     // Save the previous ESP and EBP values
