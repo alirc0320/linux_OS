@@ -5,7 +5,7 @@
 #include "idt_handlers.h"
 #include "cursor.h"
 #include "file_system.h"
-
+#include "x86_desc.h"
 #include "terminal.h"
 #include "paging_asm.h"
 #include "cursor.h"
@@ -36,12 +36,34 @@ void terminal_init(){
     //execute("shell");
     current_terminal_id = 0;
     terminal_switch(0);
+
     return; 
 }
 
 
 
 void terminal_switch (uint32_t terminal_id){ //pass in the terminal --this value is ZERO INDEXED
+
+    //save old esp, ebp, ss into terminal
+//restore existing esp, ebp, ss (if applicable)
+
+    //terminal_array[current_terminal_id].ss = tss.ss0; 
+
+   asm volatile (
+        "pushal \n"
+        "pushfl" // Push all general-purpose registers and flags
+    );
+
+    register uint32_t ebp_value asm("ebp"); //cuirrentm vals
+    register uint32_t esp_value asm("esp");
+  
+  
+
+    terminal_array[current_terminal_id].esp = (uint8_t*) esp_value; 
+    terminal_array[current_terminal_id].ebp = (uint8_t*) ebp_value; 
+ 
+
+
 
 
     if(terminal_id > 2 || terminal_id < 0){
@@ -94,6 +116,13 @@ strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
 //     }    
 // }
 
+
+
+
+
+
+
+
     if (terminal_array[terminal_id].turned_on == 0){
     terminal_array[terminal_id].turned_on = 1; 
     int i; 
@@ -124,7 +153,23 @@ strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
 
 //calling execute eveyrtime we switch to a new shell IS THIS RIGHT IAN???
 
-    
+
+//if already turned on, restore old values of stack pointer and ebp 
+uint8_t* ESP;
+uint8_t* EBP; 
+
+ESP = terminal_array[terminal_id].esp; 
+EBP = terminal_array[terminal_id].ebp; 
+
+
+ asm volatile("movl %0, %%esp \n"
+              "movl %1, %%ebp \n"
+              "popfl \n"
+              "popal \n"
+              "ret"
+            : /* no output */
+            : "r" (ESP), "r" (EBP)
+            : "memory");
 
     
 

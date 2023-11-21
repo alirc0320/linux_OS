@@ -1,0 +1,33 @@
+boot.o: boot.S multiboot.h x86_desc.h types.h
+idt_assembly.o: idt_assembly.S
+paging_asm.o: paging_asm.S
+x86_desc.o: x86_desc.S x86_desc.h types.h
+cursor.o: cursor.c cursor.h lib.h types.h
+file_system.o: file_system.c file_system.h types.h multiboot.h rtc.h \
+  keyboard.h tests.h lib.h idt_assembly.h idt_handlers.h System_Calls.h
+i8259.o: i8259.c i8259.h types.h lib.h
+idt_handlers.o: idt_handlers.c i8259.h types.h lib.h idt_handlers.h \
+  tests.h cursor.h file_system.h multiboot.h rtc.h keyboard.h \
+  paging_asm.h System_Calls.h
+idt_init.o: idt_init.c idt_init.h x86_desc.h types.h idt_assembly.h \
+  idt_handlers.h tests.h
+kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h i8259.h debug.h \
+  tests.h rtc.h keyboard.h idt_init.h idt_assembly.h idt_handlers.h \
+  paging_asm.h cursor.h file_system.h System_Calls.h terminal.h pit.h
+keyboard.o: keyboard.c keyboard.h types.h tests.h i8259.h lib.h \
+  idt_handlers.h cursor.h file_system.h multiboot.h rtc.h System_Calls.h \
+  terminal.h
+lib.o: lib.c lib.h types.h cursor.h
+paging_init.o: paging_init.c x86_desc.h types.h paging_asm.h terminal.h \
+  tests.h System_Calls.h file_system.h multiboot.h rtc.h keyboard.h
+pit.o: pit.c pit.h lib.h types.h
+rtc.o: rtc.c rtc.h types.h i8259.h lib.h idt_handlers.h tests.h cursor.h \
+  file_system.h multiboot.h keyboard.h
+Systems_Calls.o: Systems_Calls.c i8259.h types.h lib.h idt_handlers.h \
+  tests.h cursor.h file_system.h multiboot.h rtc.h keyboard.h \
+  paging_asm.h System_Calls.h x86_desc.h terminal.h
+terminal.o: terminal.c keyboard.h types.h tests.h i8259.h lib.h \
+  idt_handlers.h cursor.h file_system.h multiboot.h rtc.h x86_desc.h \
+  terminal.h System_Calls.h paging_asm.h
+tests.o: tests.c tests.h x86_desc.h types.h lib.h file_system.h \
+  multiboot.h rtc.h keyboard.h System_Calls.h
