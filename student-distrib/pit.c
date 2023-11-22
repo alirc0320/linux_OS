@@ -1,7 +1,17 @@
 
 
-#include "pit.h"
+#include "keyboard.h"
+#include "i8259.h"
 #include "lib.h"
+#include "idt_handlers.h"
+#include "cursor.h"
+#include "file_system.h"
+#include "x86_desc.h"
+#include "terminal.h"
+#include "paging_asm.h"
+#include "cursor.h"
+#include "pit.h"
+
 
 #define Channel_data_port  0x40
 #define PIT_MODE           0x43
@@ -46,8 +56,31 @@ Bits         Usage
 */
 
 
-
+//pit handler 
 void pit_interrupt(){
 //printf("a");
+//save current process esp and ebp 
+    counter = counter % 3; 
+    //saving the esp and ebp for the current process for the round robin 
+    // register uint32_t ebp_value asm("ebp"); //cuirrentm vals
+    // register uint32_t esp_value asm("esp");
+  
+    // terminal_array[current_terminal_id].esp = (uint8_t*) esp_value; 
+    // terminal_array[current_terminal_id].ebp = (uint8_t*) ebp_value; 
+
+    scheduler(scheduler_array[counter]); 
+
+    
+
+//call scheduler function 
 send_eoi(0);
 }
+
+
+
+
+void scheduler(uint32_t target_pid){
+    return; 
+}
+
+uint32_t scheduler_array[3] = {-1,-1,-1};

@@ -8,6 +8,7 @@
 #include "x86_desc.h"
 #include "keyboard.h"
 #include "terminal.h"
+#include "pit.h"
 
 
 /* Function to halt the currently executing process
@@ -21,10 +22,25 @@
  */
 int32_t halt(uint8_t status){
 
+     int i;
+
+
+    if(pcb_array[target_pid]->inode_num != 40){ //if process is NOT shell which is inode 40 
+
+    for(i = 0; i < 3; i++){
+        
+        if(scheduler_array[i] == target_pid){
+                scheduler_array[i] = -1;
+            }
+       
+    }
+
+}
+
     // Restore parent data (The specific data being referred to is not documented here, but it's about restoring some context data from the parent process.)
    uint32_t RETURN_VALUE;
    RETURN_VALUE = (uint32_t)status; // we sign extend the status for RETURN_VALUE
-   int i;
+  
 
    if(status == 255){ // the provided value for exception within halt
        RETURN_VALUE = 256;
@@ -171,7 +187,23 @@ int32_t execute(const uint8_t* command) {
     pcb->pid = target_pid;
     pcb->inode_num = temp_dentry->inode_num;
 
+    uint8_t buf_name[6];
+    strcpy((int8_t*)buf_name, "shell");
 
+    if(strncmp((const int8_t*) command,(const int8_t*)buf_name ,(uint32_t)5) != 0){ //if process is NOT shell 
+            
+    
+
+    for(i = 0; i < 3; i++){
+        
+        if(scheduler_array[i] == -1){
+                scheduler_array[i] = target_pid;
+            }
+       
+    }
+
+}
+    
 
 ///////////////////////////////////////////GETARGS///////////////////////////////////////////////////////////////////////////////////////////
     

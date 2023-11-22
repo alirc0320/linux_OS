@@ -20,12 +20,14 @@ keyboard.o: keyboard.c keyboard.h types.h tests.h i8259.h lib.h \
 lib.o: lib.c lib.h types.h cursor.h
 paging_init.o: paging_init.c x86_desc.h types.h paging_asm.h terminal.h \
   tests.h System_Calls.h file_system.h multiboot.h rtc.h keyboard.h
-pit.o: pit.c pit.h lib.h types.h
+pit.o: pit.c keyboard.h types.h tests.h i8259.h lib.h idt_handlers.h \
+  cursor.h file_system.h multiboot.h rtc.h x86_desc.h terminal.h \
+  System_Calls.h paging_asm.h pit.h
 rtc.o: rtc.c rtc.h types.h i8259.h lib.h idt_handlers.h tests.h cursor.h \
   file_system.h multiboot.h keyboard.h
 Systems_Calls.o: Systems_Calls.c i8259.h types.h lib.h idt_handlers.h \
   tests.h cursor.h file_system.h multiboot.h rtc.h keyboard.h \
-  paging_asm.h System_Calls.h x86_desc.h terminal.h
+  paging_asm.h System_Calls.h x86_desc.h terminal.h pit.h
 terminal.o: terminal.c keyboard.h types.h tests.h i8259.h lib.h \
   idt_handlers.h cursor.h file_system.h multiboot.h rtc.h x86_desc.h \
   terminal.h System_Calls.h paging_asm.h

@@ -49,18 +49,18 @@ void terminal_switch (uint32_t terminal_id){ //pass in the terminal --this value
 
     //terminal_array[current_terminal_id].ss = tss.ss0; 
 
-   asm volatile (
-        "pushal \n"
-        "pushfl" // Push all general-purpose registers and flags
-    );
+//    asm volatile (
+//         "pushal \n"
+//         "pushfl" // Push all general-purpose registers and flags
+//     );
 
-    register uint32_t ebp_value asm("ebp"); //cuirrentm vals
-    register uint32_t esp_value asm("esp");
+    // register uint32_t ebp_value asm("ebp"); //cuirrentm vals
+    // register uint32_t esp_value asm("esp");
   
   
 
-    terminal_array[current_terminal_id].esp = (uint8_t*) esp_value; 
-    terminal_array[current_terminal_id].ebp = (uint8_t*) ebp_value; 
+    // terminal_array[current_terminal_id].esp = (uint8_t*) esp_value; 
+    // terminal_array[current_terminal_id].ebp = (uint8_t*) ebp_value; 
  
 
 
@@ -82,7 +82,7 @@ void terminal_switch (uint32_t terminal_id){ //pass in the terminal --this value
  terminal_array[current_terminal_id].buffer_index = keyboard_buffer_index;
 
 
-    terminal_array[current_terminal_id].curr_x = screen_x ; 
+    terminal_array[current_terminal_id].curr_x = screen_x; 
     terminal_array[current_terminal_id].curr_y = screen_y;   
 
     //which t4erminal to switch to
@@ -117,12 +117,6 @@ strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
 // }
 
 
-
-
-
-
-
-
     if (terminal_array[terminal_id].turned_on == 0){
     terminal_array[terminal_id].turned_on = 1; 
     int i; 
@@ -152,25 +146,26 @@ strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
 // }
 
 //calling execute eveyrtime we switch to a new shell IS THIS RIGHT IAN???
-
+// asm volatile (
+//         "popal \n"
+//         "popfl" // Push all general-purpose registers and flags
+//     );
 
 //if already turned on, restore old values of stack pointer and ebp 
-uint8_t* ESP;
-uint8_t* EBP; 
+// uint8_t* ESP;
+// uint8_t* EBP; 
 
-ESP = terminal_array[terminal_id].esp; 
-EBP = terminal_array[terminal_id].ebp; 
+// ESP = terminal_array[terminal_id].esp; 
+// EBP = terminal_array[terminal_id].ebp; 
 
 
- asm volatile("movl %0, %%esp \n"
-              "movl %1, %%ebp \n"
-              "popfl \n"
-              "popal \n"
-              "ret"
-            : /* no output */
-            : "r" (ESP), "r" (EBP)
-            : "memory");
-
-    
+//  asm volatile("movl %0, %%esp \n"
+//               "movl %1, %%ebp \n"
+//               "popfl \n"
+//               "popal \n"
+//               "ret"
+//             : /* no output */
+//             : "r" (ESP), "r" (EBP)
+//             : "memory");
 
 }
