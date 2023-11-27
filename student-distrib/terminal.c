@@ -44,24 +44,19 @@ void terminal_init(){
 
 void terminal_switch (uint32_t terminal_id){ //pass in the terminal --this value is ZERO INDEXED
 
-uint32_t* ESP;
-uint32_t* EBP;
+uint32_t ESP;
+uint32_t EBP;
 
-
-   asm volatile (
-        "pushal \n"
-        "pushfl" // Push all general-purpose registers and flags
-    );
 
     register uint32_t ebp_value asm("ebp"); //cuirrentm vals
     register uint32_t esp_value asm("esp");
   
   
-
-    terminal_array[current_terminal_id].esp = (uint8_t*) esp_value; 
-    terminal_array[current_terminal_id].ebp = (uint8_t*) ebp_value; 
-    //terminal_array[current_terminal_id].ss =  tss.ss0; 
-    // terminal_array[current_terminal_id].esp0 = tss.esp0;
+//get rid of pointers
+    terminal_array[current_terminal_id].esp =  esp_value; 
+    terminal_array[current_terminal_id].ebp =  ebp_value; 
+    terminal_array[current_terminal_id].ss =  tss.ss0; 
+    terminal_array[current_terminal_id].esp0 = tss.esp0;
  
 
 
@@ -116,24 +111,21 @@ strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
 }
 
 
-    //tss.ss0 = terminal_array[current_terminal_id].ss; 
-    //tss.esp0 = terminal_array[current_terminal_id].esp0; 
+    tss.ss0 = terminal_array[current_terminal_id].ss; 
+    tss.esp0 = terminal_array[current_terminal_id].esp0; 
  
-    ESP = (uint32_t*)(terminal_array[terminal_id].esp); 
-    EBP = (uint32_t*)(terminal_array[terminal_id].ebp); 
+    ESP = terminal_array[terminal_id].esp; 
+    EBP = terminal_array[terminal_id].ebp; 
 
 
  asm volatile(
-            "cli                 \n"
             "movl %0, %%esp \n"
               "movl %1, %%ebp \n"
-              "popfl \n"
-              "popal \n"
-              "sti                 \n"
-              "ret"
             : /* no output */
             : "r" (ESP), "r" (EBP)
             : "memory");
+
+            return;
 
 
 
