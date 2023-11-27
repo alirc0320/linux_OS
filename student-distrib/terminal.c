@@ -44,23 +44,24 @@ void terminal_init(){
 
 void terminal_switch (uint32_t terminal_id){ //pass in the terminal --this value is ZERO INDEXED
 
-    //save old esp, ebp, ss into terminal
-//restore existing esp, ebp, ss (if applicable)
+uint32_t* ESP;
+uint32_t* EBP;
 
-    //terminal_array[current_terminal_id].ss = tss.ss0; 
 
-//    asm volatile (
-//         "pushal \n"
-//         "pushfl" // Push all general-purpose registers and flags
-//     );
+   asm volatile (
+        "pushal \n"
+        "pushfl" // Push all general-purpose registers and flags
+    );
 
-    // register uint32_t ebp_value asm("ebp"); //cuirrentm vals
-    // register uint32_t esp_value asm("esp");
+    register uint32_t ebp_value asm("ebp"); //cuirrentm vals
+    register uint32_t esp_value asm("esp");
   
   
 
-    // terminal_array[current_terminal_id].esp = (uint8_t*) esp_value; 
-    // terminal_array[current_terminal_id].ebp = (uint8_t*) ebp_value; 
+    terminal_array[current_terminal_id].esp = (uint8_t*) esp_value; 
+    terminal_array[current_terminal_id].ebp = (uint8_t*) ebp_value; 
+    //terminal_array[current_terminal_id].ss =  tss.ss0; 
+    // terminal_array[current_terminal_id].esp0 = tss.esp0;
  
 
 
@@ -105,67 +106,35 @@ strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
 
 
     sti();
-    // execute("shell");  
-
-
-
-//     for (i = 0; i< 6; i++){
-//     if (pcb_array[i] == NULL){
-//         target_pid = i; 
-//         break; 
-//     }    
-// }
-
 
     if (terminal_array[terminal_id].turned_on == 0){
-    terminal_array[terminal_id].turned_on = 1; 
-    int i; 
-    // int space; 
-    // space = -1; 
-    // for (i = 0; i < 8; i++){
-    //     if (pcb_array[i] == NULL){
-    //         space = i; 
-    //     terminal_array[terminal_id].pid = space; 
-    //     break; 
-    //     }
-        
-    // }
-    // if (space == -1){
-    //     printf("no room"); 
-    //     return -1; 
-    // }
+    terminal_array[terminal_id].turned_on = 1;  
+   
+
     execute("shell");
     
 }
 
 
+    //tss.ss0 = terminal_array[current_terminal_id].ss; 
+    //tss.esp0 = terminal_array[current_terminal_id].esp0; 
+ 
+    ESP = (uint32_t*)(terminal_array[terminal_id].esp); 
+    EBP = (uint32_t*)(terminal_array[terminal_id].ebp); 
 
 
-// if (pcb_array[0] == NULL){
-//     execute("shell");
-// }
-
-//calling execute eveyrtime we switch to a new shell IS THIS RIGHT IAN???
-// asm volatile (
-//         "popal \n"
-//         "popfl" // Push all general-purpose registers and flags
-//     );
-
-//if already turned on, restore old values of stack pointer and ebp 
-// uint8_t* ESP;
-// uint8_t* EBP; 
-
-// ESP = terminal_array[terminal_id].esp; 
-// EBP = terminal_array[terminal_id].ebp; 
+ asm volatile(
+            "cli                 \n"
+            "movl %0, %%esp \n"
+              "movl %1, %%ebp \n"
+              "popfl \n"
+              "popal \n"
+              "sti                 \n"
+              "ret"
+            : /* no output */
+            : "r" (ESP), "r" (EBP)
+            : "memory");
 
 
-//  asm volatile("movl %0, %%esp \n"
-//               "movl %1, %%ebp \n"
-//               "popfl \n"
-//               "popal \n"
-//               "ret"
-//             : /* no output */
-//             : "r" (ESP), "r" (EBP)
-//             : "memory");
 
 }

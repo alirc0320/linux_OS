@@ -21,8 +21,9 @@ typedef struct terminal {
   pcb_t* pcb_array[6]; //have onen pcb array per terminal, make active when active
   uint8_t* esp; 
   uint8_t* ebp; 
-  uint8_t* ss; 
+  uint16_t ss; 
   uint8_t* eip; 
+  uint32_t esp0;
 
 } terminal_t;
 

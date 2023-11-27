@@ -26,15 +26,10 @@ int32_t halt(uint8_t status){
 
 
     if(pcb_array[target_pid]->inode_num != 40){ //if process is NOT shell which is inode 40 
-
-    for(i = 0; i < 3; i++){
         
-        if(scheduler_array[i] == target_pid){
-                scheduler_array[i] = -1;
+        if(scheduler_array[current_terminal_id] == target_pid){
+                scheduler_array[current_terminal_id] = -1;
             }
-       
-    }
-
 }
 
     // Restore parent data (The specific data being referred to is not documented here, but it's about restoring some context data from the parent process.)
@@ -190,18 +185,10 @@ int32_t execute(const uint8_t* command) {
     uint8_t buf_name[6];
     strcpy((int8_t*)buf_name, "shell");
 
-    if(strncmp((const int8_t*) command,(const int8_t*)buf_name ,(uint32_t)5) != 0){ //if process is NOT shell 
-            
-    
-
-    for(i = 0; i < 3; i++){
-        
-        if(scheduler_array[i] == -1){
-                scheduler_array[i] = target_pid;
+    if(strncmp((const int8_t*) command,(const int8_t*)buf_name ,(uint32_t)5) != 0){ //if process is NOT shell    
+        if(scheduler_array[current_terminal_id] == -1){
+                scheduler_array[current_terminal_id] = target_pid;
             }
-       
-    }
-
 }
     
 

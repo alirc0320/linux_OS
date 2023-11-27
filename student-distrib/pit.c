@@ -69,6 +69,7 @@ void pit_interrupt(){
     // terminal_array[current_terminal_id].ebp = (uint8_t*) ebp_value; 
 
     scheduler(scheduler_array[counter]); 
+    counter++;
 
     
 
@@ -80,6 +81,35 @@ send_eoi(0);
 
 
 void scheduler(uint32_t target_pid){
+    
+    // if(target_pid == -1){
+    //     return;
+    // }
+    // do schedulings
+
+    //1) Save esp & ebp 
+    // Save the previous ESP and EBP values
+    // register uint32_t ebp_value asm("ebp");
+    // register uint32_t esp_value asm("esp");
+
+    //2)get the current pcb
+
+    //3)find out what the next process to run is 
+
+    //4)get that processed pid 
+
+    //5)in case the next terminal process has not been initialized remap the video memory and execute the shell for initialization
+
+    //6)remap user program pages for the next scheduled process && flush tlb
+
+    //7)check and remap buffer and vid mem
+
+    //8)Set TSS with proper kernel and stack pointer
+
+    //9)retrieve pcb of next scheduled process and update ebp for context switching
+
+    //10)perform context switch using return intrucrion with correct ebp
+
     return; 
 }
 
