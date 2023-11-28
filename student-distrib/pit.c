@@ -58,26 +58,40 @@ Bits         Usage
 
 //pit handler 
 void pit_interrupt(){
-//printf("a");
+
 //save current process esp and ebp 
+
     counter = counter % 3; 
+    // printf("counter: %d\n", counter);
     //saving the esp and ebp for the current process for the round robin 
-    // register uint32_t ebp_value asm("ebp"); //cuirrentm vals
-    // register uint32_t esp_value asm("esp");
+    register uint32_t ebp_value asm("ebp"); //cuirrentm vals
+    register uint32_t esp_value asm("esp"); 
   
     // terminal_array[current_terminal_id].esp = (uint8_t*) esp_value; 
     // terminal_array[current_terminal_id].ebp = (uint8_t*) ebp_value; 
-    if (terminal_array[counter].turned_on == 1){
+    // if (terminal_array[counter].turned_on == 1){
 
-        scheduler(terminal_array[counter].pid); 
-    }
+    //    // scheduler(terminal_array[counter].pid); 
+        send_eoi(0); //moved up here above execute shell call bc of inf while loop in execute
+    //    terminal_switch((counter + 1)%3);
+    // }
+    // cli(); 
+    // send_eoi(0);
+    //  process_switch((counter + 1)%3);
+    // sti(); 
+
+    //  register uint32_t ebp_value asm("ebp"); //cuirrentm vals
+    // register uint32_t esp_value asm("esp");
+    // save_old(counter, (counter + 1)%3, ebp_value, esp_value);
+    // restore_new( (counter + 1)%3);
     
     counter++;
+
 
     
 
 //call scheduler function 
-send_eoi(0);
+// send_eoi(0);
 }
 
 

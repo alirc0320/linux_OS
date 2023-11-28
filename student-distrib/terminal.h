@@ -34,7 +34,9 @@ terminal_t terminal_array[3]; //3 instances of the struct for 3 terminals
 
 void terminal_init();
 void terminal_switch (uint32_t terminal_id); //pass in the terminal 
-
+void save_old(int cur, int new, register uint32_t ebp_value,register uint32_t esp_value);
+void restore_new(int new); 
+void process_switch (uint32_t process_id);
 
 //int pid_of_terminals_array[3]; //tells what the parent pid for each parent shell is
 

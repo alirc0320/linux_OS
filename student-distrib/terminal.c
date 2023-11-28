@@ -9,6 +9,7 @@
 #include "terminal.h"
 #include "paging_asm.h"
 #include "cursor.h"
+#include "pit.h"
 
 
 
@@ -35,6 +36,7 @@ void terminal_init(){
     }
     //execute("shell");
     current_terminal_id = 0;
+    enable_irq(0);
     terminal_switch(0);
 
     return; 
@@ -42,39 +44,95 @@ void terminal_init(){
 
 
 
-void terminal_switch (uint32_t terminal_id){ //pass in the terminal --this value is ZERO INDEXED
+void process_switch (uint32_t process_id){ //pass in the terminal --this value is ZERO INDEXED
 
-uint32_t ESP;
-uint32_t EBP;
+
 
 
     register uint32_t ebp_value asm("ebp"); //cuirrentm vals
     register uint32_t esp_value asm("esp");
   
+
+ save_old(counter, process_id, ebp_value, esp_value);
+
+
+ //terminal_switch(process_id); 
+restore_new(process_id);
+
+
+
+
+
+}
+
+
+void save_old(int cur, int new, register uint32_t ebp_value,register uint32_t esp_value){
+
+
+
+  
+  
   
 //get rid of pointers
-    terminal_array[current_terminal_id].esp =  esp_value; 
-    terminal_array[current_terminal_id].ebp =  ebp_value; 
-    terminal_array[current_terminal_id].ss =  tss.ss0; 
-    terminal_array[current_terminal_id].esp0 = tss.esp0;
+    terminal_array[cur].esp =  esp_value; 
+    terminal_array[cur].ebp =  ebp_value; 
+    terminal_array[cur].ss =  tss.ss0; 
+    terminal_array[cur].esp0 = tss.esp0;
  
 
 
 
 
-    if(terminal_id > 2 || terminal_id < 0){
+    if(new > 2 || new < 0){
         return;
     }
     int i = 0; 
     for (i = 0; i< 6; i++){
-        terminal_array[current_terminal_id].pcb_array[i] = pcb_array[i]; //store cb array of what you are about to change from
-        pcb_array[i] = terminal_array[terminal_id].pcb_array[i]; //store pcb array with what y9ou are going to
+        terminal_array[cur].pcb_array[i] = pcb_array[i]; //store cb array of what you are about to change from
+        pcb_array[i] = terminal_array[new].pcb_array[i]; //store pcb array with what y9ou are going to
     }
 
-    terminal_array[current_terminal_id].pid = target_pid; 
-    target_pid = terminal_array[terminal_id].pid; 
+    terminal_array[cur].pid = target_pid; 
+    target_pid = terminal_array[new].pid; 
+    return; 
 
- strncpy(terminal_array[current_terminal_id].keyboard_buffer, keyboard_buffer, 128);
+}
+
+
+void restore_new(int new){
+
+        uint32_t ESP;
+        uint32_t EBP;
+    
+    tss.ss0 = terminal_array[new].ss; 
+    tss.esp0 = terminal_array[new].esp0; 
+ 
+    ESP = terminal_array[new].esp; 
+    EBP = terminal_array[new].ebp; 
+
+
+ asm volatile(
+            "movl %0, %%esp \n"
+              "movl %1, %%ebp \n"
+            : /* no output */
+            : "r" (ESP), "r" (EBP)
+            : "memory");
+
+            return;
+}
+
+
+void terminal_switch(uint32_t terminal_id){
+
+    
+    register uint32_t ebp_value asm("ebp"); //cuirrentm vals
+    register uint32_t esp_value asm("esp");
+  
+
+ save_old(current_terminal_id, terminal_id, ebp_value, esp_value); //only in here temporarily
+
+
+  strncpy(terminal_array[current_terminal_id].keyboard_buffer, keyboard_buffer, 128);
  terminal_array[current_terminal_id].buffer_index = keyboard_buffer_index;
 
 
@@ -99,8 +157,7 @@ strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
 
     current_terminal_id = terminal_id;
 
-
-    sti();
+        sti();
 
     if (terminal_array[terminal_id].turned_on == 0){
     terminal_array[terminal_id].turned_on = 1;  
@@ -111,22 +168,7 @@ strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
 }
 
 
-    tss.ss0 = terminal_array[current_terminal_id].ss; 
-    tss.esp0 = terminal_array[current_terminal_id].esp0; 
- 
-    ESP = terminal_array[terminal_id].esp; 
-    EBP = terminal_array[terminal_id].ebp; 
 
 
- asm volatile(
-            "movl %0, %%esp \n"
-              "movl %1, %%ebp \n"
-            : /* no output */
-            : "r" (ESP), "r" (EBP)
-            : "memory");
-
-            return;
-
-
-
+restore_new(terminal_id); //only in here temporarily
 }
