@@ -176,7 +176,7 @@ void entry(unsigned long magic, unsigned long addr) {
     
     init_cursor();
 
-    init_pit(); 
+    
   
     //disable_cursor(); 
     //open_syscall("shell");
@@ -203,7 +203,7 @@ void entry(unsigned long magic, unsigned long addr) {
    // printf("execute done");
     
     sti();
-
+    
 //terminal_init();
  
 
@@ -213,9 +213,11 @@ void entry(unsigned long magic, unsigned long addr) {
 #endif
     /* Execute the first program ("shell") ... */
     clear();
+    
      //execute((const uint8_t*)"shell");
       //execute("shell");
       terminal_init(); 
+     init_pit(); 
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
 }

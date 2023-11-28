@@ -67,8 +67,11 @@ void pit_interrupt(){
   
     // terminal_array[current_terminal_id].esp = (uint8_t*) esp_value; 
     // terminal_array[current_terminal_id].ebp = (uint8_t*) ebp_value; 
+    if (terminal_array[counter].turned_on == 1){
 
-    scheduler(scheduler_array[counter]); 
+        scheduler(terminal_array[counter].pid); 
+    }
+    
     counter++;
 
     
@@ -80,7 +83,7 @@ send_eoi(0);
 
 
 
-void scheduler(uint32_t target_pid){
+void scheduler(uint32_t pidd){
     
     // if(target_pid == -1){
     //     return;
@@ -110,7 +113,70 @@ void scheduler(uint32_t target_pid){
 
     //10)perform context switch using return intrucrion with correct ebp
 
-    return; 
-}
 
-uint32_t scheduler_array[3] = {-1,-1,-1};
+
+// int old_counter = counter - 1; 
+// if (old_counter < 0){
+//     old_counter = 2; 
+// }
+
+//     uint32_t ESP;
+// uint32_t EBP;
+
+
+//     register uint32_t ebp_value asm("ebp"); //cuirrentm vals
+//     register uint32_t esp_value asm("esp");
+  
+  
+// //get rid of pointers
+//     terminal_array[old_counter].esp =  esp_value; 
+//     terminal_array[old_counter].ebp =  ebp_value; 
+//     terminal_array[old_counter].ss =  tss.ss0; 
+//     terminal_array[old_counter].esp0 = tss.esp0;
+
+
+//     if(counter > 2 || counter < 0){
+//         return;
+//     }
+
+
+
+  
+//     int i = 0; 
+//     for (i = 0; i< 6; i++){
+//         terminal_array[old_counter].pcb_array[i] = pcb_array[i]; //store cb array of what you are about to change from
+//         pcb_array[i] = terminal_array[counter].pcb_array[i]; //store pcb array with what y9ou are going to
+//     }
+
+//     terminal_array[old_counter].pid = target_pid; 
+//     target_pid = terminal_array[counter].pid; 
+
+
+
+
+
+
+//  tss.ss0 = terminal_array[counter].ss; 
+//  tss.esp0 = terminal_array[counter].esp0; 
+ 
+
+
+
+
+
+
+// ESP = terminal_array[counter].esp; 
+// EBP = terminal_array[counter].ebp; 
+
+
+//  asm volatile(
+//             "movl %0, %%esp \n"
+//               "movl %1, %%ebp \n"
+//             : /* no output */
+//             : "r" (ESP), "r" (EBP)
+//             : "memory");
+
+//             return;
+
+
+}

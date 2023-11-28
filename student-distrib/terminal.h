@@ -17,7 +17,7 @@ typedef struct terminal {
    int buffer_index;
    int active_flag; //if its the current terminal (not rlly necesary)
   int turned_on; 
-  int pid; //pid of parent shell for given terminal
+  int pid; // current process' pid
   pcb_t* pcb_array[6]; //have onen pcb array per terminal, make active when active
   uint32_t esp; 
   uint32_t ebp; 
