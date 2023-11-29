@@ -24,6 +24,7 @@ typedef struct terminal {
   uint16_t ss; 
   uint8_t eip; 
   uint32_t esp0;
+  int global_pcb_index; //so we know what we are paging w
 
 } terminal_t;
 

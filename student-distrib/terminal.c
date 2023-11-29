@@ -51,7 +51,7 @@ void process_switch (uint32_t process_id){
     register uint32_t esp_value asm("esp");
   
 
- save_old(counter, process_id, ebp_value, esp_value); //only in here temporarily
+ save_old(counter, process_id, ebp_value, esp_value); 
 
 
 //   strncpy(terminal_array[current_terminal_id].keyboard_buffer, keyboard_buffer, 128);
@@ -86,17 +86,25 @@ void process_switch (uint32_t process_id){
    
 
     //execute("shell");
-    cli();
+    
    terminal_switch(process_id);
-   sti();
+  
     // /terminal_array[process_id].turned_on = 1; 
     
 }
 
+      asm volatile (" \
+   movl %%cr3, %%eax ; \
+   movl %%eax, %%cr3 ; \
+   " : /* no outputs */ \
+   : /* no inputs */ \
+   : "eax", "cc");
+
+    program_pages(target_pid);
+   //program_pages(global_pcb_counter);
 
 
-
-restore_new(process_id); //only in here temporarily
+restore_new(process_id); 
 }
 
 
@@ -112,7 +120,7 @@ void save_old(int cur, int new, register uint32_t ebp_value,register uint32_t es
     terminal_array[cur].ebp =  ebp_value; 
     terminal_array[cur].ss =  tss.ss0; 
     terminal_array[cur].esp0 = tss.esp0;
- 
+
 
 
 
@@ -128,6 +136,7 @@ void save_old(int cur, int new, register uint32_t ebp_value,register uint32_t es
 
     terminal_array[cur].pid = target_pid; 
     target_pid = terminal_array[new].pid; 
+
     return; 
 
 }
@@ -201,7 +210,14 @@ strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
     
 }
 
+//      asm volatile (" \
+//    movl %%cr3, %%eax ; \
+//    movl %%eax, %%cr3 ; \
+//    " : /* no outputs */ \
+//    : /* no inputs */ \
+//    : "eax", "cc");
 
+//     program_pages(target_pid);
 
 
 //restore_new(terminal_id); //only in here temporarily

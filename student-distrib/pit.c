@@ -73,8 +73,11 @@ void pit_interrupt(){
 
     //    // scheduler(terminal_array[counter].pid); 
         send_eoi(0); //moved up here above execute shell call bc of inf while loop in execute
-        process_switch((counter + 1)%3);
-        //terminal_switch((counter + 1)%3);
+        //cli(); 
+        //sti(); 
+        //process_switch((counter + 1)%3);
+       // sti(); 
+         //terminal_switch((counter + 1)%3);
     // }
     // cli(); 
     // send_eoi(0);

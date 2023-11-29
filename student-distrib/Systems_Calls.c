@@ -46,7 +46,7 @@ int32_t halt(uint8_t status){
    : "eax", "cc");
 
    // Restore parent paging (from ls back to shell)
-   program_pages(target_pid-1);
+   program_pages(pcb_array[target_pid - 1]->global_pcb_value);
    //program_pages(pcb_array[target_pid]->parent_pid);
 
    // Clear file descriptor array (Resetting the file descriptor entries for the current process)
@@ -215,7 +215,7 @@ int32_t execute(const uint8_t* command) {
       : /* no inputs */ \
       : "eax", "cc");
 
-    program_pages(target_pid);
+    program_pages(pcb_array[target_pid]->global_pcb_value);
     uint8_t* pointer = (uint8_t*)0x8048000; // This is the address to the start of the program image
     read_data(temp_dentry->inode_num, 0, pointer,0x8400000 - 0x8048000); // the size is 132MB - start of our prog img
     // uint8_t* ptr2 = 0x8049000;
@@ -449,7 +449,7 @@ pcb_t* create_pcb(uint32_t pid) {
     // Initialize the PCB's file descriptor array
     init_file_descriptor(pcb_array[pid]->fd_array);
    
-    
+    pcb_array[pid]->global_pcb_value = global_pcb_counter; 
     return pcb_array[pid]; 
 }
 

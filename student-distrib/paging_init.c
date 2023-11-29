@@ -87,8 +87,17 @@ void program_pages(uint8_t target_pid){  //, uint8_t my_boofer){
     pd[32].PS = 1; //set that the size should be 4MB 
     pd[32].AVL4 = 0; //???????since we're using the same 32 bits as when ps 0, we need to set the LSB of AVL4 to be 1, this sets the G bit high for flushing CR3 
     pd[32].bits_31_12 = 2048+target_pid*1024;//points to the pages in the kernel - we "skip" the PTE step 
-    
-    return;
+         
+         
+         asm volatile (" \
+   movl %%cr3, %%eax ; \
+   movl %%eax, %%cr3 ; \
+   " : /* no outputs */ \
+   : /* no inputs */ \
+   : "eax", "cc");
+
+ 
+        return;
 }
 
 void create_new_pte_for_video_memory(uint8_t** screen_start) {
