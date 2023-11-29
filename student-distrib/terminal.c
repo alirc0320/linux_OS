@@ -44,25 +44,59 @@ void terminal_init(){
 
 
 
-void process_switch (uint32_t process_id){ //pass in the terminal --this value is ZERO INDEXED
+void process_switch (uint32_t process_id){
 
-
-
-
+    
     register uint32_t ebp_value asm("ebp"); //cuirrentm vals
     register uint32_t esp_value asm("esp");
   
 
- save_old(counter, process_id, ebp_value, esp_value);
+ save_old(counter, process_id, ebp_value, esp_value); //only in here temporarily
 
 
- //terminal_switch(process_id); 
-restore_new(process_id);
+//   strncpy(terminal_array[current_terminal_id].keyboard_buffer, keyboard_buffer, 128);
+//  terminal_array[current_terminal_id].buffer_index = keyboard_buffer_index;
+
+
+//     terminal_array[current_terminal_id].curr_x = screen_x; 
+//     terminal_array[current_terminal_id].curr_y = screen_y;   
+
+//     which t4erminal to switch to
+//     int old_addr = (185 + current_terminal_id) <<12; 
+//     int addr = (185 + terminal_id) << 12; 
+
+//     //send_eoi(1);
+//     memcpy((uint8_t*)old_addr, (uint8_t*)0xB8000, 4096);
+//     memcpy((uint8_t*)0xB8000, (uint8_t*)addr, 4096);
+    
+// strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
+//  keyboard_buffer_index = terminal_array[terminal_id].buffer_index;
+   
+
+//     screen_x = terminal_array[terminal_id].curr_x ; 
+//     screen_y = terminal_array[terminal_id].curr_y ;   
+//     update_cursor(screen_x, screen_y);    
+
+    counter = process_id;
+
+        sti();
+    //printf("a"); 
+    if (terminal_array[process_id].turned_on == 0){
+    
+   
+
+    //execute("shell");
+    cli();
+   terminal_switch(process_id);
+   sti();
+    // /terminal_array[process_id].turned_on = 1; 
+    
+}
 
 
 
 
-
+restore_new(process_id); //only in here temporarily
 }
 
 
@@ -129,7 +163,7 @@ void terminal_switch(uint32_t terminal_id){
     register uint32_t esp_value asm("esp");
   
 
- save_old(current_terminal_id, terminal_id, ebp_value, esp_value); //only in here temporarily
+ //save_old(current_terminal_id, terminal_id, ebp_value, esp_value); //only in here temporarily
 
 
   strncpy(terminal_array[current_terminal_id].keyboard_buffer, keyboard_buffer, 128);
@@ -139,7 +173,7 @@ void terminal_switch(uint32_t terminal_id){
     terminal_array[current_terminal_id].curr_x = screen_x; 
     terminal_array[current_terminal_id].curr_y = screen_y;   
 
-    //which t4erminal to switch to
+    // which t4erminal to switch to
     int old_addr = (185 + current_terminal_id) <<12; 
     int addr = (185 + terminal_id) << 12; 
 
@@ -170,5 +204,5 @@ strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
 
 
 
-restore_new(terminal_id); //only in here temporarily
+//restore_new(terminal_id); //only in here temporarily
 }
