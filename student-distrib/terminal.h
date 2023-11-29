@@ -25,7 +25,7 @@ typedef struct terminal {
   uint8_t eip; 
   uint32_t esp0;
   int global_pcb_index; //so we know what we are paging w
-
+  int global_pcb_value;
 } terminal_t;
 
 
@@ -37,7 +37,7 @@ void terminal_init();
 void terminal_switch (uint32_t terminal_id); //pass in the terminal 
 void save_old(int cur, int new, register uint32_t ebp_value,register uint32_t esp_value);
 void restore_new(int new); 
-void process_switch (uint32_t process_id);
+void process_switch ();
 
 //int pid_of_terminals_array[3]; //tells what the parent pid for each parent shell is
 

@@ -177,6 +177,9 @@ void entry(unsigned long magic, unsigned long addr) {
     init_cursor();
     
     init_pit();
+
+    clear();
+    terminal_init(); 
     //disable_irq(0);
   
     //disable_cursor(); 
@@ -213,13 +216,13 @@ void entry(unsigned long magic, unsigned long addr) {
    //launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
-    clear();
+    // clear();
 
     
     
      //execute((const uint8_t*)"shell");
       //execute("shell");
-      terminal_init(); 
+    //   terminal_init(); 
      
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
