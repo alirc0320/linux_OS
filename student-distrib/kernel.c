@@ -175,11 +175,9 @@ void entry(unsigned long magic, unsigned long addr) {
     init_keyboard(); 
     
     init_cursor();
-    
-    init_pit();
-
     clear();
-    terminal_init(); 
+    init_pit();
+    terminal_init();
     //disable_irq(0);
   
     //disable_cursor(); 
@@ -220,8 +218,8 @@ void entry(unsigned long magic, unsigned long addr) {
 
     
     
-     //execute((const uint8_t*)"shell");
-      //execute("shell");
+    //  //execute((const uint8_t*)"shell");
+    //   //execute("shell");
     //   terminal_init(); 
      
     /* Spin (nicely, so we don't chew up cycles) */
