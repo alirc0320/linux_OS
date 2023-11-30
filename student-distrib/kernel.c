@@ -178,35 +178,10 @@ void entry(unsigned long magic, unsigned long addr) {
     clear();
     init_pit();
     terminal_init();
-    //disable_irq(0);
-  
-    //disable_cursor(); 
-    //open_syscall("shell");
-    // execute("shell");
-
-
-    /* Do not enable the fong until after you have set up your
-     * IDT correctly otherwise QEMU will triple fault and simple close
-     * without showing you any output */
-
-     // I think well have to uncomment this at some point
-
-
-    //printf("Enabling Interrupts\n");
-
-
-    //init_file_descriptor(); 
-
-
-
-    // printf("init worked");
-    // open_syscall("ls");
-    // execute("ls a");
-   // printf("execute done");
+    
     
     sti();
-    
-//terminal_init();
+
  
 
 #ifdef RUN_TESTS

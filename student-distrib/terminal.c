@@ -32,23 +32,16 @@ void terminal_init(){
         //update_cursor(terminal_array[i].curr_x, terminal_array[i].curr_y);
         terminal_array[i].pid = -1;
         terminal_array[i].turned_on = 0;
-
     }
-    //execute("shell");
     current_terminal_id = 0;
-
     terminal_switch(0);
-  
     return; 
 }
 
 
 
 void process_switch (uint32_t process_id){
-    if(terminal_array[process_id - 1].turned_on == 0 ){
-        return; 
-    }
-    
+
     register uint32_t ebp_value asm("ebp"); //cuirrentm vals
     register uint32_t esp_value asm("esp");
   
@@ -75,18 +68,11 @@ void save_old(int cur, int new, register uint32_t ebp_value,register uint32_t es
 
 cli();
 
-  
-  
-  
 //get rid of pointers
     terminal_array[cur].esp =  esp_value; 
     terminal_array[cur].ebp =  ebp_value; 
     terminal_array[cur].ss =  tss.ss0; 
     terminal_array[cur].esp0 = tss.esp0;
-
-
-
-
 
     if(new > 2 || new < 0){
         return;
@@ -130,13 +116,6 @@ sti();
 
 void terminal_switch(uint32_t terminal_id){
 
-    
-//     register uint32_t ebp_value asm("ebp"); //cuirrentm vals
-//     register uint32_t esp_value asm("esp");
-  
-
-//  save_old(current_terminal_id, terminal_id, ebp_value, esp_value); //only in here temporarily
-
 
   strncpy(terminal_array[current_terminal_id].keyboard_buffer, keyboard_buffer, 128);
  terminal_array[current_terminal_id].buffer_index = keyboard_buffer_index;
@@ -154,7 +133,6 @@ void terminal_switch(uint32_t terminal_id){
     memcpy((uint8_t*)0xB8000, (uint8_t*)addr, 4096);
 
     
-    
 strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
  keyboard_buffer_index = terminal_array[terminal_id].buffer_index;
    
@@ -165,25 +143,4 @@ strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
 
     current_terminal_id = terminal_id;
 
-        // sti();
-
-//     if (terminal_array[terminal_id].turned_on == 0){
-//     terminal_array[terminal_id].turned_on = 1;  
-   
-
-//     execute("shell");
-    
-// }
-
-//      asm volatile (" \
-//    movl %%cr3, %%eax ; \
-//    movl %%eax, %%cr3 ; \
-//    " : /* no outputs */ \
-//    : /* no inputs */ \
-//    : "eax", "cc");
-
-//     program_pages(pcb_array[target_pid]->global_pcb_value);
-
-
-//  restore_new(terminal_id); //only in here temporarily
 }
