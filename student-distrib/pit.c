@@ -28,7 +28,7 @@ void init_pit(){
     outb((divisor >> 8) & 0xFF, 0x40);      // MSB
     enable_irq(0);
 }
-
+ 
 
 
 void pit_interrupt(){
