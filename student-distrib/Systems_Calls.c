@@ -103,25 +103,22 @@ int32_t halt(uint8_t status){
  */
 int32_t execute(const uint8_t* command) {
     cli(); 
-    if (in_a_pit_interrupt == 0){
-        int old = counter;
-        counter = current_terminal_id; 
-         register uint32_t ebp_value asm("ebp"); //cuirrentm vals
-    register uint32_t esp_value asm("esp");
-    save_old(old, counter, ebp_value, esp_value); 
-    program_pages(pcb_array[target_pid]->global_pcb_value);
-
-
-    asm volatile (" \
-    movl %%cr3, %%eax ; \
-    movl %%eax, %%cr3 ; \
-    " : /* no outputs */ \
-    : /* no inputs */ \
-    : "eax", "cc");
-
- //counter = (counter + 1)%3;
-restore_new(counter); 
-    }
+    // if (in_a_pit_interrupt == 0){
+    //     int old = counter;
+    //     counter = current_terminal_id; 
+    //     register uint32_t ebp_value asm("ebp"); //cuirrentm vals
+    //     register uint32_t esp_value asm("esp");
+    //     save_old(old, counter, ebp_value, esp_value); 
+    //     asm volatile (" \
+    //     movl %%cr3, %%eax ; \
+    //     movl %%eax, %%cr3 ; \
+    //     " : /* no outputs */ \
+    //     : /* no inputs */ \
+    //     : "eax", "cc");
+    //     program_pages(pcb_array[target_pid]->global_pcb_value);
+    //     //counter = (counter + 1)%3;
+    //     restore_new(counter); 
+    // }
 
 
     // if (global_pcb_counter >= 6){

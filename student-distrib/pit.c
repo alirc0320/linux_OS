@@ -39,22 +39,22 @@ void pit_interrupt(){
     //  cli(); 
     send_eoi(0); //moved up here above execute shell call bc of inf while loop in execute
     // sti(); 
-    int old = counter; 
-    counter = (counter + 1 )%3;
-    if (terminal_array[counter].turned_on == 0){
-    //terminal_array[counter].turned_on = 1;  
-    // cli(); 
-    //  //moved up here above execute shell call bc of inf while loop in execute
-    // sti(); 
-    //execute("shell"); 
-    register uint32_t ebp_value asm("ebp"); //cuirrentm vals
-    register uint32_t esp_value asm("esp");
-    save_old(old, counter, ebp_value, esp_value);
-    in_a_pit_interrupt = 1; 
-    terminal_switch(counter);
-    }
+    // int old = counter; 
+    // counter = (counter + 1 )%3;
+    // if (terminal_array[counter].turned_on == 0){
+    // //terminal_array[counter].turned_on = 1;  
+    // // cli(); 
+    // //  //moved up here above execute shell call bc of inf while loop in execute
+    // // sti(); 
+    // //execute("shell"); 
+    // register uint32_t ebp_value asm("ebp"); //cuirrentm vals
+    // register uint32_t esp_value asm("esp");
+    // save_old(old, counter, ebp_value, esp_value);
+    // in_a_pit_interrupt = 1; 
+    // terminal_switch(counter);
+    // }
        
-    process_switch(counter);
+    // process_switch(counter);
     //counter = (counter + 1)%3;
     // cli(); 
     // send_eoi(0); //moved up here above execute shell call bc of inf while loop in execute
