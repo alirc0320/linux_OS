@@ -272,6 +272,7 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
  * Outputs: None (void)
  */
  int32_t write (int32_t fd, const void* buf, int32_t nbytes){//need to add fd as a function once file system worknig
+  cli(); 
    if (fd != 1){
     return -1; 
    }
@@ -287,6 +288,7 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
     putc (new_buf[i]);
    }
    
+   sti(); 
    return nbytes; 
 }
 

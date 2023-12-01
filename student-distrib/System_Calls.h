@@ -10,8 +10,8 @@
 // Define the structure for Process Control Block (PCB)
 typedef struct pcb {
     // Process ID
-    uint32_t esp_for_scheduling;
-    uint32_t ebp_for_scheduling;
+    uint8_t* esp_for_scheduling;
+    uint8_t* ebp_for_scheduling;
     uint32_t pid;
     int state;
     uint8_t* sp;
