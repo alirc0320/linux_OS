@@ -5,8 +5,8 @@
 void init_pit();
 void pit_interrupt();
 void scheduler(uint32_t pidd); 
-static int counter = 0;
-
+int counter;
+int in_a_pit_interrupt; 
 extern uint32_t scheduler_array[3]; 
 
 #endif /* _LIB_H */

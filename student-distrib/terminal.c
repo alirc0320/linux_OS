@@ -30,22 +30,28 @@ void terminal_init(){
         terminal_array[i].terminal_id = i;
          terminal_array[i].buffer_index = 0; 
         //update_cursor(terminal_array[i].curr_x, terminal_array[i].curr_y);
-        terminal_array[i].pid = -1;
+        terminal_array[i].pid = 0;
         terminal_array[i].turned_on = 0;
+      //  terminal_array[i].pcb_array[0]->global_pcb_value = i; 
     }
     current_terminal_id = 0;
-    terminal_switch(0);
+     //terminal_switch(0);
+     target_pid = 0; 
     return; 
 }
 
 
 
 void process_switch (uint32_t process_id){
-
+//cli(); 
     register uint32_t ebp_value asm("ebp"); //cuirrentm vals
     register uint32_t esp_value asm("esp");
   
-    save_old(counter, process_id, ebp_value, esp_value); 
+  int old = process_id  -1; 
+  if (old < 0){
+    old = 2; 
+  }
+    save_old(old, process_id, ebp_value, esp_value); 
 
 
     program_pages(pcb_array[target_pid]->global_pcb_value);
@@ -58,15 +64,16 @@ void process_switch (uint32_t process_id){
     : /* no inputs */ \
     : "eax", "cc");
 
+ //counter = (counter + 1)%3;
+restore_new(process_id); 
 
-    restore_new(process_id); 
-
+ //sti(); 
 }
 
 
 void save_old(int cur, int new, register uint32_t ebp_value,register uint32_t esp_value){
 
-cli();
+//cli();
 
 //get rid of pointers
     terminal_array[cur].esp =  esp_value; 
@@ -85,14 +92,14 @@ cli();
 
     terminal_array[cur].pid = target_pid; 
     target_pid = terminal_array[new].pid; 
-sti();
+//sti();
     return; 
 
 }
 
 
 void restore_new(int new){
-cli();
+//cli();
         uint32_t ESP;
         uint32_t EBP;
     
@@ -109,7 +116,7 @@ cli();
             : /* no output */
             : "r" (ESP), "r" (EBP)
             : "memory");
-sti();
+//sti();
             return;
 }
 
@@ -142,5 +149,11 @@ strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
     update_cursor(screen_x, screen_y);    
 
     current_terminal_id = terminal_id;
+
+    if (terminal_array[counter].turned_on == 0){
+    terminal_array[counter].turned_on = 1;  
+
+    execute("shell"); 
+    }
 
 }

@@ -3,11 +3,12 @@
 
 #include "lib.h"
 #include "cursor.h"
+#include "terminal.h"
 
 #define VIDEO       0xB8000
 #define NUM_COLS    80
 #define NUM_ROWS    25
-#define ATTRIB      0x3
+#define ATTRIB      0x3 + current_terminal_id
 
 
 static char* video_mem = (char *)VIDEO;

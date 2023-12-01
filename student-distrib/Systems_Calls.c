@@ -239,17 +239,25 @@ int32_t execute(const uint8_t* command) {
 
     pcb_array[target_pid]->prev_esp = (uint8_t*)esp_value;
     pcb_array[target_pid]->prev_ebp = (uint8_t*)ebp_value;
-
+    if (in_a_pit_interrupt == 1){
+        in_a_pit_interrupt = 0; 
+        
+        send_eoi(0); 
+        // sti();
+    }
     // Perform an iret to switch to the user program
     asm volatile("pushl %0 \n"
                   "pushl %1 \n"
                   "pushfl   \n"
+                  "popl %%eax   \n"
+                  "orl $0x200, %%eax \n"
+                  "pushl %%eax   \n"
                   "pushl %2 \n"
                   "pushl %3 \n"
                   "iret     \n"
                 : /* no output */
                 : "r" (USER_DS), "r" (START_OF_USER_STACK - sizeof(uint32_t)), "r" (USER_CS), "r" (start_adrr)
-                : "memory");
+                : "memory", "cc", "%eax");
 
    
     return 0;

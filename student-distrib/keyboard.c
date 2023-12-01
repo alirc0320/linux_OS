@@ -89,6 +89,7 @@ int keyboard_interrupt() {
     // keyboard_buffer = ''; 
     // char* temp_buf; //this is what well write with 
     scan_code = inb(0x60);  // Read the scan code from the keyboard controller. x60 is the keyboard data port 
+    send_eoi(1);  
     // write(keyboard_buffer, 0);  //call write to write to the buffer
     // read(keyboard_buffer, 0); //prints buffer to screen on enter 
     if (alt_flag == 1){
