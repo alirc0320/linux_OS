@@ -15,7 +15,7 @@ int shift_flag = 0;
 int capslock_flag = 0;
 int alt_flag = 0; 
 int kb_flag = 0; 
-int enter_flag = 0; 
+//int terminal_array[current_terminal_id].enter_flag = 0; 
 /* Initialize the Real-Time Clock (RTC)
  *
  * This function initializes the Real-Time Clock (RTC) for system timekeeping.
@@ -314,9 +314,9 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
     //  }
     //printf("read");
     // if (scan_code == 0x9C){
-    //         enter_flag = 0; 
+    //         terminal_array[current_terminal_id].enter_flag = 0; 
     //     } 
-    // if (enter_flag == 1)
+    // if (terminal_array[current_terminal_id].enter_flag == 1)
     
     
     // int i; 
@@ -331,9 +331,9 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
         nbytes = 128; 
     }
     //printf("nbytes: %d\n", nbytes);
-    while (enter_flag == 1){
+    while (terminal_array[current_terminal_id].enter_flag == 1){
         if (scan_code == 0x9C){
-            enter_flag = 0; 
+            terminal_array[current_terminal_id].enter_flag = 0; 
             break; 
         }
             
@@ -350,7 +350,7 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
         //             //print new line after printing the whole buffer 
         // init_buffer();      //reinitialize the buffer 
         // return 0; 
-    if (scan_code == 0x1C && enter_flag != 1){
+    if (scan_code == 0x1C && terminal_array[current_terminal_id].enter_flag != 1){
          //char* new_buf = (char*)buf;
     putc('\n'); 
     // for (i = 0; i< nbytes; i++){
@@ -363,7 +363,7 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
     //putc('\n'); 
     memcpy(buf, keyboard_buffer, nbytes);
     //printf("left for loop");
-    enter_flag = 1; 
+    terminal_array[current_terminal_id].enter_flag = 1; 
     }
     init_buffer(); 
     //printf("left read");

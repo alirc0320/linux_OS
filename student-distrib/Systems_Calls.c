@@ -56,7 +56,7 @@ int32_t halt(uint8_t status){
        }
        close_syscall(i); // Close the file descriptors for the current process
    } 
-
+pcb_array[target_pid]->global_pcb_value --; 
    pcb_array[target_pid] = NULL; 
 
    // Write Parent process’ info back to TSS(esp0)
@@ -68,10 +68,12 @@ int32_t halt(uint8_t status){
    
     if(target_pid == 0){ //changed this from == 0 to <= 2 bc the first 3 things in the array are the parent ppids
         execute((const uint8_t*)"shell"); 
-        }
+    }
 
+    
     target_pid--;
-    global_pcb_counter --; 
+    global_pcb_counter --; //fix this yo uuuuubheeeeeee
+    
     //target_pid = pcb_array[target_pid]->parent_pid; 
 
 
@@ -103,27 +105,39 @@ int32_t halt(uint8_t status){
  */
 int32_t execute(const uint8_t* command) {
     cli(); 
-    // if (in_a_pit_interrupt == 0){
-    //     int old = counter;
-    //     counter = current_terminal_id; 
-    //     register uint32_t ebp_value asm("ebp"); //cuirrentm vals
-    //     register uint32_t esp_value asm("esp");
-    //     save_old(old, counter, ebp_value, esp_value); 
-    //     asm volatile (" \
-    //     movl %%cr3, %%eax ; \
-    //     movl %%eax, %%cr3 ; \
-    //     " : /* no outputs */ \
-    //     : /* no inputs */ \
-    //     : "eax", "cc");
-    //     program_pages(pcb_array[target_pid]->global_pcb_value);
-    //     //counter = (counter + 1)%3;
-    //     restore_new(counter); 
-    // }
+    
+    if (in_a_pit_interrupt == 0){
+        // int old = counter;
+        // counter = current_terminal_id; 
+        // register uint32_t ebp_value asm("ebp"); //cuirrentm vals
+        // register uint32_t esp_value asm("esp");
+        // save_old(old, counter, ebp_value, esp_value); 
+        // asm volatile (" \
+        // movl %%cr3, %%eax ; \
+        // movl %%eax, %%cr3 ; \
+        // " : /* no outputs */ \
+        // : /* no inputs */ \
+        // : "eax", "cc");
+        // program_pages(pcb_array[target_pid]->global_pcb_value);
+        // //counter = (counter + 1)%3;
+        // restore_new(counter); 
+
+        int i; 
+        for (i = 0; i< 6; i++){
+            terminal_array[counter].pcb_array[i] = pcb_array[i]; //store cb array of what you are about to change from
+        pcb_array[i] = terminal_array[current_terminal_id].pcb_array[i];
+        }
+
+    terminal_array[counter].pid = target_pid; 
+    target_pid = terminal_array[current_terminal_id].pid; 
+    }
 
 
-    // if (global_pcb_counter >= 6){
-    //     return 1; //no space
-    // }
+    if (global_pcb_counter >= 6){
+        return 1; //no space
+    }
+
+   
     uint8_t name[32];
     dentry_t temp_dentry[1];
     int i = 0;
@@ -264,6 +278,9 @@ int32_t execute(const uint8_t* command) {
         // send_eoi(0); 
         // sti();
     }
+    printf("Target_pid: %d\n", target_pid);
+    printf("Global_pid: %d\n", global_pcb_counter);
+    
     // Perform an iret to switch to the user program
     asm volatile("pushl %0 \n"
                   "pushl %1 \n"

@@ -26,6 +26,7 @@ typedef struct terminal {
   uint32_t esp0;
   int global_pcb_index; //so we know what we are paging w
   int global_pcb_value;
+  volatile int enter_flag; 
 } terminal_t;
 
 

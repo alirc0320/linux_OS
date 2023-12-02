@@ -26,9 +26,9 @@ void init_pit(){
     outb(SET_ACCESS_MODE, PIT_MODE);
     outb(divisor & 0xFF, 0x40);             // LSB
     outb((divisor >> 8) & 0xFF, 0x40);      // MSB
-    counter = -1; 
+    counter = 0; 
     enable_irq(0);
-    // terminal_init();
+   // terminal_init();
     
 }
 
@@ -36,28 +36,25 @@ void init_pit(){
 
 //pit handler 
 void pit_interrupt(){
-    //  cli(); 
+    //cli();
     send_eoi(0); //moved up here above execute shell call bc of inf while loop in execute
-    // sti(); 
-    // int old = counter; 
+    //sti();
+    // int old = counter;
     // counter = (counter + 1 )%3;
-    // if (terminal_array[counter].turned_on == 0){
-    // //terminal_array[counter].turned_on = 1;  
-    // // cli(); 
-    // //  //moved up here above execute shell call bc of inf while loop in execute
-    // // sti(); 
-    // //execute("shell"); 
+    if (terminal_array[counter].turned_on == 0){
+    //terminal_array[counter].turned_on = 1;  
+    // cli();
+    //  //moved up here above execute shell call bc of inf while loop in execute
+    // sti();
+    //execute("shell");
     // register uint32_t ebp_value asm("ebp"); //cuirrentm vals
     // register uint32_t esp_value asm("esp");
     // save_old(old, counter, ebp_value, esp_value);
-    // in_a_pit_interrupt = 1; 
+    // in_a_pit_interrupt = 1;
     // terminal_switch(counter);
-    // }
-       
-    // process_switch(counter);
-    //counter = (counter + 1)%3;
-    // cli(); 
-    // send_eoi(0); //moved up here above execute shell call bc of inf while loop in execute
-    // sti(); 
+    }
+
+    process_switch(counter);
+
 }
 

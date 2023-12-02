@@ -177,7 +177,6 @@ void entry(unsigned long magic, unsigned long addr) {
     init_cursor();
     clear();
     init_pit();
-    terminal_init();
     
     
     sti();
@@ -190,6 +189,7 @@ void entry(unsigned long magic, unsigned long addr) {
 #endif
     /* Execute the first program ("shell") ... */
     // clear();
+        terminal_init();
 
     
     

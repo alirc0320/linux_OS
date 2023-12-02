@@ -29,6 +29,7 @@ void terminal_init(){
         terminal_array[i].buffer_character_count = 0;
         terminal_array[i].terminal_id = i;
          terminal_array[i].buffer_index = 0; 
+         terminal_array[i].enter_flag = 0;
         //update_cursor(terminal_array[i].curr_x, terminal_array[i].curr_y);
         terminal_array[i].pid = 0;
         terminal_array[i].turned_on = 0;
@@ -43,15 +44,52 @@ void terminal_init(){
 
 
 void process_switch (uint32_t process_id){
-//cli(); 
+cli(); 
+
+if (terminal_array[process_id].turned_on == 0){
+    terminal_array[process_id].turned_on = 1;  
+    terminal_switch(process_id);
+  }
+
+if(terminal_array[process_id].turned_on == 0)
+  return;
+
+register uint32_t ebp_value asm("ebp"); //cuirrentm vals
+register uint32_t esp_value asm("esp");
+
+int old = process_id  -1; 
+  if (old < 0){
+    old = 2; 
+  }
+  if(terminal_array[old].turned_on == 0)
+  return;
+  save_old(old, process_id, ebp_value, esp_value); 
+
+
+  program_pages(pcb_array[target_pid]->global_pcb_value);
+
+
+    asm volatile (" \
+    movl %%cr3, %%eax ; \
+    movl %%eax, %%cr3 ; \
+    " : /* no outputs */ \
+    : /* no inputs */ \
+    : "eax", "cc");
+
+  
+  restore_new(process_id); 
+  counter = (counter + 1 )%3;
+  sti();
+
+
 //     register uint32_t ebp_value asm("ebp"); //cuirrentm vals
 //     register uint32_t esp_value asm("esp");
   
-//   int old = process_id  -1; 
-//   if (old < 0){
-//     old = 2; 
-//   }
-//     save_old(old, process_id, ebp_value, esp_value); 
+  // int old = process_id  -1; 
+  // if (old < 0){
+  //   old = 2; 
+  // }
+  //   save_old(old, process_id, ebp_value, esp_value); 
 
 
 //     program_pages(pcb_array[target_pid]->global_pcb_value);
@@ -123,15 +161,14 @@ sti();
 
 
 void terminal_switch(uint32_t terminal_id){
-
+  
   //////////////////////////////////////////////////////////////////
 
-  register uint32_t ebp_value asm("ebp"); //cuirrentm vals
-  register uint32_t esp_value asm("esp");
-  save_old(current_terminal_id, terminal_id, ebp_value, esp_value);
+  // register uint32_t ebp_value asm("ebp"); //cuirrentm vals
+  // register uint32_t esp_value asm("esp");
+  // save_old(current_terminal_id, terminal_id, ebp_value, esp_value);
    
   //////////////////////////////////////////////////////////////////
-
   strncpy(terminal_array[current_terminal_id].keyboard_buffer, keyboard_buffer, 128);
  terminal_array[current_terminal_id].buffer_index = keyboard_buffer_index;
 
@@ -158,26 +195,26 @@ strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
 
     current_terminal_id = terminal_id;
 
-    if (terminal_array[current_terminal_id].turned_on == 0){
-    terminal_array[current_terminal_id].turned_on = 1;  
+    // if (terminal_array[current_terminal_id].turned_on == 0){
+    // terminal_array[current_terminal_id].turned_on = 1;  
 
-    execute("shell"); 
-    }
+    // execute("shell"); 
+    // }
   
   //////////////////////////////////////////////////////////////////
 
-  program_pages(pcb_array[target_pid]->global_pcb_value);
+  // program_pages(pcb_array[target_pid]->global_pcb_value);
 
 
-    asm volatile (" \
-    movl %%cr3, %%eax ; \
-    movl %%eax, %%cr3 ; \
-    " : /* no outputs */ \
-    : /* no inputs */ \
-    : "eax", "cc");
+  //   asm volatile (" \
+  //   movl %%cr3, %%eax ; \
+  //   movl %%eax, %%cr3 ; \
+  //   " : /* no outputs */ \
+  //   : /* no inputs */ \
+  //   : "eax", "cc");
 
-  //counter = (counter + 1)%3;
-  restore_new(terminal_id); 
+  // //counter = (counter + 1)%3;
+  // restore_new(terminal_id); 
 
   //////////////////////////////////////////////////////////////////
 }
