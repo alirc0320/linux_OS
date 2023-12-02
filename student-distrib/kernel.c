@@ -165,6 +165,7 @@ void entry(unsigned long magic, unsigned long addr) {
    // initializing paging
     init_paging(); 
 // initialize rtc
+
     init_RTC(); 
     //rtc_open("rtc"); //to set frequenct at 2 Hz
     //int balls = 8; 
@@ -189,13 +190,13 @@ void entry(unsigned long magic, unsigned long addr) {
 #endif
     /* Execute the first program ("shell") ... */
     // clear();
-        terminal_init();
+        
 
     
     
-    //  //execute((const uint8_t*)"shell");
+    //  execute((const uint8_t*)"shell");
     //   //execute("shell");
-    //   terminal_init(); 
+      terminal_init(); 
      
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");

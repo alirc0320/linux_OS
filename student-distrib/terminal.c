@@ -43,41 +43,41 @@ void terminal_init(){
 
 
 
-void process_switch (uint32_t process_id){
+void process_switch (){
 cli(); 
 
-if (terminal_array[process_id].turned_on == 0){
-    terminal_array[process_id].turned_on = 1;  
-    terminal_switch(process_id);
+if (terminal_array[counter].turned_on == 0){
+    terminal_array[counter].turned_on = 1;  
+     execute((const uint8_t*)"shell");
+     //terminal_switch(counter)
   }
 
-if(terminal_array[process_id].turned_on == 0)
-  return;
+
 
 register uint32_t ebp_value asm("ebp"); //cuirrentm vals
 register uint32_t esp_value asm("esp");
 
-int old = process_id  -1; 
+int old = counter  -1; 
   if (old < 0){
     old = 2; 
   }
   if(terminal_array[old].turned_on == 0)
   return;
-  save_old(old, process_id, ebp_value, esp_value); 
+  save_old(old, counter, ebp_value, esp_value); 
 
 
-  program_pages(pcb_array[target_pid]->global_pcb_value);
+  // program_pages(pcb_array[global_pcb_counter]->global_pcb_value);
 
 
-    asm volatile (" \
-    movl %%cr3, %%eax ; \
-    movl %%eax, %%cr3 ; \
-    " : /* no outputs */ \
-    : /* no inputs */ \
-    : "eax", "cc");
+  //   asm volatile (" \
+  //   movl %%cr3, %%eax ; \
+  //   movl %%eax, %%cr3 ; \
+  //   " : /* no outputs */ \
+  //   : /* no inputs */ \
+  //   : "eax", "cc");
 
   
-  restore_new(process_id); 
+  restore_new(counter); 
   counter = (counter + 1 )%3;
   sti();
 
@@ -116,8 +116,8 @@ void save_old(int cur, int new, register uint32_t ebp_value,register uint32_t es
 //get rid of pointers
     terminal_array[cur].esp =  esp_value; 
     terminal_array[cur].ebp =  ebp_value; 
-    terminal_array[cur].ss =  tss.ss0; 
-    terminal_array[cur].esp0 = tss.esp0;
+    // terminal_array[cur].ss =  tss.ss0; 
+    // terminal_array[cur].esp0 = tss.esp0;
 
     if(new > 2 || new < 0){
         return;
