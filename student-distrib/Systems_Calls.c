@@ -10,7 +10,7 @@
 #include "terminal.h"
 #include "pit.h"
 
-
+int is_base_shell = 0; 
 /* Function to halt the currently executing process
  * 
  * Restores the parent process's data and paging, clears file descriptors,
@@ -21,7 +21,10 @@
  * Return: 0 on success (or 256 if status is 255)
  */
 int32_t halt(uint8_t status){
-
+   if(target_pid == 0){ //changed this from == 0 to <= 2 bc the first 3 things in the array are the parent ppids
+        is_base_shell = 1; 
+        execute((const uint8_t*)"shell"); 
+    }
      int i;
 
 
@@ -66,9 +69,7 @@ pcb_array[target_pid]->global_pcb_value --;
    tss.ss0 = KERNEL_DS;
    my_pids[global_pcb_counter] = 0;
    
-    if(target_pid == 0){ //changed this from == 0 to <= 2 bc the first 3 things in the array are the parent ppids
-        execute((const uint8_t*)"shell"); 
-    }
+ 
 
     
     target_pid--;
@@ -176,7 +177,7 @@ int32_t execute(const uint8_t* command) {
 
 
  
-
+if (is_base_shell == 0){
     
     // Create a PCB and set the target PID
     int flag = 0; 
@@ -211,7 +212,10 @@ int32_t execute(const uint8_t* command) {
 
 // 
     
-
+}
+else{
+    is_base_shell = 0; 
+}
 ///////////////////////////////////////////GETARGS///////////////////////////////////////////////////////////////////////////////////////////
     
     for (i = 0; i < 128; i++) { // 128 is to ensure the full args get cleared as intended

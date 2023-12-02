@@ -161,7 +161,7 @@ strncpy(keyboard_buffer, terminal_array[terminal_id].keyboard_buffer ,128);
     if (terminal_array[current_terminal_id].turned_on == 0){
     terminal_array[current_terminal_id].turned_on = 1;  
 
-    execute("shell"); 
+    execute((const uint8_t*)"shell");
     }
   
   //////////////////////////////////////////////////////////////////
