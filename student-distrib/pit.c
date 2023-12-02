@@ -38,9 +38,15 @@ void init_pit(){
 //pit handler 
 void pit_interrupt(){
     //cli();
+    
     send_eoi(0); //moved up here above execute shell call bc of inf while loop in execute
+
+    // if(terminal_array[counter].turned_on ==0){
+    //     terminal_switch(counter);
+    // }
    
-    process_switch();
+    // process_switch();
+    
 
 }
 

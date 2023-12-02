@@ -106,31 +106,31 @@ pcb_array[target_pid]->global_pcb_value --;
 int32_t execute(const uint8_t* command) {
     cli(); 
     
-    if (in_a_pit_interrupt == 0){
-        // int old = counter;
-        // counter = current_terminal_id; 
-        // register uint32_t ebp_value asm("ebp"); //cuirrentm vals
-        // register uint32_t esp_value asm("esp");
-        // save_old(old, counter, ebp_value, esp_value); 
-        // asm volatile (" \
-        // movl %%cr3, %%eax ; \
-        // movl %%eax, %%cr3 ; \
-        // " : /* no outputs */ \
-        // : /* no inputs */ \
-        // : "eax", "cc");
-        // program_pages(pcb_array[target_pid]->global_pcb_value);
-        // //counter = (counter + 1)%3;
-        // restore_new(counter); 
+    // if (in_a_pit_interrupt == 0){
+    //     // int old = counter;
+    //     // counter = current_terminal_id; 
+    //     // register uint32_t ebp_value asm("ebp"); //cuirrentm vals
+    //     // register uint32_t esp_value asm("esp");
+    //     // save_old(old, counter, ebp_value, esp_value); 
+    //     // asm volatile (" \
+    //     // movl %%cr3, %%eax ; \
+    //     // movl %%eax, %%cr3 ; \
+    //     // " : /* no outputs */ \
+    //     // : /* no inputs */ \
+    //     // : "eax", "cc");
+    //     // program_pages(pcb_array[target_pid]->global_pcb_value);
+    //     // //counter = (counter + 1)%3;
+    //     // restore_new(counter); 
 
-        int i; 
-        for (i = 0; i< 6; i++){
-            terminal_array[counter].pcb_array[i] = pcb_array[i]; //store cb array of what you are about to change from
-        pcb_array[i] = terminal_array[current_terminal_id].pcb_array[i];
-        }
+    //     int i; 
+    //     for (i = 0; i< 6; i++){
+    //         terminal_array[current_terminal_id].pcb_array[i] = pcb_array[i]; //store cb array of what you are about to change from
+    //     pcb_array[i] = terminal_array[counter].pcb_array[i];
+    //     }
 
-    terminal_array[counter].pid = target_pid; 
-    target_pid = terminal_array[current_terminal_id].pid; 
-    }
+    // terminal_array[counter].pid = target_pid; 
+    // target_pid = terminal_array[current_terminal_id].pid; 
+    // }
 
 
     if (global_pcb_counter >= 6){
@@ -495,6 +495,7 @@ pcb_t* create_pcb(uint32_t pid) {
     init_file_descriptor(pcb_array[pid]->fd_array);
    
     pcb_array[pid]->global_pcb_value = global_pcb_counter; 
+    
     return pcb_array[pid]; 
 }
 
