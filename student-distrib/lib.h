@@ -1,10 +1,14 @@
+
 /* lib.h - Defines for useful library functions
  * vim:ts=4 noexpandtab
  */
 
 #ifndef _LIB_H
 #define _LIB_H
-
+// static int screen_x;
+// static int screen_y;
+ int screen_x;
+ int screen_y;
 #include "types.h"
 
 int32_t printf(int8_t *format, ...);
@@ -160,3 +164,4 @@ do {                                    \
 } while (0)
 
 #endif /* _LIB_H */
+

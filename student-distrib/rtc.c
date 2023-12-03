@@ -50,6 +50,7 @@ void init_RTC() {
  * Function: Handles RTC interrupt. If the 'flag' is set, it calls 'test_interrupts' function.
  *           Reads register C of the RTC to clear the interrupt and acknowledges the interrupt. */
 void rtc_interrupt() {
+    //flag = 1; 
    if (flag) {
        // test_interrupts();  // Call 'test_interrupts' function if the 'flag' is set.
         printf("1");

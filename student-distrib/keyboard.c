@@ -1,3 +1,6 @@
+
+
+
 #include "keyboard.h"
 #include "i8259.h"
 #include "lib.h"
@@ -5,13 +8,14 @@
 #include "cursor.h"
 #include "file_system.h"
 #include "System_Calls.h"
+#include "terminal.h"
  
 int ctrl_flag = 0; 
 int shift_flag = 0; 
 int capslock_flag = 0;
 int alt_flag = 0; 
 int kb_flag = 0; 
-int enter_flag = 0; 
+//int terminal_array[current_terminal_id].enter_flag = 0; 
 /* Initialize the Real-Time Clock (RTC)
  *
  * This function initializes the Real-Time Clock (RTC) for system timekeeping.
@@ -85,8 +89,27 @@ int keyboard_interrupt() {
     // keyboard_buffer = ''; 
     // char* temp_buf; //this is what well write with 
     scan_code = inb(0x60);  // Read the scan code from the keyboard controller. x60 is the keyboard data port 
+    send_eoi(1);  
     // write(keyboard_buffer, 0);  //call write to write to the buffer
     // read(keyboard_buffer, 0); //prints buffer to screen on enter 
+    if (alt_flag == 1){
+        if (scan_code == 0xBB && current_terminal_id !=0){
+            terminal_switch(0);
+            send_eoi(1); 
+            // /execute("shell");
+            return 0;
+        }
+         if (scan_code == 0xBC && current_terminal_id !=1){
+            terminal_switch(1);
+            send_eoi(1); 
+            return 0;
+        }
+        if (scan_code == 0xBD && current_terminal_id !=2 ){
+            terminal_switch(2);
+            send_eoi(1); 
+            return 0;
+        }
+    }
     
      if (scan_code == 0x3A){//Caps lock key code 
         capslock_flag += 1; // Increment the capslock_flag by 1.
@@ -249,6 +272,7 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
  * Outputs: None (void)
  */
  int32_t write (int32_t fd, const void* buf, int32_t nbytes){//need to add fd as a function once file system worknig
+  cli(); 
    if (fd != 1){
     return -1; 
    }
@@ -264,6 +288,7 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
     putc (new_buf[i]);
    }
    
+   sti(); 
    return nbytes; 
 }
 
@@ -289,9 +314,9 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
     //  }
     //printf("read");
     // if (scan_code == 0x9C){
-    //         enter_flag = 0; 
+    //         terminal_array[current_terminal_id].enter_flag = 0; 
     //     } 
-    // if (enter_flag == 1)
+    // if (terminal_array[current_terminal_id].enter_flag == 1)
     
     
     // int i; 
@@ -306,9 +331,9 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
         nbytes = 128; 
     }
     //printf("nbytes: %d\n", nbytes);
-    while (enter_flag == 1){
+    while (terminal_array[current_terminal_id].enter_flag == 1){
         if (scan_code == 0x9C){
-            enter_flag = 0; 
+            terminal_array[current_terminal_id].enter_flag = 0; 
             break; 
         }
             
@@ -325,7 +350,7 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
         //             //print new line after printing the whole buffer 
         // init_buffer();      //reinitialize the buffer 
         // return 0; 
-    if (scan_code == 0x1C && enter_flag != 1){
+    if (scan_code == 0x1C && terminal_array[current_terminal_id].enter_flag != 1){
          //char* new_buf = (char*)buf;
     putc('\n'); 
     // for (i = 0; i< nbytes; i++){
@@ -338,7 +363,7 @@ if (scan_code == 0x0F) { // Tab is keycode 0F.
     //putc('\n'); 
     memcpy(buf, keyboard_buffer, nbytes);
     //printf("left for loop");
-    enter_flag = 1; 
+    terminal_array[current_terminal_id].enter_flag = 1; 
     }
     init_buffer(); 
     //printf("left read");
@@ -388,3 +413,4 @@ int32_t terminal_close(int32_t fd){
 }
 
 int32_t (*terminal_jump_table[4]) () = {read, write, terminal_open, terminal_close};
+

@@ -17,6 +17,8 @@
 #include "file_system.h"
 #include "idt_handlers.h"
 #include "System_Calls.h"
+#include "terminal.h"
+#include "pit.h"
 
 #define RUN_TESTS
 
@@ -163,6 +165,7 @@ void entry(unsigned long magic, unsigned long addr) {
    // initializing paging
     init_paging(); 
 // initialize rtc
+
     init_RTC(); 
     //rtc_open("rtc"); //to set frequenct at 2 Hz
     //int balls = 8; 
@@ -173,34 +176,11 @@ void entry(unsigned long magic, unsigned long addr) {
     init_keyboard(); 
     
     init_cursor();
-
-  
-    //disable_cursor(); 
-    //open_syscall("shell");
-    // execute("shell");
-
-
-    /* Do not enable the fong until after you have set up your
-     * IDT correctly otherwise QEMU will triple fault and simple close
-     * without showing you any output */
-
-     // I think well have to uncomment this at some point
-
-
-    //printf("Enabling Interrupts\n");
-
-
-    //init_file_descriptor(); 
-
-
-
-    // printf("init worked");
-    // open_syscall("ls");
-    // execute("ls a");
-   // printf("execute done");
+    clear();
+    // init_pit();
+    
     
     sti();
-
 
  
 
@@ -209,8 +189,17 @@ void entry(unsigned long magic, unsigned long addr) {
    //launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
-    clear();
-     execute((const uint8_t*)"shell");
+    // clear();
+        
+
+    
+    
+    //  execute((const uint8_t*)"shell");
+    //   //execute("shell");
+    //init_pit();
+      terminal_init(); 
+      
+     
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
 }

@@ -2,6 +2,7 @@
 #define _SYSTEM_CALLS_H
 
 #include "tests.h"
+#include "file_system.h"
 
 // Define the start of the user stack
 #define START_OF_USER_STACK 0x8400000
@@ -9,6 +10,8 @@
 // Define the structure for Process Control Block (PCB)
 typedef struct pcb {
     // Process ID
+    uint8_t* esp_for_scheduling;
+    uint8_t* ebp_for_scheduling;
     uint32_t pid;
     int state;
     uint8_t* sp;
@@ -18,6 +21,9 @@ typedef struct pcb {
     void* pc;
     file_descriptor_struct_t fd_array[8];
     uint8_t args[128]; // Add an array to store command-line arguments
+    int parent_pid; 
+    int global_pcb_value;
+    
 } pcb_t;
 
 // Array of PCBs to store process information
@@ -31,6 +37,8 @@ uint32_t target_pid;
 
 // Flag to indicate if file descriptors are full
 int fd_full;
+
+int global_pcb_counter; 
 
 // System call functions
 

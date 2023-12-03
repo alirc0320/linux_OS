@@ -7,8 +7,10 @@
 #include "System_Calls.h"
 #include "x86_desc.h"
 #include "keyboard.h"
+#include "terminal.h"
+#include "pit.h"
 
-
+int is_base_shell = 0; 
 /* Function to halt the currently executing process
  * 
  * Restores the parent process's data and paging, clears file descriptors,
@@ -19,11 +21,18 @@
  * Return: 0 on success (or 256 if status is 255)
  */
 int32_t halt(uint8_t status){
+   if(target_pid == 0){ //changed this from == 0 to <= 2 bc the first 3 things in the array are the parent ppids
+        is_base_shell = 1; 
+        execute((const uint8_t*)"shell"); 
+    }
+     int i;
+
+
 
     // Restore parent data (The specific data being referred to is not documented here, but it's about restoring some context data from the parent process.)
    uint32_t RETURN_VALUE;
    RETURN_VALUE = (uint32_t)status; // we sign extend the status for RETURN_VALUE
-   int i;
+  
 
    if(status == 255){ // the provided value for exception within halt
        RETURN_VALUE = 256;
@@ -40,7 +49,8 @@ int32_t halt(uint8_t status){
    : "eax", "cc");
 
    // Restore parent paging (from ls back to shell)
-   program_pages(target_pid-1);
+   program_pages(pcb_array[target_pid - 1]->global_pcb_value);
+   //program_pages(pcb_array[target_pid]->parent_pid);
 
    // Clear file descriptor array (Resetting the file descriptor entries for the current process)
    for(i = 0; i < 8; i++){ // 8 because we are iterating over all 8 indeces of the fd array 
@@ -48,18 +58,24 @@ int32_t halt(uint8_t status){
            break;
        }
        close_syscall(i); // Close the file descriptors for the current process
-   }
+   } 
+pcb_array[target_pid]->global_pcb_value --; 
+   pcb_array[target_pid] = NULL; 
 
    // Write Parent process’ info back to TSS(esp0)
-   tss.esp0 = 0x800000 - 4; // THIS IS 8MB - 4 which is the pointer to the start of the shell program
+   tss.esp0  = (uint32_t)ESP;
+   //tss.esp0 = 0x800000 - (0x2000 * (global_pcb_counter)) - 4;
+   //tss.esp0 = 0x800000 - 4; // THIS IS 8MB - 4 which is the pointer to the start of the shell program
    tss.ss0 = KERNEL_DS;
-   my_pids[target_pid] = 0;
+   my_pids[global_pcb_counter] = 0;
    
-    if(pcb_array[target_pid]->pid == 0){ 
-        execute((const uint8_t*)"shell"); 
-        }
+ 
 
+    
     target_pid--;
+    global_pcb_counter --; //fix this yo uuuuubheeeeeee
+    
+    //target_pid = pcb_array[target_pid]->parent_pid; 
 
 
    // Jump to execute return (Switch back to the parent process)
@@ -89,6 +105,35 @@ int32_t halt(uint8_t status){
  * Return: Returns a value if the program execution is successful, or -1 on failure
  */
 int32_t execute(const uint8_t* command) {
+    cli(); 
+    
+    // if (in_a_pit_interrupt == 0){
+    //     // int old = counter;
+    //     // counter = current_terminal_id; 
+    //     // register uint32_t ebp_value asm("ebp"); //cuirrentm vals
+    //     // register uint32_t esp_value asm("esp");
+    //     // save_old(old, counter, ebp_value, esp_value); 
+
+    //     // program_pages(pcb_array[target_pid]->global_pcb_value);
+    //     // //counter = (counter + 1)%3;
+    //     // restore_new(counter); 
+
+    //     int i; 
+    //     for (i = 0; i< 6; i++){
+    //         terminal_array[current_terminal_id].pcb_array[i] = pcb_array[i]; //store cb array of what you are about to change from
+    //     pcb_array[i] = terminal_array[counter].pcb_array[i];
+    //     }
+
+    // terminal_array[counter].pid = target_pid; 
+    // target_pid = terminal_array[current_terminal_id].pid; 
+    // }
+
+
+    if (global_pcb_counter >= 6){
+        return 1; //no space
+    }
+
+   
     uint8_t name[32];
     dentry_t temp_dentry[1];
     int i = 0;
@@ -125,25 +170,47 @@ int32_t execute(const uint8_t* command) {
     if (boofer[0] != 0x7f || boofer[1] != 0x45 || boofer[2] != 0x4c || boofer[3] != 0x46)
         return -1;
 
+
+ 
+if (is_base_shell == 0){
+    
     // Create a PCB and set the target PID
+    int flag = 0; 
     for (i = 0; i < 6; i++) { // 6 because there are a maximum of 6 programs we can run in our system
-        if (my_pids[i] == 0)
+        if (my_pids[i] == 0){
+            flag = 1; 
             break;
+        }        
     }
 
-    if (i == 6) // if we are the max number of programs return -1
+    if (flag == 0) // if we are the max number of programs return -1
         return -1;
 
     my_pids[i] = 1;
-    target_pid = i;
+    global_pcb_counter = i;
+
+
+
+       //set target pid
+    for (i = 0; i< 6; i++){
+        if (pcb_array[i] == NULL){
+            target_pid = i; 
+            break; 
+        }
+    }
 
     // Get a PCB structure and set its properties
     pcb = create_pcb(target_pid);
+    //global_pcb_counter ++; //where do we increment this?!?!??!
     pcb->pid = target_pid;
     pcb->inode_num = temp_dentry->inode_num;
 
-
-
+// 
+    
+}
+else{
+    is_base_shell = 0; 
+}
 ///////////////////////////////////////////GETARGS///////////////////////////////////////////////////////////////////////////////////////////
     
     for (i = 0; i < 128; i++) { // 128 is to ensure the full args get cleared as intended
@@ -180,7 +247,7 @@ int32_t execute(const uint8_t* command) {
       : /* no inputs */ \
       : "eax", "cc");
 
-    program_pages(target_pid);
+    program_pages(pcb_array[target_pid]->global_pcb_value);
     uint8_t* pointer = (uint8_t*)0x8048000; // This is the address to the start of the program image
     read_data(temp_dentry->inode_num, 0, pointer,0x8400000 - 0x8048000); // the size is 132MB - start of our prog img
     // uint8_t* ptr2 = 0x8049000;
@@ -195,7 +262,7 @@ int32_t execute(const uint8_t* command) {
     
 
     // Set ESP0 and SS0 for the TSS
-    tss.esp0 = 0x800000 - (0x2000 * (target_pid + 1)) - 4; // 8MB - (8KB * current_pid) - 4 bytes
+    tss.esp0 = 0x800000 - (0x2000 * (global_pcb_counter + 1)) - 4; // 8MB - (8KB * current_pid) - 4 bytes
     tss.ss0 = KERNEL_DS;
 
     // Save the previous ESP and EBP values
@@ -204,19 +271,32 @@ int32_t execute(const uint8_t* command) {
 
     pcb_array[target_pid]->prev_esp = (uint8_t*)esp_value;
     pcb_array[target_pid]->prev_ebp = (uint8_t*)ebp_value;
-
+    if (in_a_pit_interrupt == 1){
+        in_a_pit_interrupt = 0; 
+        
+        // send_eoi(0); 
+        // sti();
+    }
+    // printf("Target_pid: %d\n", target_pid);
+    // printf("Global_pid: %d\n", global_pcb_counter);
+    
     // Perform an iret to switch to the user program
     asm volatile("pushl %0 \n"
                   "pushl %1 \n"
                   "pushfl   \n"
+                  "popl %%eax   \n"
+                  "orl $0x200, %%eax \n"
+                  "pushl %%eax   \n"
                   "pushl %2 \n"
                   "pushl %3 \n"
                   "iret     \n"
                 : /* no output */
                 : "r" (USER_DS), "r" (START_OF_USER_STACK - sizeof(uint32_t)), "r" (USER_CS), "r" (start_adrr)
-                : "memory");
+                : "memory", "cc", "%eax");
 
+   
     return 0;
+    
 }
 
 
@@ -404,7 +484,7 @@ uint8_t get_new_pid() {
  */
 pcb_t* create_pcb(uint32_t pid) {
     // Calculate the PCB's memory location based on the PID
-    pcb_t* temp_pcb = (pcb_t*)(0x800000 - (pid + 1) * 0x2000); // 8MC - current_pid * 8 KB
+    pcb_t* temp_pcb = (pcb_t*)(0x800000 - (global_pcb_counter + 1) * 0x2000); // 8MB - current_pid * 8 KB
     temp_pcb->pid = pid; 
     temp_pcb->state = 1; 
 
@@ -412,7 +492,9 @@ pcb_t* create_pcb(uint32_t pid) {
 
     // Initialize the PCB's file descriptor array
     init_file_descriptor(pcb_array[pid]->fd_array);
-
+   
+    pcb_array[pid]->global_pcb_value = global_pcb_counter; 
+    
     return pcb_array[pid]; 
 }
 

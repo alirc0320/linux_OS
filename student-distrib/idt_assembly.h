@@ -28,6 +28,7 @@ void security_exception_handler_asm();              // Security Exception Handle
 void rtc_interrupt_asm();                          // Real-Time Clock (RTC) Interrupt Handler
 void keyboard_interrupt_asm();                     // Keyboard Interrupt Handler
 void system_call_asm();                            // System Call Handler
+void pit_handler_asm(); 
 //void sys_call_table[];
 
 #endif 

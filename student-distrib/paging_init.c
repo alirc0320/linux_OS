@@ -1,5 +1,6 @@
 #include "x86_desc.h"
 #include "paging_asm.h"
+#include "terminal.h"
 
 
 
@@ -57,7 +58,7 @@ void init_paging(){
         pt[i].AVL = 0;
         pt[i].bits_31_12 = 0; // POST SHIFTING (i * 4096 >> 12)
 
-            if(i==184){ //we only want the entry at the video memory to be present - 
+            if(i==184 || i == 185 || i == 186 || i == 187){ //we only want the entry at the video memory to be present - 
                  pt[i].bits_31_12 = i; // this is the addr for the page in video mem. this is right shift by 12
                 pt[i].P = 1; //making it so that only this entry is present for the PTE 
                 pt[i].RW = 1;
@@ -86,8 +87,17 @@ void program_pages(uint8_t target_pid){  //, uint8_t my_boofer){
     pd[32].PS = 1; //set that the size should be 4MB 
     pd[32].AVL4 = 0; //???????since we're using the same 32 bits as when ps 0, we need to set the LSB of AVL4 to be 1, this sets the G bit high for flushing CR3 
     pd[32].bits_31_12 = 2048+target_pid*1024;//points to the pages in the kernel - we "skip" the PTE step 
-    
-    return;
+         
+         
+         asm volatile (" \
+   movl %%cr3, %%eax ; \
+   movl %%eax, %%cr3 ; \
+   " : /* no outputs */ \
+   : /* no inputs */ \
+   : "eax", "cc");
+
+ 
+        return;
 }
 
 void create_new_pte_for_video_memory(uint8_t** screen_start) {
@@ -139,4 +149,9 @@ void create_new_pte_for_video_memory(uint8_t** screen_start) {
     return;
 
 }
+
+
+// void switch_terminal_page(){
+    
+// }
 
