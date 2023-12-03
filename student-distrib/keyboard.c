@@ -97,17 +97,17 @@ int keyboard_interrupt() {
             terminal_switch(0);
             send_eoi(1); 
             // /execute("shell");
-            return;
+            return 0;
         }
          if (scan_code == 0xBC && current_terminal_id !=1){
             terminal_switch(1);
             send_eoi(1); 
-            return;
+            return 0;
         }
         if (scan_code == 0xBD && current_terminal_id !=2 ){
             terminal_switch(2);
             send_eoi(1); 
-            return;
+            return 0;
         }
     }
     

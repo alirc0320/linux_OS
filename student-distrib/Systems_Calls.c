@@ -63,7 +63,7 @@ pcb_array[target_pid]->global_pcb_value --;
    pcb_array[target_pid] = NULL; 
 
    // Write Parent process’ info back to TSS(esp0)
-   tss.esp0  = ESP;
+   tss.esp0  = (uint32_t)ESP;
    //tss.esp0 = 0x800000 - (0x2000 * (global_pcb_counter)) - 4;
    //tss.esp0 = 0x800000 - 4; // THIS IS 8MB - 4 which is the pointer to the start of the shell program
    tss.ss0 = KERNEL_DS;
@@ -113,12 +113,7 @@ int32_t execute(const uint8_t* command) {
     //     // register uint32_t ebp_value asm("ebp"); //cuirrentm vals
     //     // register uint32_t esp_value asm("esp");
     //     // save_old(old, counter, ebp_value, esp_value); 
-    //     // asm volatile (" \
-    //     // movl %%cr3, %%eax ; \
-    //     // movl %%eax, %%cr3 ; \
-    //     // " : /* no outputs */ \
-    //     // : /* no inputs */ \
-    //     // : "eax", "cc");
+
     //     // program_pages(pcb_array[target_pid]->global_pcb_value);
     //     // //counter = (counter + 1)%3;
     //     // restore_new(counter); 
@@ -282,8 +277,8 @@ else{
         // send_eoi(0); 
         // sti();
     }
-    printf("Target_pid: %d\n", target_pid);
-    printf("Global_pid: %d\n", global_pcb_counter);
+    // printf("Target_pid: %d\n", target_pid);
+    // printf("Global_pid: %d\n", global_pcb_counter);
     
     // Perform an iret to switch to the user program
     asm volatile("pushl %0 \n"
