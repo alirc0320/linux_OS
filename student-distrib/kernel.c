@@ -177,7 +177,7 @@ void entry(unsigned long magic, unsigned long addr) {
     
     init_cursor();
     clear();
-    // init_pit();
+     init_pit();
     
     
     sti();

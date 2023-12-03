@@ -106,32 +106,16 @@ pcb_array[target_pid]->global_pcb_value --;
  */
 int32_t execute(const uint8_t* command) {
     cli(); 
-    
-    // if (in_a_pit_interrupt == 0){
-    //     // int old = counter;
-    //     // counter = current_terminal_id; 
-    //     // register uint32_t ebp_value asm("ebp"); //cuirrentm vals
-    //     // register uint32_t esp_value asm("esp");
-    //     // save_old(old, counter, ebp_value, esp_value); 
+    //ali
+    if (global_pcb_counter >= 5){ //no more than 6 processes
+    printf("cannot execute");
 
-    //     // program_pages(pcb_array[target_pid]->global_pcb_value);
-    //     // //counter = (counter + 1)%3;
-    //     // restore_new(counter); 
-
-    //     int i; 
-    //     for (i = 0; i< 6; i++){
-    //         terminal_array[current_terminal_id].pcb_array[i] = pcb_array[i]; //store cb array of what you are about to change from
-    //     pcb_array[i] = terminal_array[counter].pcb_array[i];
-    //     }
-
-    // terminal_array[counter].pid = target_pid; 
-    // target_pid = terminal_array[current_terminal_id].pid; 
-    // }
-
-
-    if (global_pcb_counter >= 6){
-        return 1; //no space
+        return 0; //no space
     }
+
+    // if(target_pid >=3){
+    //     return -1;
+    // }
 
    
     uint8_t name[32];
@@ -151,7 +135,7 @@ int32_t execute(const uint8_t* command) {
     i = 0;
 
     // Create a filename array for the first word in the space-separated command
-    while (command[i] != ' ' && command[i] != '\0'){
+    while (command[i] != ' ' && command[i] != '\0' && i < 32){
         name[i] = command[i];
         i++;
     }
@@ -198,6 +182,7 @@ if (is_base_shell == 0){
             break; 
         }
     }
+    
 
     // Get a PCB structure and set its properties
     pcb = create_pcb(target_pid);
@@ -523,6 +508,10 @@ int32_t getargs(uint8_t* buf, int32_t nbytes) {
 
     // Calculate the length of the command-line arguments
     int32_t arg_length = strlen((const int8_t*)pcb_array[target_pid]->args) + 1;
+
+    if(arg_length - 1 > 32){
+        return -1; 
+    }
 
     // Check if the provided buffer has enough space for the arguments
     if (nbytes < arg_length) {
