@@ -1,55 +1,271 @@
-ACADEMIC INTEGRITY
------
-Please review the University of Illinois Student Code before starting,
-particularly all subsections of Article 1, Part 4 Academic Integrity and Procedure [here](http://studentcode.illinois.edu/article1_part4_1-401.html).
+# linux_OS: a small x86 operating system
 
-**§ 1‑402 Academic Integrity Infractions**
+A 32-bit x86 kernel written for ECE 391 (UIUC, Fall 2023, MP3). It boots with GRUB,
+runs user programs in ring 3, and has:
 
-(a).	Cheating. No student shall use or attempt to use in any academic exercise materials, information, study aids, or electronic data that the student knows or should know is unauthorized. Instructors are strongly encouraged to make in advance a clear statement of their policies and procedures concerning the use of shared study aids, examination files, and related materials and forms of assistance. Such advance notification is especially important in the case of take-home examinations. During any examination, students should assume that external assistance (e.g., books, notes, calculators, and communications with others) is prohibited unless specifically authorized by the Instructor. A violation of this section includes but is not limited to:
+- **Paging**: 4 KB pages for video memory, 4 MB pages for the kernel and for each program.
+- **Interrupts**: IDT, 8259 PIC, keyboard, RTC, PIT timer, and exception handlers.
+- **File system**: a read-only file system loaded as a boot module.
+- **10 system calls**: `halt`, `execute`, `read`, `write`, `open`, `close`, `getargs`,
+  `vidmap`, `set_handler`, `sigreturn` (the last two are stubs).
+- **3 terminals**: switch with Alt+F1 / F2 / F3.
+- **Round-robin scheduler**: programs on all three terminals run at the same time,
+  each getting a 10 ms time slice from the PIT.
 
-(1)	Allowing others to conduct research or prepare any work for a student without prior authorization from the Instructor, including using the services of commercial term paper companies. 
+> **Branches:** `working_os` has the fixed kernel described here. `broken_os` is the
+> kernel as it was submitted, which crashed when switching between processes (see
+> [What was fixed](#what-was-fixed)).
 
-(2)	Submitting substantial portions of the same academic work for credit more than once or by more than one student without authorization from the Instructors to whom the work is being submitted. 
+---
 
-(3) Working with another person without authorization to satisfy an individual assignment.
+## Run it on a MacBook
 
-(b) Plagiarism. No student shall represent the words, work, or ideas of another as his or her own in any academic endeavor. A violation of this section includes but is not limited to:
+### 1. Just boot it (no build needed)
 
-(1)	Copying: Submitting the work of another as one’s own. 
+The repo includes a ready-to-boot disk image, so you only need QEMU:
 
-(2)	Direct Quotation: Every direct quotation must be identified by quotation marks or by appropriate indentation and must be promptly cited. Proper citation style for many academic departments is outlined in such manuals as the MLA Handbook or K.L. Turabian’s A Manual for Writers of Term Papers, Theses and Dissertations. These and similar publications are available in the University bookstore or library. The actual source from which cited information was obtained should be acknowledged.
+```sh
+brew install qemu
+git clone https://github.com/alirc0320/linux_OS.git
+cd linux_OS/student-distrib
+qemu-system-i386 -drive file=mp3.img,format=raw -m 256
+```
 
-(3)	Paraphrase: Prompt acknowledgment is required when material from another source is paraphrased or summarized in whole or in part. This is true even if the student’s words differ substantially from those of the source. A citation acknowledging only a directly quoted statement does not suffice as an acknowledgment of any preceding or succeeding paraphrased material. 
+A QEMU window opens with `391OS>` on terminal 1. Click into the window to type.
+To get your mouse back, press **Ctrl+Option+G**.
 
-(4)	Borrowed Facts or Information: Information obtained in one’s reading or research that is not common knowledge must be acknowledged. Examples of common knowledge might include the names of leaders of prominent nations, basic scientific laws, etc. Materials that contribute only to one’s general understanding of the subject may be acknowledged in a bibliography and need not be immediately cited. One citation is usually sufficient to acknowledge indebtedness when a number of connected sentences in the paper draw their special information from one source.
+This works on both Apple Silicon and Intel Macs. On Apple Silicon, QEMU emulates the x86 CPU in software.
 
-(c) Fabrication. No student shall falsify or invent any information or citation in an academic endeavor. A violation of this section includes but is not limited to:
+### 2. Build from source
 
-(1)	Using invented information in any laboratory experiment or other academic endeavor without notice to and authorization from the Instructor or examiner. It would be improper, for example, to analyze one sample in an experiment and covertly invent data based on that single experiment for several more required analyses. 
+You need a cross-compiler that targets 32-bit x86 (the Mac's own `clang` can't build this kernel):
 
-(2)	Altering the answers given for an exam after the examination has been graded. 
+```sh
+brew install i686-elf-gcc qemu
+cd linux_OS/student-distrib
+make dep      # generate header dependencies (once, or after adding files)
+make          # compile, link bootimg, and write it into mp3.img
+make run      # boot mp3.img in QEMU
+```
 
-(3)	Providing false or misleading information for the purpose of gaining an academic advantage.
+`make` writes the new kernel into the disk image with `update_image.py`, a small
+Python script that edits the ext3 partition directly. It replaces the course's
+`debug.sh`, which needs Linux loop mounts. You need no `sudo` and no Docker.
 
-(d)	Facilitating Infractions of Academic Integrity. No student shall help or attempt to help another to commit an infraction of academic integrity, where one knows or should know that through one’s acts or omissions such an infraction may be facilitated. A violation of this section includes but is not limited to:
+The Makefile still works on Linux too (`make dep && sudo make`). It needs `gcc-multilib`.
 
-(1)	Allowing another to copy from one’s work. 
+### 3. Debug with gdb
 
-(2)	Taking an exam by proxy for someone else. This is an infraction of academic integrity on the part of both the student enrolled in the course and the proxy or substitute. 
+```sh
+make run DEBUG=1                  # QEMU waits for a debugger on localhost:1234
+# in another terminal:
+brew install i686-elf-gdb
+i686-elf-gdb bootimg -ex "target remote localhost:1234"
+```
 
-(3)	Removing an examination or quiz from a classroom, faculty office, or other facility without authorization.
+Then use `break scheduler`, `break execute`, `continue` and so on. `bootimg` has debug symbols.
 
-(e)	Bribes, Favors, and Threats. No student shall bribe or attempt to bribe, promise favors to or make threats against any person with the intent to affect a record of a grade or evaluation of academic performance. This includes conspiracy with another person who then takes the action on behalf of the student.
+---
 
-(f)	Academic Interference. No student shall tamper with, alter, circumvent, or destroy any educational material or resource in a manner that deprives any other student of fair access or reasonable use of that material or resource. 
+## Using the OS
 
-(1)	Educational resources include but are not limited to computer facilities, electronic data, required/reserved readings, reference works, or other library materials. 
+### Keys
 
-(2)	Academic interference also includes acts in which the student committing the infraction personally benefits from the interference, regardless of the effect on other students.
+| Keys | What it does |
+|---|---|
+| **Alt+F1 / Alt+F2 / Alt+F3** | Show terminal 1 / 2 / 3. Each terminal has its own text color (cyan, red, purple). |
+| Ctrl+L | Clear the current terminal |
+| Tab | Insert 4 spaces |
+| Shift, Caps Lock, Backspace | Work as usual. Lines are up to 127 characters. |
 
+**On a Mac keyboard, Alt is Option.** If F1-F3 control brightness or other system
+features, hold **fn** as well: **fn+Option+F1**. If macOS still grabs the keys, open
+the QEMU monitor (View → compatmonitor0, or Ctrl+Option+2), type `sendkey alt-f2`, then
+go back to the screen with Ctrl+Option+1.
 
-LEGAL
------
+### Programs
+
+Type these at the `391OS>` prompt:
+
+| Command | What it does |
+|---|---|
+| `ls` | List every file in the file system |
+| `cat <file>` | Print a file, e.g. `cat frame0.txt` or `cat verylargetextwithverylongname.tx` |
+| `grep <text>` | Print lines in any file that contain `<text>` |
+| `hello` | Asks for your name and greets you (tests keyboard `read`) |
+| `counter` | Prompts for a test number; `0`, `1` or `2` counts to 100, 10,000 or 100,000 |
+| `pingpong` | Draws a bouncing pattern forever, timed by the RTC |
+| `fish` | Animated fish (uses `vidmap` and the RTC); exits by itself after about 12 seconds |
+| `testprint` | Prints one line, the simplest possible program |
+| `syserr` | System call error tests; type `0` to run all 8 |
+| `sigtest 0` | Writes to a NULL pointer on purpose to test exception handling |
+| `shell` | Starts a nested shell; `exit` returns to the one below it |
+| `exit` | Quits the current shell. A terminal's base shell restarts automatically. |
+
+The kernel allows **6 processes at once**. The three base shells take three of them,
+so three more programs can run.
+
+---
+
+## Things to try
+
+### Scheduling: three programs at once
+
+1. On terminal 1, run `counter`, then type `2`.
+2. Press Alt+F2. Run `pingpong`.
+3. Press Alt+F3. Run `fish`.
+4. Switch between the terminals. All three keep running while hidden:
+   - The counter's number keeps jumping ahead.
+   - `pingpong` keeps moving.
+   - `fish` keeps animating into its own screen.
+
+   Nothing from one terminal shows up on another.
+
+### Terminals keep their own state
+
+- Type half a command on terminal 1, switch to terminal 2, and come back.
+  The half-typed line, cursor and screen are all still there.
+- `hello` on terminal 2 waits for input only from terminal 2. Terminals 1 and 3 keep working meanwhile.
+
+### Process create and exit across terminals
+
+These used to crash the kernel (see below), and now work:
+
+- Terminal 1: `exit`, then Alt+F3 and `ls`, then Alt+F1. Terminal 1 has a fresh shell.
+- Terminal 1: `shell`, then Alt+F2 and `shell`, then Alt+F1 and `exit`, then `ls`.
+  Then Alt+F2, and `ls` still works there.
+- Run `shell` four times on one terminal. The fourth prints `Max number of processes reached`.
+  `exit` frees the slots again.
+
+### Files and error handling
+
+- `cat frame0.txt`, `cat frame1.txt`, and `cat verylargetextwithverylongname.tx` (32 characters) all print.
+- `cat verylargetextwithverylongname.txt` (33 characters) is rejected, because file names are at most 32 characters.
+- `syserr`, then `0` prints `Overall Tests: PASS`.
+- `sigtest 0` prints `Page Fault Exception Caught!` and `program terminated by exception`,
+  and only that program dies.
+
+### Kernel unit tests
+
+`student-distrib/tests.c` holds the in-kernel tests from the early checkpoints
+(IDT, paging, file system). They are commented out inside `launch_tests()`, and the
+`launch_tests();` call in `kernel.c` is commented out too. To use one, uncomment
+both and run `make && make run`. The user programs above (`syserr`, `ls`, `cat`,
+`fish`, and so on) are the main tests now.
+
+---
+
+## Project layout
+
+```
+linux_OS/
+├── student-distrib/        # the kernel (the code we wrote)
+│   ├── boot.S              # multiboot header, sets up the boot stack, calls entry()
+│   ├── kernel.c            # entry(): GDT/TSS/LDT, PIC, paging, devices, then starts the terminals
+│   ├── x86_desc.S/.h       # GDT, IDT, TSS definitions (course-provided)
+│   ├── idt_init.c          # fills the IDT: exceptions, PIT/keyboard/RTC, int 0x80
+│   ├── idt_assembly.S      # assembly entry points for every interrupt and the syscall dispatcher
+│   ├── idt_handlers.c      # exception handlers (print, then kill the faulting program)
+│   ├── i8259.c             # PIC init, mask/unmask, EOI
+│   ├── paging_init.c       # page directory and tables, per-process 4 MB pages, vidmap mapping
+│   ├── paging_asm.S        # loads CR3 and turns on paging and 4 MB pages
+│   ├── Systems_Calls.c     # halt, execute, read, write, open, close, getargs, vidmap
+│   ├── file_system.c       # read-only file system: dentries, inodes, data blocks, file/dir ops
+│   ├── keyboard.c          # scancode handling, line editing, terminal read/write
+│   ├── terminal.c          # 3 terminals: setup, Alt+F switching, saved screens
+│   ├── pit.c               # PIT timer at 100 Hz and the round-robin scheduler
+│   ├── context_switch.S    # saves one kernel stack and resumes another
+│   ├── rtc.c               # RTC at 1024 Hz, with a separate rate for each open RTC file
+│   ├── lib.c               # printf/putc (each terminal has its own cursor), string helpers
+│   ├── cursor.c            # VGA text cursor
+│   ├── tests.c             # checkpoint unit tests
+│   ├── update_image.py     # writes bootimg into mp3.img on macOS
+│   ├── Makefile
+│   ├── bootimg             # the built kernel (ELF)
+│   ├── mp3.img             # bootable disk: GRUB + bootimg + filesys_img
+│   ├── filesys_img         # the file system image GRUB loads as a module
+│   └── BUG_LOG.txt         # bugs we hit and fixed during the semester
+├── syscalls/               # user programs (shell, ls, cat, grep, ...) and their syscall stubs (course-provided)
+├── fish/                   # the fish animation program (course-provided)
+├── fsdir/                  # files packed into filesys_img
+├── createfs, elfconvert    # Linux tools that build filesys_img from fsdir (course-provided)
+```
+
+### Memory layout
+
+| Address | Contents |
+|---|---|
+| 0xB8000 | VGA text memory (the visible screen) |
+| 0xB9000 / 0xBA000 / 0xBB000 | Saved screens for terminals 1 / 2 / 3 while they are hidden |
+| 4 MB to 8 MB | Kernel (one 4 MB page) |
+| Just below 8 MB | Six 8 KB blocks, one per process: PCB at the bottom, kernel stack on top |
+| 8 MB + 4 MB × slot | Physical memory for each process's program |
+| 128 MB (virtual) | The running program's 4 MB page. Programs load at 0x08048000. |
+| 132 MB (virtual) | `vidmap` page: the real screen, or the saved screen if that terminal is hidden |
+
+### How scheduling works
+
+- Every PIT tick (10 ms), `scheduler()` in `pit.c` moves the CPU to the next terminal. For that terminal it swaps in:
+  - its process list,
+  - its program's 4 MB page,
+  - its kernel stack in the TSS,
+  - its `vidmap` page.
+- `context_switch` then saves the current kernel stack pointer and resumes the next one.
+- Terminals 2 and 3 start on a small pre-built stack that runs `execute("shell")` the first time they're scheduled.
+- Switching terminals with Alt+F*n* only changes what's on screen and which terminal gets the keyboard. It doesn't touch the scheduler.
+
+---
+
+## What was fixed
+
+The `broken_os` branch is the kernel as submitted. It crashed with
+`Page Fault Exception Caught!` when processes exited while other terminals had
+programs running. The `working_os` branch fixes the following:
+
+**Scheduler and process bugs (the crashes)**
+- `halt` freed whichever process slot was handed out last, not the exiting
+  process's own slot. The next program could then overwrite another terminal's
+  running program and stack.
+- When a terminal's base shell exited and restarted, it used another process's kernel stack.
+- There was no real scheduler: the PIT only started the three shells, so programs
+  on hidden terminals were frozen. The new scheduler is round-robin, using `context_switch`.
+- The kernel turned interrupts on before the terminals were set up.
+- System calls could be interrupted halfway through changing the process tables.
+- Each process's kernel stack was placed one 8 KB block too low.
+- `halt` set the TSS kernel stack to the middle of the parent's stack instead of its top.
+
+**Other bugs**
+- `execute` copied 4 bytes into a 1-byte stack buffer when reading the program's entry point.
+- `read_dir` wrote past the end of its name buffer. It also shared one position across every process and assumed 17 files.
+- `open` succeeded on files that don't exist.
+- Reading past the end of a file returned garbage, and could crash.
+- Exceptions reported success (`halt((uint8_t)256)` is `halt(0)`). Most exceptions also froze the whole OS instead of killing the program.
+- `rtc_write` divided by zero for frequency 0. Programs on different terminals also changed each other's RTC rate.
+- Command arguments longer than 128 characters overflowed a buffer.
+- File names longer than 32 characters matched the first 32 characters.
+
+**Build**
+- Builds on macOS with `i686-elf-gcc`.
+- Modern-GCC flags: `-std=gnu89 -fcommon -fpermissive`.
+- `update_image.py` replaces the Linux-only `debug.sh`.
+
+## Known limitations
+
+- Signals (`set_handler`, `sigreturn`) are not implemented, so `sigtest` is only an exception test.
+- The file system is read-only, and only 6 processes can exist at once.
+- `filesys_img` can only be rebuilt on Linux (`createfs` is a Linux binary). The prebuilt image already has every program.
+
+---
+
+## Course notice
+
+ECE 391 MP3 starter code © University of Illinois. Please don't copy this code
+for a current offering of the course; see the
+[University of Illinois Student Code](http://studentcode.illinois.edu/article1_part4_1-401.html)
+on academic integrity.
+
+**LEGAL**
+
 Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose, without fee, and without written agreement is
 hereby granted, provided that the above copyright notice and the following
@@ -57,14 +273,13 @@ two paragraphs appear in all copies of this software.
 
 IN NO EVENT SHALL THE AUTHOR OR THE UNIVERSITY OF ILLINOIS BE LIABLE TO
 ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
-DAMAGES ARISING OUT  OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+DAMAGES ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
 EVEN IF THE AUTHOR AND/OR THE UNIVERSITY OF ILLINOIS HAS BEEN ADVISED
 OF THE POSSIBILITY OF SUCH DAMAGE.
 
 THE AUTHOR AND THE UNIVERSITY OF ILLINOIS SPECIFICALLY DISCLAIM ANY
 WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE
-
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE
 PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND NEITHER THE AUTHOR NOR
 THE UNIVERSITY OF ILLINOIS HAS ANY OBLIGATION TO PROVIDE MAINTENANCE,
-SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS."
+SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.

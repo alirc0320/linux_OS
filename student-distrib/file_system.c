@@ -3,7 +3,6 @@
 #include "idt_assembly.h"
 #include "System_Calls.h"
 
-static int dir_entry = 0; 
 /* Init File System - Initialize the file system
  * 
  * Initializes the file system, including the boot block, inodes, and data blocks.
@@ -54,8 +53,11 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
     if (fname == NULL)
         return -1;  // Not a valid string (null pointer)
 
-    while (fname[length] != '\0' && length < 32) { // get the length of the fname
+    while (length <= 32 && fname[length] != '\0') { // get the length of the fname
        length++;
+    }
+    if (length == 0 || length > 32) {
+        return -1;  // file names are 1 to 32 characters
     }
 
 
@@ -66,7 +68,7 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry) {
 ///strcpy(dentry->filename, fname);
   // memcpy(dentry->filename,fname, length);
 
-        for(i = 0; i < 63; i++){        ////WE NEED THE LENGTH AS A PARAMETER. 64: because 64 inodes 
+        for(i = 0; i < my_boot_block->dir_count && i < 63; i++){        // only search directory entries that exist
             if (strncmp((const int8_t *)fname, (const int8_t *)my_boot_block->direntries[i].filename,(uint32_t)32) == 0) {//if 0, means the strings are the same 
                 read_dentry_by_index(i, dentry);
                 return 0; 
@@ -120,7 +122,18 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
         return -1; 
     }
 
+    if(inode >= (uint32_t)my_boot_block->inode_count){
+        return -1;
+    }
+
     inode_t* tempInode = inodeArr[inode]; //create a temporary inode that holds just the current inode that we're getting data from 
+    if(tempInode == NULL){
+        return -1;
+    }
+
+    if(offset >= (uint32_t)tempInode->length || length == 0){
+        return 0; // at (or past) end of file, nothing to read
+    }
 
 //check this line
     if(length <0) {
@@ -134,7 +147,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
    
 //check this line
 
-    if(tempInode->length - offset < length){ //if length (what we want to read) is greater than remaining bytes - if offset + length is greater than file length
+    if((uint32_t)tempInode->length - offset < length){ //if length (what we want to read) is greater than remaining bytes - if offset + length is greater than file length
         length = tempInode->length - offset; //make the length the max bytes that can be read with the given offset 
     }
 
@@ -208,9 +221,11 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length
 int32_t read_file(int32_t fd, void* buf, int32_t nbytes){
     //uint8_t* new_buf = (uint8_t*)buf;
     int temp_offset = pcb_array[target_pid]->fd_array[fd].file_position;
-    pcb_array[target_pid]->fd_array[fd].file_position += nbytes;
-     
-    return read_data(pcb_array[target_pid]->fd_array[fd].inode, temp_offset, (uint8_t*)buf, nbytes);
+    int32_t bytes_read = read_data(pcb_array[target_pid]->fd_array[fd].inode, temp_offset, (uint8_t*)buf, nbytes);
+    if (bytes_read > 0) {
+        pcb_array[target_pid]->fd_array[fd].file_position += bytes_read; // only advance by what was actually read
+    }
+    return bytes_read;
 }
 
 /* Function to open a file
@@ -295,49 +310,29 @@ int32_t open_dir(const uint8_t* filename){
  * Return: The size of the directory entry read, or 0 if no more entries are available
  */
 int32_t read_dir(int32_t fd, void* buf, int32_t nbytes) {
-    int i, k;
-    int l;
-    dentry_t new_dentry[1];
-
-    // A check to include an unused variable in the code and avoid warnings
-    if (new_dentry->inode_num != 819289273) {
-        l = 1;
-    }
-
-    // Cast the buffer to uint8_t for byte-wise manipulation
+    int i;
+    int32_t entry;
     uint8_t* buffy = (uint8_t*)buf;
+    int8_t* name;
 
-    // Temporary buffer to store file names
-    uint8_t file_name[32];
-
-    // Initialize the file name buffer
-    for (k = 0; k < 32; k++) {
-        file_name[k] = 0;
+    if (buf == NULL || nbytes < 0) {
+        return -1;
     }
 
-    // Copy the file name from the directory entry to the temporary buffer
-    strncpy((int8_t*)file_name, (int8_t*)my_boot_block->direntries[dir_entry].filename, 32);
-
-    // Copy the file name from the temporary buffer to the output buffer
-    for (i = 0; i < 32; i++) {
-        buffy[i] = file_name[i];
+    // each open directory keeps its own position, so two programs listing at once do not interfere
+    entry = pcb_array[target_pid]->fd_array[fd].file_position;
+    if (entry >= my_boot_block->dir_count) {
+        return 0; // no more directory entries
     }
 
-    // Add a newline character after the file name
-    file_name[i] = '\n';
-
-    // Increment the directory entry index
-    dir_entry += 1;
-
-    // Check if there are more directory entries to read
-    if (dir_entry <= 17) {
-        return i; // Return the number of bytes copied into the buffer
-    } 
-    else {
-        // Reset the directory entry index and signal the end of entries
-        dir_entry = 0;
-        return 0; // Return 0 to indicate the end of directory entries
+    // copy the name (up to 32 characters, it is not null terminated when it is exactly 32)
+    name = my_boot_block->direntries[entry].filename;
+    for (i = 0; i < 32 && i < nbytes && name[i] != '\0'; i++) {
+        buffy[i] = name[i];
     }
+
+    pcb_array[target_pid]->fd_array[fd].file_position = entry + 1;
+    return i; // number of bytes copied into the buffer
 }
 
 

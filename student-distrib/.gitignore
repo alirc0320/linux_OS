@@ -1,1 +1,3 @@
 cifs498
+*.o
+Makefile.dep

@@ -178,9 +178,9 @@ void entry(unsigned long magic, unsigned long addr) {
     init_cursor();
     clear();
      init_pit();
-    
-    
-    sti();
+
+    // no sti() here: the first execute() turns interrupts on when it enters user mode,
+    // so the PIT can't run the scheduler before the terminals are set up
 
  
 

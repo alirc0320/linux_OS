@@ -71,6 +71,7 @@ void init_paging();
 void loadPageDirectory_asm(page_dir_t *pd);
 void program_pages(uint8_t target_pid);
 void create_new_pte_for_video_memory(uint8_t** screen_start);
+void update_vidmap(void);
 // void enablePaging_asm();
 // void loadPSE(); 
 #endif /* ASM */

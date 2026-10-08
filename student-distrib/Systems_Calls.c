@@ -21,62 +21,46 @@ int is_base_shell = 0;
  * Return: 0 on success (or 256 if status is 255)
  */
 int32_t halt(uint8_t status){
-   if(target_pid == 0){ //changed this from == 0 to <= 2 bc the first 3 things in the array are the parent ppids
+    int i;
+    uint32_t RETURN_VALUE;
+    uint32_t parent_slot;
+    uint8_t* ESP;
+    uint8_t* EBP;
+    pcb_t* pcb;
+
+    cli(); // exceptions also land here, so the scheduler must not run while pcbs are half torn down
+
+    RETURN_VALUE = (uint32_t)status;
+    if(status == 255){ // the provided value for exception within halt
+        RETURN_VALUE = 256;
+    }
+
+    pcb = pcb_array[target_pid];
+
+    // Close every file the process opened (0 and 1 are stdin/stdout and stay)
+    for(i = 2; i < 8; i++){ // 8 because we are iterating over all 8 indeces of the fd array 
+        close_syscall(i);
+    }
+
+    // The base shell of a terminal has no parent, so start a fresh shell in the same slot
+    if(target_pid == 0){
         is_base_shell = 1; 
         execute((const uint8_t*)"shell"); 
     }
-     int i;
 
+    ESP = pcb->prev_esp;
+    EBP = pcb->prev_ebp;
 
-
-    // Restore parent data (The specific data being referred to is not documented here, but it's about restoring some context data from the parent process.)
-   uint32_t RETURN_VALUE;
-   RETURN_VALUE = (uint32_t)status; // we sign extend the status for RETURN_VALUE
-  
-
-   if(status == 255){ // the provided value for exception within halt
-       RETURN_VALUE = 256;
-   }
-
-   uint8_t* ESP = pcb_array[target_pid]->prev_esp;
-   uint8_t* EBP = pcb_array[target_pid]->prev_ebp;
-
-   asm volatile (" \
-   movl %%cr3, %%eax ; \
-   movl %%eax, %%cr3 ; \
-   " : /* no outputs */ \
-   : /* no inputs */ \
-   : "eax", "cc");
-
-   // Restore parent paging (from ls back to shell)
-   program_pages(pcb_array[target_pid - 1]->global_pcb_value);
-   //program_pages(pcb_array[target_pid]->parent_pid);
-
-   // Clear file descriptor array (Resetting the file descriptor entries for the current process)
-   for(i = 0; i < 8; i++){ // 8 because we are iterating over all 8 indeces of the fd array 
-       if(pcb_array[target_pid]->fd_array[i].flags == 0){
-           break;
-       }
-       close_syscall(i); // Close the file descriptors for the current process
-   } 
-pcb_array[target_pid]->global_pcb_value --; 
-   pcb_array[target_pid] = NULL; 
-
-   // Write Parent process’ info back to TSS(esp0)
-   tss.esp0  = (uint32_t)ESP;
-   //tss.esp0 = 0x800000 - (0x2000 * (global_pcb_counter)) - 4;
-   //tss.esp0 = 0x800000 - 4; // THIS IS 8MB - 4 which is the pointer to the start of the shell program
-   tss.ss0 = KERNEL_DS;
-   my_pids[global_pcb_counter] = 0;
-   
- 
-
-    
+    // Free this process's own slot (not whichever slot was handed out last)
+    my_pids[pcb->global_pcb_value] = 0;
+    pcb_array[target_pid] = NULL; 
     target_pid--;
-    global_pcb_counter --; //fix this yo uuuuubheeeeeee
-    
-    //target_pid = pcb_array[target_pid]->parent_pid; 
 
+    // Restore parent paging (from ls back to shell) and the parent's kernel stack in the TSS
+    parent_slot = pcb_array[target_pid]->global_pcb_value;
+    program_pages(parent_slot);
+    tss.esp0 = KERNEL_STACK_TOP(parent_slot);
+    tss.ss0 = KERNEL_DS;
 
    // Jump to execute return (Switch back to the parent process)
    asm volatile("movl %0, %%esp \n"
@@ -88,11 +72,7 @@ pcb_array[target_pid]->global_pcb_value --;
             : "r" (ESP), "r" (EBP), "r" (RETURN_VALUE)
             : "memory");
 
-    if(status == 255){
-        return 256;
-    }
-
-    return 17;
+    return RETURN_VALUE;
 }
 
 /* Function to execute a user-level program
@@ -105,44 +85,41 @@ pcb_array[target_pid]->global_pcb_value --;
  * Return: Returns a value if the program execution is successful, or -1 on failure
  */
 int32_t execute(const uint8_t* command) {
-    cli(); 
-    //ali
-    if (global_pcb_counter >= 5){ //no more than 6 processes
-    printf("cannot execute");
-
-        return 0; //no space
-    }
-
-    // if(target_pid >=3){
-    //     return -1;
-    // }
-
-   
-    uint8_t name[32];
+    uint8_t name[33];           // 32 characters plus a null terminator
     dentry_t temp_dentry[1];
     int i = 0;
     int u = 0;
-    uint8_t boofer[32];
+    int arg_idx = 0;
+    uint8_t boofer[4];
     pcb_t* pcb;
-    uint8_t buffy[1];
+    uint32_t slot;
     uint32_t start_adrr;
     uint8_t args[128]; // Add an array to store command-line arguments
 
+    cli(); 
+
+    if (command == NULL){
+        return -1;
+    }
+
     // Check if the given command is an executable
-    for (i = 0; i < 32; i++) { // 32 because this is each character in the array that we are clearing
+    for (i = 0; i < 33; i++) { // clear the name, including the terminator
         name[i] = 0;
     }
-    i = 0;
 
-    // Create a filename array for the first word in the space-separated command
-    while (command[i] != ' ' && command[i] != '\0' && i < 32){
-        name[i] = command[i];
-        i++;
+    // Skip leading spaces, then copy the first word as the file name
+    while (command[u] == ' '){
+        u++;
     }
-    u = i; 
-
-
-
+    i = 0;
+    while (command[u] != ' ' && command[u] != '\0'){
+        if (i == 32){           // names are at most 32 characters
+            return -1;
+        }
+        name[i] = command[u];
+        i++;
+        u++;
+    }
 
     // If the file doesn't exist, return an error
     if (read_dentry_by_name(name, temp_dentry) == -1){
@@ -150,120 +127,77 @@ int32_t execute(const uint8_t* command) {
     }
 
     // Check if the file has the expected magic numbers signifying an executable
-    read_data(temp_dentry->inode_num, 0, boofer, 4);
+    if (read_data(temp_dentry->inode_num, 0, boofer, 4) != 4){
+        return -1;
+    }
     if (boofer[0] != 0x7f || boofer[1] != 0x45 || boofer[2] != 0x4c || boofer[3] != 0x46)
         return -1;
 
-
- 
-if (is_base_shell == 0){
-    
-    // Create a PCB and set the target PID
-    int flag = 0; 
-    for (i = 0; i < 6; i++) { // 6 because there are a maximum of 6 programs we can run in our system
-        if (my_pids[i] == 0){
-            flag = 1; 
-            break;
-        }        
+    if (is_base_shell == 1){
+        // restarting a terminal's base shell: reuse its pcb and slot
+        is_base_shell = 0; 
+        pcb = pcb_array[target_pid];
+        slot = pcb->global_pcb_value;
+        init_file_descriptor(pcb->fd_array);
     }
-
-    if (flag == 0) // if we are the max number of programs return -1
-        return -1;
-
-    my_pids[i] = 1;
-    global_pcb_counter = i;
-
-
-
-       //set target pid
-    for (i = 0; i< 6; i++){
-        if (pcb_array[i] == NULL){
-            target_pid = i; 
-            break; 
+    else{
+        // Find a free physical slot (program page + pcb + kernel stack)
+        for (slot = 0; slot < MAX_PROCESSES; slot++) {
+            if (my_pids[slot] == 0){
+                break;
+            }
         }
+        if (slot == MAX_PROCESSES){ // if we are the max number of programs return -1
+            printf("Max number of processes reached\n");
+            return -1;
+        }
+
+        // The new process goes on top of this terminal's process stack
+        for (i = 0; i < MAX_PROCESSES; i++){
+            if (pcb_array[i] == NULL){
+                break; 
+            }
+        }
+
+        my_pids[slot] = 1;
+        target_pid = i; 
+        pcb = create_pcb(target_pid, slot);
+        pcb->inode_num = temp_dentry->inode_num;
     }
-    
 
-    // Get a PCB structure and set its properties
-    pcb = create_pcb(target_pid);
-    //global_pcb_counter ++; //where do we increment this?!?!??!
-    pcb->pid = target_pid;
-    pcb->inode_num = temp_dentry->inode_num;
-
-// 
-    
-}
-else{
-    is_base_shell = 0; 
-}
 ///////////////////////////////////////////GETARGS///////////////////////////////////////////////////////////////////////////////////////////
-    
     for (i = 0; i < 128; i++) { // 128 is to ensure the full args get cleared as intended
-        pcb_array[target_pid]->args[i] = NULL;  // clear the arguments 
+        args[i] = '\0';   // clear the arguments 
     }
 
-
-    for (i = 0; i < 128; i++) { // 128 is to ensure the full args get cleared as intended
-        args[i] = NULL;   // clear the arguments 
+    // Extract and store command-line arguments in the args buffer (without leading spaces)
+    while (command[u] == ' '){
+        u++;
+    }
+    while (command[u] != '\0' && arg_idx < 127) { // keep room for the null terminator
+        args[arg_idx] = command[u];
+        u++;
+        arg_idx++;
     }
 
-    // Extract and store command-line arguments in the args buffer
-    if (command[u] == ' ') {
-        u++; // Move past the space
-
-        // Copy the arguments into the args buffer
-        int arg_idx = 0;
-        while (command[u] != '\0') {
-            args[arg_idx] = command[u];
-            u++;
-            arg_idx++;
-        }
-    }
-
-    strncpy((int8_t*)pcb_array[target_pid]->args, (const int8_t*)args, 128); // copy over the 128 characters into our array's args
+    strncpy((int8_t*)pcb->args, (const int8_t*)args, 128); // copy over the 128 characters into our array's args
 ///////////////////////////////////////////GETARGS///////////////////////////////////////////////////////////////////////////////////////////
 
-
-    // Reload the page directory and load the program into memory (Flush TLB)
-    asm volatile (" \
-    movl %%cr3, %%eax ; \
-    movl %%eax, %%cr3 ; \
-    " : /* no outputs */ \
-      : /* no inputs */ \
-      : "eax", "cc");
-
-    program_pages(pcb_array[target_pid]->global_pcb_value);
-    uint8_t* pointer = (uint8_t*)0x8048000; // This is the address to the start of the program image
-    read_data(temp_dentry->inode_num, 0, pointer,0x8400000 - 0x8048000); // the size is 132MB - start of our prog img
-    // uint8_t* ptr2 = 0x8049000;
-    // uint8_t* ptr3 = 0x804900b;
-
-    // *ptr2 = "frame0.txt";
-    // *ptr3 = "frame1.txt"; 
-    read_data(temp_dentry->inode_num, 24, buffy, 4);
-    start_adrr = *(uint32_t*)(buffy);
-
-
-    
+    // Map this slot's 4MB page at 128MB and load the program image
+    program_pages(slot);
+    read_data(temp_dentry->inode_num, 0, (uint8_t*)PROGRAM_IMAGE, START_OF_USER_STACK - PROGRAM_IMAGE);
+    start_adrr = *(uint32_t*)(PROGRAM_IMAGE + 24); // bytes 24-27 of the ELF header are the entry point
 
     // Set ESP0 and SS0 for the TSS
-    tss.esp0 = 0x800000 - (0x2000 * (global_pcb_counter + 1)) - 4; // 8MB - (8KB * current_pid) - 4 bytes
+    tss.esp0 = KERNEL_STACK_TOP(slot);
     tss.ss0 = KERNEL_DS;
 
     // Save the previous ESP and EBP values
     register uint32_t ebp_value asm("ebp");
     register uint32_t esp_value asm("esp");
 
-    pcb_array[target_pid]->prev_esp = (uint8_t*)esp_value;
-    pcb_array[target_pid]->prev_ebp = (uint8_t*)ebp_value;
-    if (in_a_pit_interrupt == 1){
-        in_a_pit_interrupt = 0; 
-        
-        // send_eoi(0); 
-        // sti();
-    }
-    // printf("Target_pid: %d\n", target_pid);
-    // printf("Global_pid: %d\n", global_pcb_counter);
+    pcb->prev_esp = (uint8_t*)esp_value;
+    pcb->prev_ebp = (uint8_t*)ebp_value;
     
     // Perform an iret to switch to the user program
     asm volatile("pushl %0 \n"
@@ -374,8 +308,10 @@ uint32_t open_syscall(uint8_t* filename) {
 
     dentry_t temp_dentry[1]; 
     // Determine the file type by reading the directory entry
-    read_dentry_by_name(filename, temp_dentry); 
-    int ret_val; 
+    if (read_dentry_by_name(filename, temp_dentry) == -1){
+        return -1; // file does not exist
+    }
+    int ret_val = -1; 
     // Check the file type and call the appropriate open function
     if (temp_dentry->filetype < 0 || temp_dentry->filetype > 2){
         return -1; 
@@ -462,25 +398,26 @@ uint8_t get_new_pid() {
  * 
  * This function initializes a PCB structure for a new process with the given PID.
  * Inputs:
- * - pid: Process ID (PID)
+ * - pid: index of the process in the running terminal's pcb array
+ * - slot: physical process slot (0-5)
  * Outputs:
  * - Initializes the PCB structure
  * Return: A pointer to the created PCB
  */
-pcb_t* create_pcb(uint32_t pid) {
-    // Calculate the PCB's memory location based on the PID
-    pcb_t* temp_pcb = (pcb_t*)(0x800000 - (global_pcb_counter + 1) * 0x2000); // 8MB - current_pid * 8 KB
+pcb_t* create_pcb(uint32_t pid, uint32_t slot) {
+    // Calculate the PCB's memory location based on the slot
+    pcb_t* temp_pcb = (pcb_t*)(0x800000 - (slot + 1) * 0x2000); // 8MB - (slot + 1) * 8 KB
     temp_pcb->pid = pid; 
     temp_pcb->state = 1; 
+    temp_pcb->parent_pid = pid - 1;
+    temp_pcb->global_pcb_value = slot; 
 
     pcb_array[pid] = temp_pcb; 
 
     // Initialize the PCB's file descriptor array
-    init_file_descriptor(pcb_array[pid]->fd_array);
-   
-    pcb_array[pid]->global_pcb_value = global_pcb_counter; 
+    init_file_descriptor(temp_pcb->fd_array);
     
-    return pcb_array[pid]; 
+    return temp_pcb; 
 }
 
 
@@ -560,6 +497,7 @@ int32_t vidmap(uint8_t** screen_start) {
 
     // Call a function to create a new page table entry for video memory
     create_new_pte_for_video_memory(screen_start);
+    update_vidmap(); // a process on a background terminal draws into its backup page
 
     // Flush the TLB by reloading the CR3 register
     asm volatile (" \

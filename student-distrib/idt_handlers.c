@@ -13,7 +13,7 @@
  * Function: Handle the Division Error Exception and display an error message. */
 void division_error_handler() {
         printf("Division Error Exception Caught!\n");
-        while(1);
+        halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Debug Exception
@@ -22,7 +22,7 @@ void division_error_handler() {
  * Function: Handle the Debug Exception and display an error message. */
 void debug_handler() {
     printf("Debug Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Non-Maskable Interrupt Exception
@@ -31,7 +31,7 @@ void debug_handler() {
  * Function: Handle the Non-Maskable Interrupt Exception and display an error message. */
 void non_maskable_interrupt_handler() {
     printf("Non-Maskable Interrupt Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Breakpoint Exception
@@ -40,7 +40,7 @@ void non_maskable_interrupt_handler() {
  * Function: Handle the Breakpoint Exception and display an error message. */
 void breakpoint_handler() {
     printf("Breakpoint Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Overflow Exception
@@ -49,7 +49,7 @@ void breakpoint_handler() {
  * Function: Handle the Overflow Exception and display an error message. */
 void overflow_handler() {
     printf("Overflow Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Bound Range Exceeded Exception
@@ -58,7 +58,7 @@ void overflow_handler() {
  * Function: Handle the Bound Range Exceeded Exception and display an error message. */
 void bound_range_exceeded_handler() {
     printf("Bound Range Exceeded Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Invalid Opcode Exception
@@ -67,7 +67,7 @@ void bound_range_exceeded_handler() {
  * Function: Handle the Invalid Opcode Exception and display an error message. */
 void invalid_opcode_handler() {
     printf("Invalid Opcode Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Device Not Available Exception
@@ -76,7 +76,7 @@ void invalid_opcode_handler() {
  * Function: Handle the Device Not Available Exception and display an error message. */
 void device_not_available_handler() {
     printf("Device Not Available Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Double Fault Exception
@@ -85,7 +85,7 @@ void device_not_available_handler() {
  * Function: Handle the Double Fault Exception and display an error message. */
 void double_fault_handler() {
     printf("Double Fault Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Invalid TSS (Task State Segment) Exception
@@ -94,7 +94,7 @@ void double_fault_handler() {
  * Function: Handle the Invalid TSS Exception and display an error message. */
 void invalid_tss_handler() {
     printf("Invalid TSS Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Segment Not Present Exception
@@ -103,7 +103,7 @@ void invalid_tss_handler() {
  * Function: Handle the Segment Not Present Exception and display an error message. */
 void segment_not_present_handler() {
     printf("Segment Not Present Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Stack-Segment Fault Exception
@@ -112,7 +112,7 @@ void segment_not_present_handler() {
  * Function: Handle the Stack-Segment Fault Exception and display an error message. */
 void stack_segment_fault_handler() {
     printf("Stack-Segment Fault Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for General Protection Fault Exception
@@ -122,7 +122,7 @@ void stack_segment_fault_handler() {
 void general_protection_fault_handler() {
     printf("General Protection Fault Exception Caught!\n");
     //while (1);
-     halt((uint8_t)256);
+     halt(255);   // 255 tells halt to return 256 ("terminated by exception")
     //while (1);
 }
 
@@ -132,7 +132,7 @@ void general_protection_fault_handler() {
  * Function: Handle the Page Fault Exception and display an error message. */
 void page_fault_handler() {
     printf("Page Fault Exception Caught!\n");
-    halt((uint8_t)256);
+    halt(255);   // 255 tells halt to return 256 ("terminated by exception")
     //while (1);
 }
 
@@ -142,7 +142,7 @@ void page_fault_handler() {
  * Function: Handle the x87 Floating-Point Exception and display an error message. */
 void x87_floating_point_exception_handler() {
     printf("x87 Floating-Point Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Alignment Check Exception
@@ -151,7 +151,7 @@ void x87_floating_point_exception_handler() {
  * Function: Handle the Alignment Check Exception and display an error message. */
 void alignment_check_handler() {
     printf("Alignment Check Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Machine Check Exception
@@ -160,7 +160,7 @@ void alignment_check_handler() {
  * Function: Handle the Machine Check Exception and display an error message. */
 void machine_check_handler() {
     printf("Machine Check Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for SIMD Floating-Point Exception
@@ -169,7 +169,7 @@ void machine_check_handler() {
  * Function: Handle the SIMD Floating-Point Exception and display an error message. */
 void SIMD_floating_point_exception_handler() {
     printf("SIMD Floating-Point Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Virtualization Exception
@@ -178,7 +178,7 @@ void SIMD_floating_point_exception_handler() {
  * Function: Handle the Virtualization Exception and display an error message. */
 void virtualization_exception() {
     printf("Virtualization Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Control Protection Exception
@@ -187,7 +187,7 @@ void virtualization_exception() {
  * Function: Handle the Control Protection Exception and display an error message. */
 void control_protection_exception_handler() {
     printf("Control Protection Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Hypervisor Injection Exception
@@ -196,7 +196,7 @@ void control_protection_exception_handler() {
  * Function: Handle the Hypervisor Injection Exception and display an error message. */
 void hypervisor_exception_handler() {
     printf("Hypervisor Injection Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for VMM Communication Exception
@@ -205,7 +205,7 @@ void hypervisor_exception_handler() {
  * Function: Handle the VMM Communication Exception and display an error message. */
 void vmm_communication_exception_handler() {
     printf("VMM Communication Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* Signal handler function for Security Exception
@@ -214,7 +214,7 @@ void vmm_communication_exception_handler() {
  * Function: Handle the Security Exception and display an error message. */
 void security_exception_handler() {
     printf("Security Exception Caught!\n");
-    while (1);
+    halt(255);   // kill the faulting program instead of hanging the whole OS
 }
 
 /* System Call Handler Function

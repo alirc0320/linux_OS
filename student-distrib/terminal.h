@@ -1,6 +1,7 @@
 
 
 
+
 #ifndef _TERMINAL_H
 #define _TERMINAL_H
 
@@ -8,42 +9,30 @@
 #include "tests.h"
 #include "System_Calls.h"
 
+#define NUM_TERMINALS 3
+
 typedef struct terminal {
-  uint32_t curr_x;          //x current cursor position 
-  uint32_t curr_y;          //y current cursor position 
+  uint32_t curr_x;          //x current cursor position
+  uint32_t curr_y;          //y current cursor position
   uint32_t buffer_character_count;   //the buffers current count 128 max
-  char keyboard_buffer[128];          //buffers current state 
+  char keyboard_buffer[128];          //saved line buffer while this terminal is not on screen
   uint32_t terminal_id;
    int buffer_index;
-   int active_flag; //if its the current terminal (not rlly necesary)
-  int turned_on; 
-  int pid; // current process' pid
-  pcb_t* pcb_array[6]; //have onen pcb array per terminal, make active when active
-  uint32_t esp; 
-  uint32_t ebp; 
-  uint16_t ss; 
-  uint8_t eip; 
-  uint32_t esp0;
-  int global_pcb_index; //so we know what we are paging w
-  int global_pcb_value;
-  volatile int enter_flag; 
+  int turned_on;
+  int pid; // index of the active process in this terminal's pcb array
+  pcb_t* pcb_array[6]; //have one pcb array per terminal, swapped in by the scheduler
+  uint32_t esp;             //saved kernel stack pointer (set by context_switch)
+  volatile int enter_flag;  //a full line (ending in '\n') is waiting to be read
 } terminal_t;
 
 
-uint32_t current_terminal_id; //global current terminal running (like target_pid)
+extern uint32_t current_terminal_id; //terminal shown on screen / receiving keyboard input
+extern uint32_t sched_terminal;      //terminal whose process currently owns the CPU
 
-terminal_t terminal_array[3]; //3 instances of the struct for 3 terminals 
+terminal_t terminal_array[NUM_TERMINALS]; //3 instances of the struct for 3 terminals
 
 void terminal_init();
-void terminal_switch (uint32_t terminal_id); //pass in the terminal 
-void save_old(int cur, int new, register uint32_t ebp_value,register uint32_t esp_value);
-void restore_new(int new); 
-void process_switch ();
-
-//int pid_of_terminals_array[3]; //tells what the parent pid for each parent shell is
-
-
-
+void terminal_switch (uint32_t terminal_id); //pass in the terminal
 
 
 #endif /* _TERMINAL_H */

@@ -1,12 +1,11 @@
 #ifndef _PIT_H
 #define _PIT_H
 
+#include "types.h"
 
 void init_pit();
 void pit_interrupt();
-void scheduler(uint32_t pidd); 
-int counter;
-int in_a_pit_interrupt; 
-extern uint32_t scheduler_array[3]; 
+void scheduler(void);
+void context_switch(uint32_t* save_esp, uint32_t new_esp);
 
-#endif /* _LIB_H */
+#endif /* _PIT_H */

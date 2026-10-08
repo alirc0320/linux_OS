@@ -151,6 +151,30 @@ void create_new_pte_for_video_memory(uint8_t** screen_start) {
 }
 
 
+/* Point the user video page at the right memory
+ * Inputs: None
+ * Outputs: None
+ * Function: if vidmap has been set up, maps 132MB to the real screen when the running
+ *           terminal is on screen, otherwise to that terminal's backup page */
+void update_vidmap(void){
+    if (pd[33].P == 0){
+        return;
+    }
+    if (sched_terminal == current_terminal_id){
+        vid_mem[0].bits_31_12 = 0xB8000 >> 12;                          // real video memory
+    }
+    else{
+        vid_mem[0].bits_31_12 = (0xB8000 >> 12) + 1 + sched_terminal;  // backup page 0xB9000 + 4KB * terminal
+    }
+
+    asm volatile (" \
+   movl %%cr3, %%eax ; \
+   movl %%eax, %%cr3 ; \
+   " : /* no outputs */ \
+   : /* no inputs */ \
+   : "eax", "cc");
+}
+
 // void switch_terminal_page(){
     
 // }

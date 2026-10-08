@@ -28,6 +28,8 @@ int i;
         }
 
         if (i == 0x80){                     // 0x80 reserved for system calls 
+            idt[i].reserved3 = 0;           // interrupt gate: syscalls start with interrupts off so the scheduler
+                                            // can't preempt them halfway (read/rtc_read re-enable while waiting)
             idt[i].dpl = 3;                 // syscall
             idt[i].present = 1;             // set present to 1
         }

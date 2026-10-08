@@ -8,56 +8,70 @@
 #define VIDEO       0xB8000
 #define NUM_COLS    80
 #define NUM_ROWS    25
-#define ATTRIB      0x3 + current_terminal_id
+#define ATTRIB(tid)  (0x3 + (tid))     //each terminal gets its own text color
 
 
 static char* video_mem = (char *)VIDEO;
 
+/* Video memory a terminal draws to
+ * Inputs: tid - terminal index
+ * Return Value: the real screen if the terminal is visible, otherwise its backup page */
+static char* terminal_video(uint32_t tid) {
+    if (tid == current_terminal_id) {
+        return (char *)VIDEO;
+    }
+    return (char *)(VIDEO + ((tid + 1) << 12));   // backup pages at 0xB9000, 0xBA000, 0xBB000
+}
+
 /* void clear(void);
  * Inputs: void
  * Return Value: none
- * Function: Clears video memory */
+ * Function: Clears the terminal that is on screen and moves its cursor to the top left */
 void clear(void) {
     int32_t i;
+    uint32_t flags;
+    cli_and_save(flags);
     for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
-        *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+        *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB(current_terminal_id);
     }
 
-        screen_x = 0; 
-        screen_y = 0; 
-        init_cursor(); //this works assumuing we want init cursor at 0,0
+    terminal_array[current_terminal_id].curr_x = 0; 
+    terminal_array[current_terminal_id].curr_y = 0; 
+    update_cursor(0, 0);
+    restore_flags(flags);
 }
 
 
-/* Scroll the screen up by one row
+/* Scroll a terminal up by one row
  *
  * This function scrolls the screen up by one row, effectively removing the
  * topmost row of text and making room for a new row at the bottom.
  *
- * Inputs: None
+ * Inputs: tid - terminal to scroll
  * Outputs: None (void)
  */
-    void scroll(){
-        int i;
-        // Copy each character from the second row to the first row
-    for (i = 80; i < NUM_ROWS * NUM_COLS; i++) { //80 characters are on one row 
-    // Copy the character from the current position (i) to the position one row above (i-80)
-        *(uint8_t *)(video_mem + ((i-80) << 1)) =  *(uint8_t *)(video_mem + (i << 1));
-         // Copy the attributes (color) for the character
-        *(uint8_t *)(video_mem + ((i-80) << 1) + 1) = ATTRIB;
+static void scroll_terminal(uint32_t tid){
+    int i;
+    char* vid = terminal_video(tid);
+    // Copy each character from the second row to the first row
+    for (i = NUM_COLS; i < NUM_ROWS * NUM_COLS; i++) { //80 characters are on one row 
+        *(uint8_t *)(vid + ((i - NUM_COLS) << 1)) = *(uint8_t *)(vid + (i << 1));
+        *(uint8_t *)(vid + ((i - NUM_COLS) << 1) + 1) = ATTRIB(tid);
     }
-
 
     // Clear the last line
     int last_line_start = (NUM_ROWS - 1) * NUM_COLS;
     int p;
-    for ( p = last_line_start; p < last_line_start + NUM_COLS; p++) {
-        // Set the character in the last row to a space
-        *(uint8_t *)(video_mem + p * 2) = ' ';
-         // Set the attributes for the character in the last row
-        *(uint8_t *)(video_mem + p * 2 + 1) = ATTRIB;
+    for (p = last_line_start; p < last_line_start + NUM_COLS; p++) {
+        *(uint8_t *)(vid + p * 2) = ' ';
+        *(uint8_t *)(vid + p * 2 + 1) = ATTRIB(tid);
     }
+}
+
+/* Scroll the visible terminal up by one row */
+void scroll(){
+    scroll_terminal(current_terminal_id);
 }
 
 /* Standard printf().
@@ -199,45 +213,49 @@ int32_t puts(int8_t* s) {
     return index;
 }
 
-/* void putc(uint8_t c);
- * Inputs: uint_8* c = character to print
+/* void putc_to(uint32_t tid, uint8_t c);
+ * Inputs: tid - terminal to print on, c - character to print
  * Return Value: void
- *  Function: Output a character to the console */
+ * Function: Output a character to a terminal (its backup page if it is not on screen) */
+void putc_to(uint32_t tid, uint8_t c) {
+    uint32_t flags;
+    terminal_t* term = &terminal_array[tid];
+    char* vid;
 
-void putc(uint8_t c) {
-    // Check if the character is a newline or carriage return
+    cli_and_save(flags);    // a terminal switch must not happen halfway through a character
+    vid = terminal_video(tid);
+
     if (c == '\n' || c == '\r') {
-        // Reset the horizontal cursor position to the beginning of the line
-        screen_x = 0;
-        // Move to the next line
-        screen_y++;
-        // Check if the vertical cursor position has reached or exceeded the last row
-        if (screen_y >= NUM_ROWS) {
-        // Scroll the screen to make space for new content and adjust the cursor position
-            scroll();
-            screen_y = NUM_ROWS - 1; // Adjust to the last row. //Shifting by 1 (using << 1) doubles the offset to access the attribute
-        }
+        term->curr_x = 0;
+        term->curr_y++;
     } else {
-        // If the character is not a newline or carriage return:
-        // Write the character 'c' to the video memory at the current position.
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c; //Shifting by 1 (using << 1) doubles the offset to access the attribute
-        // Set the attribute for the character (color) to the default attribute (typically white on black).
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB; //Shifting by 1 (using << 1) doubles the offset to access the attribute
-        // Move to the next column.
-        screen_x++;
-        // If the horizontal position exceeds the number of columns, move to the next line.
-        if (screen_x >= NUM_COLS) {
-            screen_x = 0;
-            screen_y++;
-            // If the vertical position exceeds the number of rows, scroll the screen and adjust the position
-            if (screen_y >= NUM_ROWS) {
-                scroll();
-                screen_y = NUM_ROWS - 1; // Adjust to the last row
-            }
+        *(uint8_t *)(vid + ((NUM_COLS * term->curr_y + term->curr_x) << 1)) = c; //Shifting by 1 (using << 1) doubles the offset to access the attribute
+        *(uint8_t *)(vid + ((NUM_COLS * term->curr_y + term->curr_x) << 1) + 1) = ATTRIB(tid);
+        term->curr_x++;
+        if (term->curr_x >= NUM_COLS) {
+            term->curr_x = 0;
+            term->curr_y++;
         }
     }
 
-    update_cursor(screen_x, screen_y); //call update cursor 
+    // If the vertical position exceeds the number of rows, scroll the screen and adjust the position
+    if (term->curr_y >= NUM_ROWS) {
+        scroll_terminal(tid);
+        term->curr_y = NUM_ROWS - 1;
+    }
+
+    if (tid == current_terminal_id) {
+        update_cursor(term->curr_x, term->curr_y);
+    }
+    restore_flags(flags);
+}
+
+/* void putc(uint8_t c);
+ * Inputs: uint_8* c = character to print
+ * Return Value: void
+ *  Function: Output a character to the terminal of the process that is running */
+void putc(uint8_t c) {
+    putc_to(sched_terminal, c);
 }
 
 
@@ -544,66 +562,25 @@ void test_interrupts(void) {
 
 /* Backspace Function
  *
- * This function handles the backspace character ('\b') and updates the cursor position accordingly.
- * It erases the character to the left of the current cursor position.
+ * Erases the character to the left of the cursor on the visible terminal,
+ * moving up to the end of the previous line if needed.
  *
  * Inputs: None
  * Outputs: None
  */
 void backspace(void) {
-    screen_x -= 1;  // Move the cursor position one column to the left.
+    terminal_t* term = &terminal_array[current_terminal_id];
 
-    if (screen_x < 0) {  // If we reach the beginning of the line.
-        screen_x = 79;  // Wrap around to the end of the previous line.
-        screen_y -= 1;  // Move up one row.
-
-        if (screen_y < 0) {  // If we reach the top of the screen.
-            screen_y = 0;  // Make sure screen_y is not negative.
-            screen_x = 0;  // Reset to the beginning of the line.
+    if (term->curr_x == 0) {
+        if (term->curr_y == 0) {
+            return;     // already at the top left
         }
-
-        putc('\0');  // Erase the character at the end of the previous line.
-        screen_x = 79;  // Move the cursor to the last column of the previous line.
-        screen_y -= 1;  // Move up one more row.
-
-        if (screen_y < 0) {  // If we reach the top of the screen again.
-            screen_y = 0;  // Make sure screen_y is not negative.
-            screen_x = 0;  // Reset to the beginning of the line.
-        }
-
-        update_cursor(screen_x, screen_y);  // Update the cursor position.
-        return;  // Return to the caller.
+        term->curr_y--;
+        term->curr_x = NUM_COLS - 1;
+    } else {
+        term->curr_x--;
     }
 
-    putc('\0');  // Erase the character at the new cursor position.
-    screen_x -= 1;  // Move the cursor one more column to the left.
-    update_cursor(screen_x, screen_y);  // Update the cursor position.
+    *(uint8_t *)(video_mem + ((NUM_COLS * term->curr_y + term->curr_x) << 1)) = ' ';
+    update_cursor(term->curr_x, term->curr_y);
 }
-
-// void backspace(void){
-    
-    
-//     screen_x -=1; 
-//     if (screen_x < 0){
-//         screen_x = 79; 
-//         screen_y -=1; 
-//         if(screen_y < 0){
-//             screen_y = 0;
-//             screen_x = 0;  
-//         }
-//         putc('\0');
-//         screen_x = 79;
-//         screen_y -=1;  
-//         if (screen_y < 0){
-//             screen_y = 0; 
-//             screen_x = 0; 
-//         }
-        
-//         update_cursor(screen_x, screen_y);
-//         return; 
-//     }
-//     putc('\0');
-    
-//     screen_x -=1; 
-//     update_cursor(screen_x, screen_y);
-// }

@@ -6,6 +6,11 @@
 
 // Define the start of the user stack
 #define START_OF_USER_STACK 0x8400000
+#define PROGRAM_IMAGE       0x8048000   // virtual address programs are loaded at
+#define MAX_PROCESSES       6
+
+// Each process slot owns an 8KB block below 8MB: PCB at the bottom, kernel stack growing down from the top
+#define KERNEL_STACK_TOP(slot) (0x800000 - 0x2000 * (slot) - 4)
 
 // Define the structure for Process Control Block (PCB)
 typedef struct pcb {
@@ -29,8 +34,8 @@ typedef struct pcb {
 // Array of PCBs to store process information
 pcb_t* pcb_array[6];
 
-// Pointer to the PCB of the currently targeted process
-pcb_t* create_pcb(uint32_t pid);
+// Create the PCB for physical process slot "slot", stored at pcb_array[pid]
+pcb_t* create_pcb(uint32_t pid, uint32_t slot);
 
 // Process ID of the currently targeted process
 uint32_t target_pid;
@@ -38,7 +43,6 @@ uint32_t target_pid;
 // Flag to indicate if file descriptors are full
 int fd_full;
 
-int global_pcb_counter; 
 
 // System call functions
 
