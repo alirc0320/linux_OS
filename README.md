@@ -243,6 +243,25 @@ programs running. The `working_os` branch fixes the following:
 - `rtc_write` divided by zero for frequency 0. Programs on different terminals also changed each other's RTC rate.
 - Command arguments longer than 128 characters overflowed a buffer.
 - File names longer than 32 characters matched the first 32 characters.
+- `execute` refused new programs while slots were still free (it checked the last
+  slot handed out), and returned 0 (success) when it refused.
+- `execute` didn't skip leading spaces, and didn't null-terminate 32-character program names.
+- `halt` stopped closing files at the first unused descriptor, so some files stayed open.
+- At boot the timer showed each terminal in turn as it started them, so you always
+  landed on terminal 3. The OS now boots onto terminal 1.
+
+**Keyboard and screen**
+- Keyboard `read` returned 128 bytes no matter how much was typed, and waited on
+  one global scan code shared by all terminals. Now each terminal has its own line,
+  and `read` returns the line's real length including the `\n`.
+- Program output and typed characters always went to the visible screen. Now
+  output goes to the program's own terminal, and typing goes to the visible one.
+- Backspace moved the cursor twice when it wrapped to the previous line.
+
+**File system and RTC**
+- `read_dentry_by_name` searched all 63 directory slots instead of only the files that exist.
+- `read_data` didn't check the inode number against the file system's inode count.
+- `rtc_write` accepted 1 Hz, which wrote into the wrong bits of RTC register A.
 
 **Build**
 - Builds on macOS with `i686-elf-gcc`.
